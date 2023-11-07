@@ -1,4 +1,4 @@
-Flask
+Flask>=1.1.4,<=2.3.3
 redis
 celery
 Werkzeug>=2.0
