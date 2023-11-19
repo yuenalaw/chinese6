@@ -18,3 +18,11 @@ python-dotenv
 python-engineio==4.2.1
 python-socketio==5.4.0
 future
+youtube_transcript_api
+stanza
+pinyin
+hanziconv
+hanzidentifier
+textrazor
+serpapi
+dimsim

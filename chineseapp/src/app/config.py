@@ -1,4 +1,5 @@
 import os
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
     DEBUG = True
@@ -16,6 +17,20 @@ class Config(object):
             },
         },
     }
+
+    
+    SQLALCHEMY_DATABASE_URI = "sqlite://"
+    SQLALCHEMY_POOL_SIZE = None
+    SQLALCHEMY_POOL_TIMEOUT = None
+
+    CELERY_IMPORTS = ("app")
+    CELERY_BROKER_URL = "redis://localhost:6379"
+    CELERY_RESULT_BACKEND = "redis://localhost:6379"
+    REDIS_BROKER_URL = "redis://localhost:6379"
+    TEXTRAZOR_API_KEY = 'e3837d94ce6d5140bf4753119a47e6695b2dd32170c46540ae4005bc'
+    GOOGLE_IMG_API_KEY = 'e363eca7763b47d2393015eafaf6f0555392e492b99168f5675e2668576318df'
+
+
 
 
 class ProductionConfig(Config):

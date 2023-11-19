@@ -9,6 +9,7 @@ from flask_socketio import SocketIO
 from flask_socketio import join_room
 from .database import db
 
+from src.app.blueprint.youtubebp import youtubebp
 from src.app.blueprint.example_bp import example_bp
 from src.app.exception_handler import init_exception_handler
 
@@ -23,6 +24,7 @@ db.init_app(app)
 
 # Register blueprints
 app.register_blueprint(example_bp, url_prefix='/')
+app.register_blueprint(youtubebp, url_prefix='/')
 
 # Register exception handlers
 init_exception_handler(app)

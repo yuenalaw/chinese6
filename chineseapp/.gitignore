@@ -64,3 +64,8 @@ coverage.xml
 docs/_build/
 
 *.DS_Store
+
+#config
+src/app/config.py
+
+/venv/

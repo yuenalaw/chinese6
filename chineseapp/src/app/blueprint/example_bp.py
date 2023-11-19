@@ -12,7 +12,7 @@ def example_delay_task():
 
     request_data = request.form
 
-    task = example_task.delay()
+    task = example_task.delay('hi')
 
     return "celery task initiated!"
 
