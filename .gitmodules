@@ -1,0 +1,6 @@
+[submodule "chineseapp/src/app/src/app/yuan"]
+	path = chineseapp/src/app/src/app/yuan
+	url = https://github.com/raynardj/yuan.git
+[submodule "chineseapp/src/app/yuan"]
+	path = chineseapp/src/app/yuan
+	url = https://github.com/raynardj/yuan.git

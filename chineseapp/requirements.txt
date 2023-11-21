@@ -25,3 +25,4 @@ hanziconv
 hanzidentifier
 textrazor
 dimsim
+transformers
