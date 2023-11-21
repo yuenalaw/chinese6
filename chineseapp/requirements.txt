@@ -24,5 +24,4 @@ pinyin
 hanziconv
 hanzidentifier
 textrazor
-serpapi
 dimsim

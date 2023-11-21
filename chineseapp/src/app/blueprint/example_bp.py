@@ -7,7 +7,8 @@ example_bp = Blueprint('example_bp', __name__,
                      static_folder='static',
                      static_url_path='assets')
 
-@example_bp.route('/example/', methods=['POST'])
+# @youtubebp.route('/example/', methods=['POST'])
+@example_bp.route('/example/')
 def example_delay_task():
 
     request_data = request.form

@@ -1,19 +1,18 @@
 from flask import Blueprint, request
 
-from src.app.tasks.tasks import process_video_transcript
+from src.app.tasks.tasks import process_video_transcript, example_task
 from src.app.textrazor_client import text_razor_client
 from src.app.schemas.KeywordSchema import KeywordSchema
 from collections import Counter
 from src.app.helpers.YoutubeHelper import YouTubeHelper
 import dimsim
-from src.app.serpapi_client import serpapi_client
 
 youtubebp = Blueprint('youtubebp', __name__,
                      template_folder='templates',
                      static_folder='static',
                      static_url_path='assets')
 
-@youtubebp.route('/vid') #/youtube/vid?v=<id>
+@youtubebp.route('/vid') #/vid?v=<id>
 def process_video():
     id=request.args.get('v')
     try:
@@ -72,17 +71,15 @@ def get_img_youtubebp():
     word = request.args.get('w')
     print(f"got {word}")
     try:
-        results = serpapi_client.search({
-            'engine': 'google_images',
-            'tbm': 'isch',
-            'q': word,
-            'num': '3',
-            'gl': 'cn',
-            'hl': 'zh-cn',
-        })
-        print(results)
+        youtube_helper = YouTubeHelper()
+        results = youtube_helper.search_images_bing(word)
+        print(f"got results {results}")
+        if results:
+            return results
+        else:
+            return '<h1>No images found</h1>'
     except Exception as e:
-        print(f"{e} error - google images")
+        print(f"Exception: {e}, type: {type(e)}, args: {e.args}")
         return '<h1>Google images error</h1>'
 
 @youtubebp.route('/keywordsimilar')
@@ -100,14 +97,4 @@ def get_similarwords():
     except Exception as e:
         print(f"{e} error - getting similar words")
         return '<h1>similar words error</h1>'
-
-
-# @youtubebp.route('/example/', methods=['POST'])
-# def example_delay_task():
-
-#     request_data = request.form
-
-#     task = example_task.delay()
-
-#     return "celery task initiated!"
 

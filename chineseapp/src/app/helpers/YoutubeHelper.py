@@ -5,6 +5,8 @@ from stanza.pipeline.core import DownloadMethod
 from hanziconv import HanziConv
 import hanzidentifier
 import threading
+import requests
+from src.app.config import Config
 
 #     @article{guhr-EtAl:2021:fullstop,
     #   title={FullStop: Multilingual Deep Models for Punctuation Prediction},
@@ -40,6 +42,9 @@ class YouTubeHelper:
         self.stanza_nlp = None
         self.translation_cache = {}
         self.pinyin_cache = {}
+        self.bing_url = "https://api.bing.microsoft.com/v7.0/images/search"
+        self.subscription_key = Config.BING_IMG_API_KEY
+
 
     def init_helper(self):
         with self._init_lock:
@@ -48,6 +53,23 @@ class YouTubeHelper:
                     self.stanza_nlp = stanza.Pipeline('zh', download_method=DownloadMethod.REUSE_RESOURCES, use_gpu=False, verbose=False)
                 except Exception as e:
                     print("Error initializing stanza pipeline:", str(e))
+
+    def search_images_bing(self, word):
+        headers = {"Ocp-Apim-Subscription-Key" : self.subscription_key}
+        params  = {"q": word, "setlang": "zh-hans", "license": "public", "imageType": "photo", "count": 3}
+        print("searching bing images...")
+        try:
+            print("I'm in the catch block!")
+            response = requests.get(self.bing_url, headers=headers, params=params, allow_redirects=False)
+            print(response.status_code)
+            print(response.headers)
+            # response.raise_for_status()
+            search_results = response.json()
+            image_urls = [img["contentUrl"] for img in search_results["value"]]
+            print(f"received image urls... {image_urls}")
+            return image_urls
+        except Exception as e:
+            print("Error getting images", str(e))
 
     def turn_to_simplified(self, transcript):
         print("turning to simplified...")

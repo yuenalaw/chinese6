@@ -6,3 +6,4 @@ celery_app = Celery(
     broker=os.environ.get('CELERY_BROKER_URL'),
     backend=os.environ.get('CELERY_RESULT_BACKEND'),
 )
+celery_app.autodiscover_tasks(['src.app.tasks.tasks'])

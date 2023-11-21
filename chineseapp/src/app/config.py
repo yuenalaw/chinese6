@@ -28,7 +28,7 @@ class Config(object):
     CELERY_RESULT_BACKEND = "redis://localhost:6379"
     REDIS_BROKER_URL = "redis://localhost:6379"
     TEXTRAZOR_API_KEY = 'e3837d94ce6d5140bf4753119a47e6695b2dd32170c46540ae4005bc'
-    GOOGLE_IMG_API_KEY = 'e363eca7763b47d2393015eafaf6f0555392e492b99168f5675e2668576318df'
+    BING_IMG_API_KEY = '650e2eeda3b74ee1a00ebf5e5c0f846b'
 
 
 
