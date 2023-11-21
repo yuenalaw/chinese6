@@ -46,19 +46,24 @@ class YouTubeHelper:
         self.pinyin_cache = {}
         self.bing_url = "https://api.bing.microsoft.com/v7.0/images/search"
         self.subscription_key = Config.BING_IMG_API_KEY
-        
         self.TAG = "raynardj/classical-chinese-punctuation-guwen-biaodian"
-        self.model = BertForTokenClassification.from_pretrained(self.TAG)
-        self.tokenizer = AutoTokenizer.from_pretrained(self.TAG)
-        self.ner = pipeline("ner",self.model,tokenizer=self.tokenizer)
+        self.model = None
+        self.tokenizer = None
+        self.ner = None
 
     def init_helper(self):
         with self._init_lock:
-            if self.stanza_nlp is None:
-                try:
+            try:
+                if self.stanza_nlp is None:
                     self.stanza_nlp = stanza.Pipeline('zh', download_method=DownloadMethod.REUSE_RESOURCES, use_gpu=False, verbose=False)
-                except Exception as e:
-                    print("Error initializing stanza pipeline:", str(e))
+                if self.model is None:
+                    self.model = BertForTokenClassification.from_pretrained(self.TAG)
+                if self.tokenizer is None:
+                    self.tokenizer = AutoTokenizer.from_pretrained(self.TAG)
+                if self.ner is None:
+                    self.ner = pipeline("ner", self.model, tokenizer=self.tokenizer)
+            except Exception as e:
+                print("Error initializing pipelines:", str(e))
 
     def search_images_bing(self, word):
         headers = {"Ocp-Apim-Subscription-Key" : self.subscription_key}
@@ -114,7 +119,7 @@ class YouTubeHelper:
 
     def word_segmentation_with_pinyin_and_translation(self, concatenated_text):
         print("word segmenting...")
-        if not self.stanza_nlp:
+        if not self.stanza_nlp or not self.model or not self.tokenizer or not self.ner:
             self.init_helper()
 
         processed_text = concatenated_text.replace('。 ', '。\n\n') #stanza recognises \n\n as sentence
