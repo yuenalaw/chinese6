@@ -1,5 +1,4 @@
 from flask import Blueprint, request
-
 from src.app.tasks.tasks import process_video_transcript, example_task
 from src.app.textrazor_client import text_razor_client
 from src.app.schemas.KeywordSchema import KeywordSchema
@@ -21,12 +20,7 @@ def process_video():
         result = process_video_transcript.delay(id)
         task_id = result.id
         print(f"Task ID:{task_id}")
-        #blocking - to get the celery task (for now)
-        transcript = result.get()
-        if transcript:
-            return transcript
-        else:
-            return '<h1>An error with getting initial translations...</h1>'
+        return {'message': 'Task has been added to the queue', 'task_id': task_id}, 202
     except Exception as e:
         print("Error:", str(e))
         return '<h1>No chinese transcript for this video found</h1>'

@@ -1,4 +1,5 @@
 from src.app.celery_app import celery_app
+from src.app.socket_util import send_message_client
 from youtube_transcript_api import YouTubeTranscriptApi
 from src.app.helpers.YoutubeHelper import YouTubeHelper
 
@@ -16,7 +17,8 @@ def process_video_transcript(video_id):
         youtubeHelper = YouTubeHelper()
         transcript = youtubeHelper.process_transcript(transcript_orig)
         # add to db
-        return transcript
+
+        send_message_client('youtube_loaded', {'task_id':video_id, 'result': transcript})
     except Exception as e:
         print("Error:", str(e))
         return None

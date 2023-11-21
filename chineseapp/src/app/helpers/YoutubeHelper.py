@@ -97,34 +97,43 @@ class YouTubeHelper:
         print("word segmenting...")
         if not self.stanza_nlp:
             self.init_helper()
-        try:
-            doc = self.stanza_nlp(concatenated_text)
-            # for each sentence in the doc, obtain the words
-            sentence_and_words = []
-            for sentence in doc.sentences:
-                seg_res = []
-                for word in sentence.words:
-                    word_text = word.text.strip()
-                    calculated_pinyin = self.pinyin_cache.get(word_text)
-                    if not calculated_pinyin:
-                        calculated_pinyin[word_text] = self.get_pinyin(word_text)
-                    calculated_translation = self.translation_cache.get(word_text)
-                    if not calculated_translation:
-                        calculated_translation[word_text] = self.get_translation(word_text)
-                    entry = {
-                    "word": word_text,
-                    "word_lemma": word.lemma.strip(),
-                    "word_pos": word.pos.strip(), #IS PROPN/ NOUN/ AUX etc
-                    "pinyin": calculated_pinyin,
-                    "translation": calculated_translation
-                    }
-                    seg_res.append(entry)
-                sentence_and_words.append(seg_res)
-            print("finished word segmenting...")
-            return sentence_and_words
-        except Exception as e:
-            print("Error with stanza: " + str(e))
-            return {"error": str(e)}
+
+        # Split the text into chunks of approximately 1000 characters -- WHAT IF MID SENTENCE?!
+        text_chunks = [concatenated_text[i:i+1000] for i in range(0, len(concatenated_text), 1000)]
+
+        sentence_and_words = []
+        for text_chunk in text_chunks:
+            try:
+                doc = self.stanza_nlp(text_chunk)
+                # for each sentence in the doc, obtain the words
+                for sentence in doc.sentences:
+                    seg_res = []
+                    for word in sentence.words:
+                        word_text = word.text.strip()
+                        calculated_pinyin = self.pinyin_cache.get(word_text)
+                        if not calculated_pinyin:
+                            calculated_pinyin = self.get_pinyin(word_text)
+                            self.pinyin_cache[word_text] = calculated_pinyin
+
+                        calculated_translation = self.translation_cache.get(word_text)
+                        if not calculated_translation:
+                            calculated_translation = self.get_translation(word_text)
+                            self.translation_cache[word_text] = calculated_translation
+                        entry = {
+                            "word": word_text,
+                            "word_lemma": word.lemma.strip(),
+                            "word_pos": word.pos.strip(), #IS PROPN/ NOUN/ AUX etc
+                            "pinyin": calculated_pinyin,
+                            "translation": calculated_translation
+                        }
+                        seg_res.append(entry)
+                    sentence_and_words.append(seg_res)
+            except Exception as e:
+                print("Error with stanza: " + str(e))
+                return {"error": str(e)}
+
+        print("finished word segmenting...")
+        return sentence_and_words
 
     def process_transcript(self, transcript):
         simplified_transcript = self.turn_to_simplified(transcript)
