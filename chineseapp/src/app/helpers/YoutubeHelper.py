@@ -56,7 +56,7 @@ class YouTubeHelper:
         with self._init_lock:
             if self.stanza_nlp is None:
                 try:
-                    self.stanza_nlp = stanza.Pipeline(lang='zh', processors='tokenize, lemma', download_method=DownloadMethod.REUSE_RESOURCES, use_gpu=False, verbose=False)
+                    self.stanza_nlp = stanza.Pipeline('zh', download_method=DownloadMethod.REUSE_RESOURCES, use_gpu=False, verbose=False)
                 except Exception as e:
                     print("Error initializing stanza pipeline:", str(e))
 
@@ -91,10 +91,15 @@ class YouTubeHelper:
     
     
     def generate_punctuation(self,x: str):
+        print("punctuation...")
+
         outputs = self.ner(x)
         x_list = list(x)
         for i, output in enumerate(outputs):
             x_list.insert(output['end']+i, output['entity'])
+        
+        print("finished punctuation!")
+        
         return "".join(x_list)
     
     def get_pinyin(self, word):
@@ -112,45 +117,45 @@ class YouTubeHelper:
         if not self.stanza_nlp:
             self.init_helper()
 
-        sentence_and_words = []
-        for text_chunk in text_chunks:
-            try:
-                doc = self.stanza_nlp(text_chunk)
-                # for each sentence in the doc, obtain the words
-                for sentence in doc.sentences:
-                    seg_res = []
-                    for word in sentence.words:
-                        word_text = word.text.strip()
-                        word_upos = word.upos.strip()
-                        calculated_pinyin = self.pinyin_cache.get(word_text)
-                        if not calculated_pinyin:
-                            calculated_pinyin = self.get_pinyin(word_text)
-                            self.pinyin_cache[word_text] = calculated_pinyin
+        processed_text = concatenated_text.replace('。 ', '。\n\n') #stanza recognises \n\n as sentence
+        try:
+            doc = self.stanza_nlp(processed_text)
+            sentence_and_words = {}
+            for sentence in doc.sentences:
+                seg_res = []
+                for word in sentence.words:
+                    word_text = word.text.strip()
+                    word_upos = word.upos.strip()
+                    calculated_pinyin = self.pinyin_cache.get(word_text)
+                    if not calculated_pinyin:
+                        calculated_pinyin = self.get_pinyin(word_text)
+                        self.pinyin_cache[word_text] = calculated_pinyin
 
-                        calculated_translation = self.translation_cache.get(word_text)
-                        if not calculated_translation:
-                            calculated_translation = self.get_translation(word_text)
-                            self.translation_cache[word_text] = calculated_translation
-                        entry = {
-                            "word": word_text,
-                            "upos": word_upos,
-                            "word_lemma": word.lemma.strip(),
-                            "word_pos": word.pos.strip(), #IS PROPN/ NOUN/ AUX etc
-                            "pinyin": calculated_pinyin,
-                            "translation": calculated_translation
-                        }
-                        seg_res.append(entry)
-                    sentence_and_words.append(seg_res)
-            except Exception as e:
-                print("Error with stanza: " + str(e))
-                return {"error": str(e)}
-
-        print("finished word segmenting...")
-        return sentence_and_words
+                    calculated_translation = self.translation_cache.get(word_text)
+                    if not calculated_translation:
+                        calculated_translation = self.get_translation(word_text)
+                        self.translation_cache[word_text] = calculated_translation
+                    entry = {
+                        "word": word_text,
+                        "upos": word_upos,
+                        "word_lemma": word.lemma.strip(),
+                        "word_pos": word.pos.strip(), #IS PROPN/ NOUN/ AUX etc
+                        "pinyin": calculated_pinyin,
+                        "translation": calculated_translation
+                    }
+                    seg_res.append(entry)
+                sentence_and_words[sentence.text] = seg_res  
+            print("finished word segmenting...")
+            return sentence_and_words
+        except Exception as e:
+            print("Error with stanza: " + str(e))
+            return {"error": str(e)}
 
     def process_transcript(self, transcript):
         simplified_transcript = self.turn_to_simplified(transcript)
         print("simplified transcript: ", simplified_transcript)
-        processed_transcript = self.word_segmentation_with_pinyin_and_translation(simplified_transcript)
+        punctuated_text = self.generate_punctuation(simplified_transcript)
+        print("punctuated text: ", punctuated_text)
+        processed_transcript = self.word_segmentation_with_pinyin_and_translation(punctuated_text)
         print("processed_transcript: ", processed_transcript)
         return processed_transcript
