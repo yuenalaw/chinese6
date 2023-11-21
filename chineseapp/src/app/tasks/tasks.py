@@ -18,7 +18,7 @@ def process_video_transcript(video_id):
         transcript = youtubeHelper.process_transcript(transcript_orig)
         # add to db
 
-        send_message_client('youtube_loaded', {'task_id':video_id, 'result': transcript})
+        send_message_client(video_id, {'task_id':video_id, 'result': transcript}) # client will subscribe to this room name!
     except Exception as e:
         print("Error:", str(e))
         return None
