@@ -38,6 +38,8 @@ services:
     command: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 src.app.wsgi:app
     volumes:
       - ./src:/usr/src/app/src
+      - modelvolume:/root/.cache/huggingface/transformers
+      - stanzavolume:/root/stanza_resources
     env_file:
       - ./.docker.env
     depends_on:
@@ -54,6 +56,9 @@ services:
       - frontnet
       - brokernet
     command: celery -A src.app.celery_app.celery_app --broker=redis://redis:6379 worker --loglevel=info --concurrency=1
+    volumes:
+      - modelvolume:/root/.cache/huggingface/transformers
+      - stanzavolume:/root/stanza_resources
     env_file:
       - ./.docker.env
     depends_on:
@@ -74,6 +79,9 @@ services:
       - frontnet
       - brokernet
     command: celery -A src.app.celery_app.celery_app --broker=redis://redis:6379 flower --port=5555
+    volumes:
+      - modelvolume:/root/.cache/huggingface/transformers
+      - stanzavolume:/root/stanza_resources
     env_file:
       - ./.docker.env
     depends_on:
@@ -95,3 +103,7 @@ networks:
   backnet:
   frontnet:
   brokernet:
+
+volumes:
+  modelvolume:
+  stanzavolume:
