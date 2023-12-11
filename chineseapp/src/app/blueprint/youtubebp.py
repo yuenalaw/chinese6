@@ -1,11 +1,12 @@
 from flask import Blueprint, request
-from src.app.tasks.tasks import process_video_transcript
+from src.app.tasks.tasks import process_video_transcript, obtain_keywords_and_img, add_to_db
 from src.app.textrazor_client import text_razor_client
 from src.app.schemas.KeywordSchema import KeywordSchema
 from collections import Counter
 from src.app.helpers.YoutubeHelper import YouTubeHelper
-import dimsim
-from celery.exceptions import SoftTimeLimitExceeded
+from youtube_transcript_api import YouTubeTranscriptApi
+from celery import group, chord
+from celery.result import AsyncResult
 
 youtubebp = Blueprint('youtubebp', __name__,
                      template_folder='templates',
@@ -18,16 +19,21 @@ def process_video():
     try:
         # enqueue celery task
         print(f"trying to enqueue... {id}")
-        result = process_video_transcript.delay(id)
+        youtube_helper = YouTubeHelper()
+        transcript_orig = YouTubeTranscriptApi.get_transcript(id, languages=['zh-Hans', 'zh-Hant', 'zh-TW'])
+        prepare_lesson = group(process_video_transcript.s(transcript_orig, youtube_helper), obtain_keywords_and_img.s(transcript_orig, youtube_helper, text_razor_client))
+        result = chord(prepare_lesson)(add_to_db.s())
         task_id = result.id
-        print(f"Task ID:{task_id}")
+        print(f"Task ID:{task_id}") # send this to the client for them to check below method
         return {'message': 'Task has been added to the queue', 'task_id': task_id}, 202
-    except SoftTimeLimitExceeded as e:
-        print("Task timed out:", str(e))
-        # Handle the timeout, e.g., retry the task or notify the user
     except Exception as e:
         print("Error:", str(e))
-        return '<h1>No chinese transcript for this video found</h1>'
+        return {'message': 'Failed to enqueue task'}, 500
+
+@youtubebp.route('/status/<task_id>')
+def task_status(task_id):
+    result = AsyncResult(task_id)
+    return {'status': result.status, 'result': result.result}, 200
 
 @youtubebp.route('/lessonkeywords')
 def keywords_video():
@@ -79,20 +85,4 @@ def get_img_youtubebp():
     except Exception as e:
         print(f"Exception: {e}, type: {type(e)}, args: {e.args}")
         return '<h1>Google images error</h1>'
-
-@youtubebp.route('/keywordsimilar')
-def get_similarwords():
-    youtube_helper = YouTubeHelper()
-    word = request.args.get('w')
-    try:
-        candidates = dimsim.get_candidates(word, mode='simplified', theta=1)
-        # for the words, get their pinyin as well
-        candidate_pinyin = {}
-        for candidate in candidates:
-            candidate_pinyin[candidate] = youtube_helper.get_pinyin(candidate)
-        print(candidate_pinyin)
-        return candidate_pinyin
-    except Exception as e:
-        print(f"{e} error - getting similar words")
-        return '<h1>similar words error</h1>'
 

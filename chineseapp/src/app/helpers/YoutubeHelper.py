@@ -11,6 +11,8 @@ from transformers import AutoTokenizer, BertForTokenClassification
 from transformers import pipeline
 import json
 import dimsim
+from src.app.schemas.KeywordSchema import KeywordSchema
+from collections import Counter
         
 # @inproceedings{qi2020stanza,
 #     title={Stanza: A {Python} Natural Language Processing Toolkit for Many Human Languages},
@@ -76,7 +78,6 @@ class YouTubeHelper:
         except Exception as e:
             print("Error getting images", str(e))
 
-    # should be used in a thread to get the keywords
     def turn_to_simplified(self, transcript): 
         print("turning to simplified...")
         simplified_transcript = ""
@@ -207,3 +208,53 @@ class YouTubeHelper:
         processed_transcript = self.video_processing(transcript)
         print("processed_transcript: ", processed_transcript)
         return processed_transcript
+
+    def get_keywords(self, all_simplified, text_razor_client):
+        response = text_razor_client.analyze(all_simplified)
+        all_keywords = []
+        keyword_schemas = []
+        for entity in response.entities():
+            keyword_schema = KeywordSchema(entity.id, entity.freebase_types)
+            keyword_schemas.append(keyword_schema)
+            all_keywords.append(entity.id)
+            print(entity.id, entity.relevance_score, entity.confidence_score, entity.freebase_types)
+        priority_keywords = Counter(all_keywords)
+
+        sorted_keywords = sorted(
+            keyword_schemas,
+            key = lambda entity: priority_keywords[entity.ChineseWord],
+            reverse=False
+        )
+        #remove duplicates
+        seen_words = set()
+        unique_keywords = [entity for entity in sorted_keywords if not (entity.ChineseWord in seen_words or seen_words.add(entity.ChineseWord))]
+        return unique_keywords
+    
+    def get_images(self, keywords):
+        keyword_imgs = {}
+        try:
+            for keyword in keywords:
+                cached_imgs = self.redis.get(f'images:{keyword}')
+                if cached_imgs is None:
+                    response = requests.get(f'https://www.googleapis.com/customsearch/v1?key={Config.GOOGLE_IMG_API_KEY}&cx={Config.GOOGLE_CX}&searchType=image&q={keyword}')
+                    if response.status_code == 200:
+                        images_data = response.json()
+                        cached_imgs = images_data['images'][:3]
+                        self.redis.set(f'images:{keyword}', json.dumps(cached_imgs))
+                    else:
+                        return None
+                keyword_imgs[keyword] = json.loads(cached_imgs)
+            return keyword_imgs
+        except TypeError as e:
+            print(f"Serialization images error: {e}")
+            return None
+        except Exception as e:
+            print(f"Unexpected images error: {e}")
+            return None
+
+    def get_keywords_and_img(self, transcript, text_razor_client):
+        all_simplified = self.turn_to_simplified(transcript)
+        keywords = self.get_keywords(all_simplified, text_razor_client)
+        keyword_images = self.get_images(keywords)
+        print(f"keywords to images... {keyword_images}\n")
+        return keyword_images
