@@ -21,7 +21,6 @@ logging.config.dictConfig(app.config["DICT_LOGGER"])
 
 # Database config
 db.init_app(app)
-
 # Register blueprints
 app.register_blueprint(example_bp, url_prefix='/')
 app.register_blueprint(youtubebp, url_prefix='/')

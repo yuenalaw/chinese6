@@ -14,8 +14,9 @@ def process_video_transcript(video_id):
     try:
         transcript_orig = YouTubeTranscriptApi.get_transcript(video_id, languages=['zh-Hans', 'zh-Hant', 'zh-TW'])
         print("transcript:",transcript_orig)
-        youtubeHelper = YouTubeHelper()
-        transcript = youtubeHelper.process_transcript(transcript_orig)
+
+        youtube_helper = YouTubeHelper()
+        transcript = youtube_helper.process_transcript(transcript_orig)
         # add to db
 
         send_message_client(video_id, {'task_id':video_id, 'result': transcript}) # client will subscribe to this room name!

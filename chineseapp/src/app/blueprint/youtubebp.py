@@ -1,10 +1,11 @@
 from flask import Blueprint, request
-from src.app.tasks.tasks import process_video_transcript, example_task
+from src.app.tasks.tasks import process_video_transcript
 from src.app.textrazor_client import text_razor_client
 from src.app.schemas.KeywordSchema import KeywordSchema
 from collections import Counter
 from src.app.helpers.YoutubeHelper import YouTubeHelper
 import dimsim
+from celery.exceptions import SoftTimeLimitExceeded
 
 youtubebp = Blueprint('youtubebp', __name__,
                      template_folder='templates',
@@ -21,6 +22,9 @@ def process_video():
         task_id = result.id
         print(f"Task ID:{task_id}")
         return {'message': 'Task has been added to the queue', 'task_id': task_id}, 202
+    except SoftTimeLimitExceeded as e:
+        print("Task timed out:", str(e))
+        # Handle the timeout, e.g., retry the task or notify the user
     except Exception as e:
         print("Error:", str(e))
         return '<h1>No chinese transcript for this video found</h1>'

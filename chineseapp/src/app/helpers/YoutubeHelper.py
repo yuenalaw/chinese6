@@ -4,12 +4,13 @@ import stanza
 from stanza.pipeline.core import DownloadMethod
 from hanziconv import HanziConv
 import hanzidentifier
-import threading
+from redis import Redis, ConnectionPool
 import requests
 from src.app.config import Config
 from transformers import AutoTokenizer, BertForTokenClassification
 from transformers import pipeline
 import re
+import json
         
 # @inproceedings{qi2020stanza,
 #     title={Stanza: A {Python} Natural Language Processing Toolkit for Many Human Languages},
@@ -18,18 +19,11 @@ import re
 #     year={2020}
 # }
 
+pool = ConnectionPool(host='redis', port=6379)
 
 class YouTubeHelper:
-    _instance = None # Singleton instance
-    _init_lock = threading.Lock()
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(YouTubeHelper, cls).__new__(cls)
-            cls._instance.init_singleton()
-        return cls._instance
     
-    def init_singleton(self):
+    def __init__(self):
         self.stanza_nlp = None
         self.translation_cache = {}
         self.pinyin_cache = {}
@@ -39,27 +33,31 @@ class YouTubeHelper:
         self.model = None
         self.tokenizer = None
         self.ner = None
-        self.chars_per_lesson = 50
+        self.redis = Redis(connection_pool=pool)  # Connect to your Redis server
     
     def init_ner_helper(self):
-        with self._init_lock:
-            try:
-                if self.model is None:
-                    self.model = BertForTokenClassification.from_pretrained(self.TAG)
-                if self.tokenizer is None:
-                    self.tokenizer = AutoTokenizer.from_pretrained(self.TAG)
-                if self.ner is None:
-                    self.ner = pipeline("ner", self.model, tokenizer=self.tokenizer)
-            except Exception as e:
-                print("Error initializing pipelines:", str(e))
+        try:
+            if self.model is None:
+                self.model = BertForTokenClassification.from_pretrained(self.TAG, cache_dir='/app/model_cache')
+                print(f"NER model downloaded to: app/model_cache")
+            if self.tokenizer is None:
+                self.tokenizer = AutoTokenizer.from_pretrained(self.TAG, cache_dir='/app/tokenizer_cache')
+                print(f"Tokenizer downloaded to: app/tokenizer_cache")
+            if self.ner is None:
+                self.ner = pipeline("ner", model=self.model, tokenizer=self.tokenizer)
+        except Exception as e:
+            print("Error initializing ner pipelines:", str(e))
 
     def init_stanza_helper(self):
-        with self._init_lock:
-            try:
-                if self.stanza_nlp is None:
-                    self.stanza_nlp = stanza.Pipeline('zh', download_method=DownloadMethod.REUSE_RESOURCES, use_gpu=False, verbose=False)
-            except Exception as e:
-                print("Error initializing pipelines:", str(e))
+        try:
+            print(f"downloading stanza....")
+            if self.stanza_nlp is None:
+                # Specify the directory where you want to save the models
+                stanza.download('zh', verbose=False, processors='tokenize,pos,lemma', model_dir='/app/stanza_resources')
+                self.stanza_nlp = stanza.Pipeline('zh', verbose=False, processors='tokenize,pos,lemma', model_dir='/app/stanza_resources')
+                print(f"Stanza model downloaded to: app/stanza_resources")
+        except Exception as e:
+            print("Error initializing stanza pipelines:", str(e))
 
     def search_images_bing(self, word):
         headers = {"Ocp-Apim-Subscription-Key" : self.subscription_key}
@@ -95,7 +93,7 @@ class YouTubeHelper:
         if not self.model or not self.tokenizer or not self.ner:
             print("initialising ner model...")
             self.init_ner_helper()
-        print("finished downloading model, adding punctuation...")
+        print("adding punctuation...")
 
         outputs = self.ner(x)
         x_list = list(x)
@@ -107,19 +105,39 @@ class YouTubeHelper:
         return "".join(x_list)
     
     def get_pinyin(self, word):
-        if hanzidentifier.has_chinese(word):
-            return pinyin.get(word)
-        return ""
+        calc_pinyin = self.redis.get(f'pinyin:{word}')
+        if calc_pinyin is None:
+            if hanzidentifier.has_chinese(word):
+                print("obtaining pinyin!")
+                calc_pinyin = pinyin.get(word)
+                self.redis.set(f'pinyin:{word}', calc_pinyin)       
+            else:
+                return None
+        return calc_pinyin
         
     def get_translation(self, word):
-        if hanzidentifier.has_chinese(word):
-            return list(pinyin.cedict.all_phrase_translations(word))
-        return word
+        try:
+            translation = self.redis.get(f'translation:{word}')
+            if translation is None:
+                if hanzidentifier.has_chinese(word):
+                    print("obtained translation!")
+                    translation = pinyin.cedict.all_phrase_translations(word)
+                    # Convert to list and serialize to JSON
+                    self.redis.set(f'translation:{word}', json.dumps(list(translation)))
+                else:
+                    return None
+            return json.loads(translation)
+        except TypeError as e:
+            print(f"Serialization error: {e}")
+            return None
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return None
+
     
     def split_text_into_segments(self, text):
-        # Split the text into segments of approximately max_segment_length characters, but ensure that it ends with punctuation
         # Also consider consecutive punctuation marks. for full stops ? and ! we include a look behind sequence of punctuation
-        segments = re.findall(r'[\S\s]{1,' + str(self.chars_per_lesson) + r'}(?:(?<=[。？！\n~\]])|(?<=\n\n)|$)', text)
+        segments = re.findall(r'[\S\s]+?[。？！~\]](?=\s|$|\n\n)', text)
         return segments
 
     def word_segmentation_with_pinyin_and_translation(self, concatenated_text):
@@ -133,39 +151,33 @@ class YouTubeHelper:
             print("finished segmenting text into lessons... now creating the lesson details...")
             for lesson_num, seg in enumerate(segments, 1): # start with lesson 1
                 doc = self.stanza_nlp(seg)
-                lesson_data = {}
 
                 for sentence in doc.sentences:
                     seg_res = []
-
+                    print(f"my sentence...{sentence.text}")
                     for word in sentence.words:
-                        word_text = word.text.strip()
-                        word_upos = word.upos.strip()
+                        word_text = word.text
+                        word_upos = word.upos
+                        print(f"my words are {word_text} and {word_upos}\n")
 
-                        calculated_pinyin = self.pinyin_cache.get(word_text)
-                        if not calculated_pinyin:
-                            calculated_pinyin = self.get_pinyin(word_text)
-                            self.pinyin_cache[word_text] = calculated_pinyin
+                        calculated_pinyin = self.get_pinyin(word_text)
 
-                        calculated_translation = self.translation_cache.get(word_text)
-                        if not calculated_translation:
-                            calculated_translation = self.get_translation(word_text)
-                            self.translation_cache[word_text] = calculated_translation
+                        calculated_translation = self.get_translation(word_text)
 
                         entry = {
                             "word": word_text,
                             "upos": word_upos,
-                            "word_lemma": word.lemma.strip(),
-                            "word_pos": word.pos.strip(), #IS PROPN/ NOUN/ AUX etc
                             "pinyin": calculated_pinyin,
                             "translation": calculated_translation
                         }
                         seg_res.append(entry)
-                    sentence_text = sentence.text.strip()
-                    lesson_data[sentence_text] = seg_res
-                lessons[lesson_num] = lesson_data
-                print(f"created lesson {lesson_num}!\n")
+                    sentence_obj = {
+                        "sentence": sentence.text,
+                        "entries": seg_res
+                    }
+                lessons[lesson_num] = sentence_obj
             print(f"finished all {len(segments) + 1} lessons!")
+            print(f"lessons! {lessons}")
             return lessons
         except Exception as e:
             print("Error with stanza: " + str(e))
