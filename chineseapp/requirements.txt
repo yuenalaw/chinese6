@@ -26,3 +26,4 @@ hanzidentifier
 textrazor
 dimsim
 transformers
+regex

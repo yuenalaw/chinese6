@@ -11,6 +11,7 @@ from transformers import AutoTokenizer, BertForTokenClassification
 from transformers import pipeline
 import re
 import json
+import regex
         
 # @inproceedings{qi2020stanza,
 #     title={Stanza: A {Python} Natural Language Processing Toolkit for Many Human Languages},
@@ -34,6 +35,7 @@ class YouTubeHelper:
         self.tokenizer = None
         self.ner = None
         self.redis = Redis(connection_pool=pool)  # Connect to your Redis server
+        self.MAX_CHARS = 200
     
     def init_ner_helper(self):
         try:
@@ -68,7 +70,6 @@ class YouTubeHelper:
             response = requests.get(self.bing_url, headers=headers, params=params, allow_redirects=False)
             print(response.status_code)
             print(response.headers)
-            # response.raise_for_status()
             search_results = response.json()
             image_urls = [img["contentUrl"] for img in search_results["value"]]
             print(f"received image urls... {image_urls}")
@@ -76,7 +77,8 @@ class YouTubeHelper:
         except Exception as e:
             print("Error getting images", str(e))
 
-    def turn_to_simplified(self, transcript):
+    # should be used in a thread to get the keywords
+    def turn_to_simplified(self, transcript): 
         print("turning to simplified...")
         simplified_transcript = ""
         for idx in range(len(transcript)):
@@ -87,6 +89,46 @@ class YouTubeHelper:
                 simplified_transcript += ""
         print("finished simplified!")
         return simplified_transcript.strip()
+
+    def video_processing(self, transcript):
+        print("text processing...")
+        if not self.stanza_nlp:
+            self.init_stanza_helper()
+        results = []
+        for i, segment in enumerate(transcript):
+            simplified_text = HanziConv.toSimplified(segment['text'])
+            doc = self.stanza_nlp(simplified_text)
+            sentences = []
+            for j, sentence in enumerate(doc.sentences):
+                seg_res = []
+                print(f"my sentence... {sentence.text}")
+                for word in sentence.words:
+                    word_text = word.text
+                    word_upos = word.upos
+
+                    calculated_pinyin = self.get_pinyin(word_text)
+
+                    calculated_translation = self.get_translation(word_text)
+
+                    entry = {
+                        "word": word_text,
+                        "upos": word_upos,
+                        "pinyin": calculated_pinyin,
+                        "translation": calculated_translation
+                    }
+                    seg_res.append(entry)
+                sentence_obj = {
+                    "sentence": sentence.text,
+                    "entries": seg_res
+                }
+                sentences.append(sentence_obj)
+            results.append({
+                "segment": simplified_text,
+                "start": segment['start'],
+                "duration": segment['duration'],
+                "sentences": sentences
+            })
+        return results
     
     
     def generate_punctuation(self,x: str):
@@ -108,7 +150,6 @@ class YouTubeHelper:
         calc_pinyin = self.redis.get(f'pinyin:{word}')
         if calc_pinyin is None:
             if hanzidentifier.has_chinese(word):
-                print("obtaining pinyin!")
                 calc_pinyin = pinyin.get(word)
                 self.redis.set(f'pinyin:{word}', calc_pinyin)       
             else:
@@ -120,7 +161,6 @@ class YouTubeHelper:
             translation = self.redis.get(f'translation:{word}')
             if translation is None:
                 if hanzidentifier.has_chinese(word):
-                    print("obtained translation!")
                     translation = pinyin.cedict.all_phrase_translations(word)
                     # Convert to list and serialize to JSON
                     self.redis.set(f'translation:{word}', json.dumps(list(translation)))
@@ -134,60 +174,7 @@ class YouTubeHelper:
             print(f"Unexpected error: {e}")
             return None
 
-    
-    def split_text_into_segments(self, text):
-        # Also consider consecutive punctuation marks. for full stops ? and ! we include a look behind sequence of punctuation
-        segments = re.findall(r'[\S\s]+?[。？！~\]](?=\s|$|\n\n)', text)
-        return segments
-
-    def word_segmentation_with_pinyin_and_translation(self, concatenated_text):
-        print("downloading stanza pipeline...")
-        if not self.stanza_nlp:
-            self.init_stanza_helper()
-        try:
-            print("finished downloading stanza pipeline... creating lessons...")
-            segments = self.split_text_into_segments(concatenated_text)
-            lessons = {}
-            print("finished segmenting text into lessons... now creating the lesson details...")
-            for lesson_num, seg in enumerate(segments, 1): # start with lesson 1
-                doc = self.stanza_nlp(seg)
-
-                for sentence in doc.sentences:
-                    seg_res = []
-                    print(f"my sentence...{sentence.text}")
-                    for word in sentence.words:
-                        word_text = word.text
-                        word_upos = word.upos
-                        print(f"my words are {word_text} and {word_upos}\n")
-
-                        calculated_pinyin = self.get_pinyin(word_text)
-
-                        calculated_translation = self.get_translation(word_text)
-
-                        entry = {
-                            "word": word_text,
-                            "upos": word_upos,
-                            "pinyin": calculated_pinyin,
-                            "translation": calculated_translation
-                        }
-                        seg_res.append(entry)
-                    sentence_obj = {
-                        "sentence": sentence.text,
-                        "entries": seg_res
-                    }
-                lessons[lesson_num] = sentence_obj
-            print(f"finished all {len(segments) + 1} lessons!")
-            print(f"lessons! {lessons}")
-            return lessons
-        except Exception as e:
-            print("Error with stanza: " + str(e))
-            return {"error": str(e)}
-
     def process_transcript(self, transcript):
-        simplified_transcript = self.turn_to_simplified(transcript)
-        print("simplified transcript: ", simplified_transcript)
-        punctuated_text = self.generate_punctuation(simplified_transcript)
-        print("punctuated text: ", punctuated_text)
-        processed_transcript = self.word_segmentation_with_pinyin_and_translation(punctuated_text)
+        processed_transcript = self.video_processing(transcript)
         print("processed_transcript: ", processed_transcript)
         return processed_transcript
