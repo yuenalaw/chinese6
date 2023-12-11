@@ -9,9 +9,8 @@ import requests
 from src.app.config import Config
 from transformers import AutoTokenizer, BertForTokenClassification
 from transformers import pipeline
-import re
 import json
-import regex
+import dimsim
         
 # @inproceedings{qi2020stanza,
 #     title={Stanza: A {Python} Natural Language Processing Toolkit for Many Human Languages},
@@ -110,11 +109,14 @@ class YouTubeHelper:
 
                     calculated_translation = self.get_translation(word_text)
 
+                    similar_sounds = self.get_similarsoundwords(word_text)
+
                     entry = {
                         "word": word_text,
                         "upos": word_upos,
                         "pinyin": calculated_pinyin,
-                        "translation": calculated_translation
+                        "translation": calculated_translation,
+                        "similarsounds": similar_sounds
                     }
                     seg_res.append(entry)
                 sentence_obj = {
@@ -147,31 +149,58 @@ class YouTubeHelper:
         return "".join(x_list)
     
     def get_pinyin(self, word):
-        calc_pinyin = self.redis.get(f'pinyin:{word}')
-        if calc_pinyin is None:
-            if hanzidentifier.has_chinese(word):
-                calc_pinyin = pinyin.get(word)
-                self.redis.set(f'pinyin:{word}', calc_pinyin)       
-            else:
-                return None
-        return calc_pinyin
+        try:
+            calc_pinyin = self.redis.get(f'pinyin:{word}')
+            if calc_pinyin is None:
+                if hanzidentifier.has_chinese(word):
+                    calc_pinyin = pinyin.get(word)  # Convert generator to list
+                    self.redis.set(f'pinyin:{word}', json.dumps(calc_pinyin))
+                else:
+                    return None
+            return json.loads(calc_pinyin)
+        except TypeError as e:
+            print(f"Serialization error pinyin: {e}")
+            return None
+        except Exception as e:
+            print(f"Unexpected pinyin error: {e}")
+            return None
+        
+    def get_similarsoundwords(self, word):
+        if word is None:
+            return None
+        try:
+            cache_similarsounds = self.redis.get(f'similarsound:{word}')
+            if cache_similarsounds is None:
+                candidates = list(dimsim.get_candidates(word, mode='simplified', theta=1))
+                if candidates:
+                    self.redis.set(f'similarsound:{word}', json.dumps(list(candidates)))
+                else:
+                    return None
+            cache_similarsounds = json.loads(cache_similarsounds)
+            return cache_similarsounds[:3]
+        except TypeError as e:
+            print(f"Serialization error similar sounds: {e}")
+            return None
+        except Exception as e:
+            print(f"Unexpected similar sounds error: {e}")
+            return None  
         
     def get_translation(self, word):
         try:
             translation = self.redis.get(f'translation:{word}')
             if translation is None:
                 if hanzidentifier.has_chinese(word):
-                    translation = pinyin.cedict.all_phrase_translations(word)
+                    translation = list(pinyin.cedict.all_phrase_translations(word))
                     # Convert to list and serialize to JSON
-                    self.redis.set(f'translation:{word}', json.dumps(list(translation)))
+                    self.redis.set(f'translation:{word}', json.dumps(translation))
                 else:
                     return None
             return json.loads(translation)
         except TypeError as e:
-            print(f"Serialization error: {e}")
+            print(f"Serialization translation error: {e}")
             return None
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            print(f"Unexpected translation error: {e}")
             return None
 
     def process_transcript(self, transcript):
