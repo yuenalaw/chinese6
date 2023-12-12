@@ -13,6 +13,7 @@ import json
 import dimsim
 from src.app.schemas.KeywordSchema import KeywordSchema
 from collections import Counter
+from src.app.textrazor_client import text_razor_client
         
 # @inproceedings{qi2020stanza,
 #     title={Stanza: A {Python} Natural Language Processing Toolkit for Many Human Languages},
@@ -30,13 +31,13 @@ class YouTubeHelper:
         self.translation_cache = {}
         self.pinyin_cache = {}
         self.bing_url = "https://api.bing.microsoft.com/v7.0/images/search"
-        self.subscription_key = Config.BING_IMG_API_KEY
         self.TAG = "raynardj/classical-chinese-punctuation-guwen-biaodian"
         self.model = None
         self.tokenizer = None
         self.ner = None
         self.redis = Redis(connection_pool=pool)  # Connect to your Redis server
         self.MAX_CHARS = 200
+        self.text_razor_client = text_razor_client
     
     def init_ner_helper(self):
         try:
@@ -62,22 +63,6 @@ class YouTubeHelper:
         except Exception as e:
             print("Error initializing stanza pipelines:", str(e))
 
-    def search_images_bing(self, word):
-        headers = {"Ocp-Apim-Subscription-Key" : self.subscription_key}
-        params  = {"q": word, "setlang": "zh-hans", "license": "public", "imageType": "photo", "count": 3}
-        print("searching bing images...")
-        try:
-            print("I'm in the catch block!")
-            response = requests.get(self.bing_url, headers=headers, params=params, allow_redirects=False)
-            print(response.status_code)
-            print(response.headers)
-            search_results = response.json()
-            image_urls = [img["contentUrl"] for img in search_results["value"]]
-            print(f"received image urls... {image_urls}")
-            return image_urls
-        except Exception as e:
-            print("Error getting images", str(e))
-
     def turn_to_simplified(self, transcript): 
         print("turning to simplified...")
         simplified_transcript = ""
@@ -91,7 +76,6 @@ class YouTubeHelper:
         return simplified_transcript.strip()
 
     def video_processing(self, transcript):
-        print("text processing...")
         if not self.stanza_nlp:
             self.init_stanza_helper()
         results = []
@@ -101,7 +85,8 @@ class YouTubeHelper:
             sentences = []
             for j, sentence in enumerate(doc.sentences):
                 seg_res = []
-                print(f"my sentence... {sentence.text}")
+                if sentence.text and not sentence.text.strip().isalnum():
+                    continue #skip those that are just punctuation
                 for word in sentence.words:
                     word_text = word.text
                     word_upos = word.upos
@@ -177,7 +162,8 @@ class YouTubeHelper:
                     self.redis.set(f'similarsound:{word}', json.dumps(list(candidates)))
                 else:
                     return None
-            cache_similarsounds = json.loads(cache_similarsounds)
+            else:
+                cache_similarsounds = json.loads(cache_similarsounds)
             return cache_similarsounds[:3]
         except TypeError as e:
             print(f"Serialization error similar sounds: {e}")
@@ -206,14 +192,15 @@ class YouTubeHelper:
 
     def process_transcript(self, transcript):
         processed_transcript = self.video_processing(transcript)
-        print("processed_transcript: ", processed_transcript)
         return processed_transcript
 
-    def get_keywords(self, all_simplified, text_razor_client):
-        response = text_razor_client.analyze(all_simplified)
+    def get_keywords(self, all_simplified):
+        response = self.text_razor_client.analyze(all_simplified)
         all_keywords = []
         keyword_schemas = []
         for entity in response.entities():
+            if entity.id.isalpha() and entity.id.isascii():
+                continue # ignore english
             keyword_schema = KeywordSchema(entity.id, entity.freebase_types)
             keyword_schemas.append(keyword_schema)
             all_keywords.append(entity.id)
@@ -233,17 +220,22 @@ class YouTubeHelper:
     def get_images(self, keywords):
         keyword_imgs = {}
         try:
-            for keyword in keywords:
+            for keywordObj in keywords:
+                keyword = keywordObj.ChineseWord
+                print(f"looking up images for {keyword}\n")
                 cached_imgs = self.redis.get(f'images:{keyword}')
                 if cached_imgs is None:
                     response = requests.get(f'https://www.googleapis.com/customsearch/v1?key={Config.GOOGLE_IMG_API_KEY}&cx={Config.GOOGLE_CX}&searchType=image&q={keyword}')
                     if response.status_code == 200:
                         images_data = response.json()
-                        cached_imgs = images_data['images'][:3]
+                        cached_imgs = images_data['items'][:3]
                         self.redis.set(f'images:{keyword}', json.dumps(cached_imgs))
                     else:
                         return None
-                keyword_imgs[keyword] = json.loads(cached_imgs)
+                else:
+                    if isinstance(cached_imgs, str):
+                        keyword_imgs[keyword] = json.loads(cached_imgs)
+                keyword_imgs[keyword] = cached_imgs
             return keyword_imgs
         except TypeError as e:
             print(f"Serialization images error: {e}")
@@ -252,9 +244,9 @@ class YouTubeHelper:
             print(f"Unexpected images error: {e}")
             return None
 
-    def get_keywords_and_img(self, transcript, text_razor_client):
+    def get_keywords_and_img(self, transcript):
+        print(f"gettin getting keywords and img in youtube helper \n")
         all_simplified = self.turn_to_simplified(transcript)
-        keywords = self.get_keywords(all_simplified, text_razor_client)
+        keywords = self.get_keywords(all_simplified)
         keyword_images = self.get_images(keywords)
-        print(f"keywords to images... {keyword_images}\n")
         return keyword_images
