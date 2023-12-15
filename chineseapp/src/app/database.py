@@ -43,7 +43,7 @@ class Word(db.Model):
 class Sentence(db.Model):
     __tablename__ = 'sentence'
 
-    id = Column(String(255), primary_key=True)
+    id = Column(String(255), primary_key=True) #id={youtube_id}_{timestamp}_{line_num}
     sentence = Column(Text, nullable=False)
     words = relationship('WordSentence', backref='associated_sentence')
     user_sentences = relationship('UserSentence', backref='original_sentence')
@@ -52,7 +52,8 @@ class WordSentence(db.Model):
     __tablename__ = 'word_sentence'
 
     id = Column(Integer, primary_key=True)
-    youtube_id = Column(String(255))
+    youtube_id = Column(String(255)),
+    youtube_seconds = Column(Float),
     word_id = Column(Integer, ForeignKey('word.id'))
     sentence_id = Column(String(255), ForeignKey('sentence.id'))
     youtube_creator = Column(String(255))
@@ -65,7 +66,6 @@ class UserWordReview(db.Model):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
     user_word_sentence_id = Column(Integer, ForeignKey('user_word_sentence.id'))
-    note = Column(Text)
     last_reviewed = Column(Date)
     repetitions = Column(Integer)
     ease_factor = Column(Float)
@@ -78,6 +78,7 @@ class UserWordSentence(db.Model):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
     word_sentence_id = Column(Integer, ForeignKey('word_sentence.id'))
+    note = Column(Text) # adding note here, as users can write notes about a certain word.
     review = db.relationship('UserWordReview', backref='reviewed_sentence', uselist=False) # one to one relationship
     word_sentence = relationship('WordSentence', backref='studied_by_users')
 
@@ -142,6 +143,86 @@ def get_review_words_today(user_id: int) -> List[Tuple[UserWordReview, UserWordS
         db.session.rollback()
         return []
 
+def update_user_word_review(user_id: int, user_word_sentence_id: int, last_reviewed: date, repetitions: int, ease_factor: float, word_interval: int, next_review: date):
+    """
+    Update a UserWordReview entry for a specific user and word sentence.
+
+    Parameters:
+    user_id (int): The ID of the user.
+    user_word_sentence_id (int): The ID of the user word sentence.
+    last_reviewed (date): The date when the word was last reviewed.
+    repetitions (int): The number of repetitions for the word.
+    ease_factor (float): The ease factor for the word.
+    word_interval (int): The interval for the word.
+    next_review (date): The date for the next review of the word.
+    """
+    try:
+        # Get the UserWordReview entry
+        review = db.session.query(UserWordReview).filter_by(user_id=user_id, user_word_sentence_id=user_word_sentence_id).first()
+
+        # Update the fields
+        review.last_reviewed = last_reviewed
+        review.repetitions = repetitions
+        review.ease_factor = ease_factor
+        review.word_interval = word_interval
+        review.next_review = next_review
+
+        # Commit the changes
+        db.session.commit()
+
+        print(f"Updated UserWordReview for user_id {user_id} and user_word_sentence_id {user_word_sentence_id}")
+    except Exception as e:
+        print(f"An error occurred (updating UserWordReview): {e}")
+        db.session.rollback()
+
+def update_user_word_sentence(user_id: int, word_sentence_id: int, note: str):
+    """
+    Update the note for a specific user and word sentence.
+
+    Parameters:
+    user_id (int): The ID of the user.
+    word_sentence_id (int): The ID of the word sentence.
+    note (str): The new note.
+    """
+    try:
+        # Get the UserWordSentence entry
+        user_word_sentence = db.session.query(UserWordSentence).filter_by(user_id=user_id, word_sentence_id=word_sentence_id).first()
+
+        # Update the note
+        user_word_sentence.note = note
+
+        # Commit the changes
+        db.session.commit()
+
+        print(f"Updated UserWordSentence for user_id {user_id} and word_sentence_id {word_sentence_id}")
+    except Exception as e:
+        print(f"An error occurred (updating UserWordSentence): {e}")
+        db.session.rollback()
+
+def update_user_sentence(user_id: int, sentence_id: str, edited_sentence: str):
+    """
+    Update the edited_sentence for a specific user and sentence.
+
+    Parameters:
+    user_id (int): The ID of the user.
+    sentence_id (str): The ID of the sentence.
+    edited_sentence (str): The new edited sentence.
+    """
+    try:
+        # Get the UserSentence entry
+        user_sentence = db.session.query(UserSentence).filter_by(user_id=user_id, sentence_id=sentence_id).first()
+
+        # Update the edited_sentence
+        user_sentence.edited_sentence = edited_sentence
+
+        # Commit the changes
+        db.session.commit()
+
+        print(f"Updated UserSentence for user_id {user_id} and sentence_id {sentence_id}")
+    except Exception as e:
+        print(f"An error occurred (updating UserSentence): {e}")
+        db.session.rollback()
+
 def add_word(word, pinyin, similar_words, images, translation):
     try:
         existing_word = db.session.query(Word).filter(Word.word == word).first()
@@ -179,13 +260,14 @@ def add_sentence(user_id, sentence_id, sentence, edited_sentence):
         print(f"An error occurred (add sentence): {e}")
         db.session.rollback()
 
-def add_review_records(user_id, word_id, sentence_id, youtube_id, youtube_creator, video_title):
+def add_review_records(user_id, word_id, sentence_id, note, youtube_seconds, youtube_id, youtube_creator, video_title):
     # start a new transaction
     try:
         with db.session.begin():
             # Create new WordSentence
             new_word_sentence = WordSentence(
                 youtube_id=youtube_id,
+                youtube_seconds = youtube_seconds,
                 word_id=word_id,
                 sentence_id=sentence_id,
                 youtube_creator=youtube_creator,
@@ -196,7 +278,8 @@ def add_review_records(user_id, word_id, sentence_id, youtube_id, youtube_creato
             # Create a new UserWordSentence
             new_user_word_sentence = UserWordSentence(
                 user_id=user_id,
-                word_sentence_id=new_word_sentence.id
+                word_sentence_id=new_word_sentence.id,
+                note = note
             )
             db.session.add(new_user_word_sentence)
 
