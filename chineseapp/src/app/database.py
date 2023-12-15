@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 from datetime import date
 from sqlalchemy import and_, or_
 from sqlalchemy import Column, Integer, Float, Date, Text, String, ForeignKey
-from sqlalchemy.orm import relationship, aliased
+from sqlalchemy.orm import relationship, aliased, joinedload
 from sqlalchemy.dialects.mysql import JSON
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import redis
 import json
 
@@ -38,27 +38,18 @@ class Word(db.Model):
     similar_words = Column(JSON)
     images = Column(JSON)
     translation = Column(JSON)
-    sentences = relationship('WordSentence', backref='associated_word')
 
 class Sentence(db.Model):
     __tablename__ = 'sentence'
 
-    id = Column(String(255), primary_key=True) #id={youtube_id}_{timestamp}_{line_num}
+    id = Column(String(255), primary_key=True), # id={youtube_id}_{line_num}
     sentence = Column(Text, nullable=False)
-    words = relationship('WordSentence', backref='associated_sentence')
-    user_sentences = relationship('UserSentence', backref='original_sentence')
-
-class WordSentence(db.Model):
-    __tablename__ = 'word_sentence'
-
-    id = Column(Integer, primary_key=True)
-    youtube_id = Column(String(255)),
-    youtube_seconds = Column(Float),
-    word_id = Column(Integer, ForeignKey('word.id'))
-    sentence_id = Column(String(255), ForeignKey('sentence.id'))
+    youtube_id = Column(String(255))
+    line_num = Column(Integer)
+    youtube_seconds = Column(Float)
     youtube_creator = Column(String(255))
     video_title = Column(String(255))
-    user_word_sentences = relationship('UserWordSentence', backref='studied_sentence')
+    user_sentences = relationship('UserSentence', backref='original_sentence')
 
 class UserWordReview(db.Model):
     __tablename__ = 'user_word_review'
@@ -77,10 +68,10 @@ class UserWordSentence(db.Model):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
-    word_sentence_id = Column(Integer, ForeignKey('word_sentence.id'))
+    word_id = Column(Integer, ForeignKey('word.id'))  # reference Word directly
+    sentence_id = Column(String(255), ForeignKey('sentence.id'))  # reference Sentence directly
     note = Column(Text) # adding note here, as users can write notes about a certain word.
     review = db.relationship('UserWordReview', backref='reviewed_sentence', uselist=False) # one to one relationship
-    word_sentence = relationship('WordSentence', backref='studied_by_users')
 
 class UserSentence(db.Model):
     __tablename__ = 'user_sentence'
@@ -90,7 +81,7 @@ class UserSentence(db.Model):
     sentence_id = Column(String(255), ForeignKey('sentence.id'))
     edited_sentence = Column(Text)
 
-def get_review_words_today(user_id: int) -> List[Tuple[UserWordReview, UserWordSentence, WordSentence, str, Word]]:
+def get_review_words_today(user_id: int) -> List[Tuple[UserWordReview, UserWordSentence, str, Word]]:
     """
     Get words for review for a specific user today.
 
@@ -98,7 +89,7 @@ def get_review_words_today(user_id: int) -> List[Tuple[UserWordReview, UserWordS
     user_id (int): The ID of the user.
 
     Returns:
-    List[Tuple[UserWordReview, UserWordSentence, WordSentence, str, Word]]: A list of tuples containing the review, user word sentence, word sentence, sentence, and word.
+    List[Tuple[UserWordReview, UserWordSentence, str, Word]]: A list of tuples containing the review, user word sentence, sentence, and word.
     """
     today = datetime.now().date()
 
@@ -115,19 +106,16 @@ def get_review_words_today(user_id: int) -> List[Tuple[UserWordReview, UserWordS
         query = db.session.query(
             UserWordReview,
             UserWordSentence,
-            WordSentence,
             or_(UserSentenceForJoin.edited_sentence, Sentence.sentence).label('sentence'),
             Word
         ).join(
             UserWordSentence, UserWordReview.user_word_sentence_id == UserWordSentence.id
         ).join(
-            WordSentence, UserWordSentence.word_sentence_id == WordSentence.id
-        ).join(
-            Sentence, WordSentence.sentence_id == Sentence.id
+            Sentence, UserWordSentence.sentence_id == Sentence.id
         ).outerjoin(
             UserSentenceForJoin, and_(Sentence.id == UserSentenceForJoin.sentence_id, UserWordSentence.user_id == UserSentenceForJoin.user_id)
         ).join(
-            Word, WordSentence.word_id == Word.id
+            Word, UserWordSentence.word_id == Word.id
         ).filter(
             UserWordReview.user_id == user_id,
             UserWordReview.next_review <= today
@@ -142,8 +130,48 @@ def get_review_words_today(user_id: int) -> List[Tuple[UserWordReview, UserWordS
         print(f"An error occurred (getting review words): {e}")
         db.session.rollback()
         return []
+    
+def get_sentence_context(user_id: int, sentence_id: str):
+    try:
+        youtube_id, line_num = sentence_id.split('_')
+        line_num = int(line_num)
 
-def update_user_word_review(user_id: int, user_word_sentence_id: int, last_reviewed: date, repetitions: int, ease_factor: float, word_interval: int, next_review: date):
+        previous_sentence = Sentence.query.filter(Sentence.youtube_id == youtube_id, Sentence.line_num == line_num-1).first()
+        next_sentence = Sentence.query.filter(Sentence.youtube_id == youtube_id, Sentence.line_num == line_num+1).first()
+
+        # check if user has any edited versions of these
+        if previous_sentence:
+            user_previous_sentence = UserSentence.query.filter_by(user_id=user_id, sentence_id=previous_sentence.id).first()
+            if user_previous_sentence:
+                previous_sentence.sentence = user_previous_sentence.edited_sentence
+        
+        if next_sentence:
+            user_next_sentence = UserSentence.query.filter_by(user_id=user_id, sentence_id=next_sentence.id).first()
+            if user_next_sentence:
+                next_sentence.sentence = user_next_sentence.edited_sentence
+        
+        return previous_sentence, next_sentence
+    except Exception as e:
+        print(f"An error occurred while getting sentence context: {e}")
+        return None, None
+
+def get_sentences_for_youtube_id(youtube_id: str, user_id: int) -> Union[List[Sentence], None]:
+    try:
+        # Fetch all sentences for the given YouTube ID
+        sentences = Sentence.query.filter_by(youtube_id=youtube_id).options(joinedload('user_sentences')).all()
+
+        # Replace sentences with UserSentence if it exists for the user
+        for sentence in sentences:
+            user_sentence = next((us for us in sentence.user_sentences if us.user_id == user_id), None)
+            if user_sentence:
+                sentence.sentence = user_sentence.edited_sentence
+
+        return sentences
+    except Exception as e:
+        print(f"An error occurred while fetching sentences for youtube id: {e}")
+        return None
+
+def update_user_word_review(user_id: int, user_word_sentence_id: int, last_reviewed: date, repetitions: int, ease_factor: float, word_interval: int, next_review: date) -> None:
     """
     Update a UserWordReview entry for a specific user and word sentence.
 
@@ -159,7 +187,9 @@ def update_user_word_review(user_id: int, user_word_sentence_id: int, last_revie
     try:
         # Get the UserWordReview entry
         review = db.session.query(UserWordReview).filter_by(user_id=user_id, user_word_sentence_id=user_word_sentence_id).first()
-
+        if review is None:
+            print(f"No such review found in db")
+            return None
         # Update the fields
         review.last_reviewed = last_reviewed
         review.repetitions = repetitions
@@ -175,7 +205,7 @@ def update_user_word_review(user_id: int, user_word_sentence_id: int, last_revie
         print(f"An error occurred (updating UserWordReview): {e}")
         db.session.rollback()
 
-def update_user_word_sentence(user_id: int, word_sentence_id: int, note: str):
+def update_user_word_sentence(user_id: int, word_sentence_id: int, note: str) -> None:
     """
     Update the note for a specific user and word sentence.
 
@@ -187,7 +217,9 @@ def update_user_word_sentence(user_id: int, word_sentence_id: int, note: str):
     try:
         # Get the UserWordSentence entry
         user_word_sentence = db.session.query(UserWordSentence).filter_by(user_id=user_id, word_sentence_id=word_sentence_id).first()
-
+        if user_word_sentence is None:
+            print(f"No such user word sentence; cannot update note")
+            return None
         # Update the note
         user_word_sentence.note = note
 
@@ -199,7 +231,7 @@ def update_user_word_sentence(user_id: int, word_sentence_id: int, note: str):
         print(f"An error occurred (updating UserWordSentence): {e}")
         db.session.rollback()
 
-def update_user_sentence(user_id: int, sentence_id: str, edited_sentence: str):
+def update_user_sentence(user_id: int, sentence_id: str, edited_sentence: str) -> None:
     """
     Update the edited_sentence for a specific user and sentence.
 
@@ -211,7 +243,9 @@ def update_user_sentence(user_id: int, sentence_id: str, edited_sentence: str):
     try:
         # Get the UserSentence entry
         user_sentence = db.session.query(UserSentence).filter_by(user_id=user_id, sentence_id=sentence_id).first()
-
+        if user_sentence is None:
+            print(f"No such user sentence; cannot update edited sentence")
+            return None
         # Update the edited_sentence
         user_sentence.edited_sentence = edited_sentence
 
@@ -238,12 +272,12 @@ def add_word(word, pinyin, similar_words, images, translation):
         print(f"An error occurred (add word): {e}")
         db.session.rollback()
 
-def add_sentence(user_id, sentence_id, sentence, edited_sentence):
+def add_sentence(user_id, sentence_id, sentence, edited_sentence, youtube_seconds, youtube_id, line_num, youtube_creator, video_title):
     try:
         existing_sentence = db.session.query(Sentence).filter(Sentence.id == sentence_id).first()
 
         if existing_sentence is None:
-            new_sentence = Sentence(id=sentence_id, sentence=sentence)
+            new_sentence = Sentence(id=sentence_id, sentence=sentence, youtube_id=youtube_id, line_num=line_num, youtube_seconds=youtube_seconds, youtube_creator=youtube_creator, video_title=video_title)
             db.session.add(new_sentence)
             db.session.commit()
             sentence_id = new_sentence.id
@@ -260,26 +294,16 @@ def add_sentence(user_id, sentence_id, sentence, edited_sentence):
         print(f"An error occurred (add sentence): {e}")
         db.session.rollback()
 
-def add_review_records(user_id, word_id, sentence_id, note, youtube_seconds, youtube_id, youtube_creator, video_title):
+def add_review_records(user_id, word_id, sentence_id, note) -> None:
     # start a new transaction
     try:
         with db.session.begin():
-            # Create new WordSentence
-            new_word_sentence = WordSentence(
-                youtube_id=youtube_id,
-                youtube_seconds = youtube_seconds,
-                word_id=word_id,
-                sentence_id=sentence_id,
-                youtube_creator=youtube_creator,
-                video_title=video_title
-            )
-            db.session.add(new_word_sentence)
-
             # Create a new UserWordSentence
             new_user_word_sentence = UserWordSentence(
                 user_id=user_id,
-                word_sentence_id=new_word_sentence.id,
-                note = note
+                word_id=word_id,  # reference Word directly
+                sentence_id=sentence_id,  # reference Sentence directly
+                note=note
             )
             db.session.add(new_user_word_sentence)
 
