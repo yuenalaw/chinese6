@@ -11,6 +11,7 @@ from .database import db
 
 from src.app.blueprint.youtubebp import youtubebp
 from src.app.blueprint.example_bp import example_bp
+from src.app.blueprint.dbbp import db_bp
 from src.app.exception_handler import init_exception_handler
 
 app = Flask(__name__)
@@ -24,6 +25,7 @@ db.init_app(app)
 # Register blueprints
 app.register_blueprint(example_bp, url_prefix='/')
 app.register_blueprint(youtubebp, url_prefix='/')
+app.register_blueprint(db_bp, url_prefix='/')
 
 # Register exception handlers
 init_exception_handler(app)
