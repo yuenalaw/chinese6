@@ -5,6 +5,7 @@ import os
 import logging.config
 
 from flask import Flask, jsonify
+from flask_cors import CORS
 from flask_socketio import SocketIO
 from flask_socketio import join_room
 from .database import db
@@ -22,6 +23,12 @@ logging.config.dictConfig(app.config["DICT_LOGGER"])
 
 # Database config
 db.init_app(app)
+
+# Enable CORS on blueprints
+CORS(youtubebp)
+CORS(example_bp)
+CORS(db_bp)
+
 # Register blueprints
 app.register_blueprint(example_bp, url_prefix='/')
 app.register_blueprint(youtubebp, url_prefix='/')
@@ -30,8 +37,11 @@ app.register_blueprint(db_bp, url_prefix='/')
 # Register exception handlers
 init_exception_handler(app)
 
+# Add CORS
+CORS(app)
+
 # Init websockets
-socketio = SocketIO(app, \
+socketio = SocketIO(app, cors_allowed_origins="*",\
                     message_queue=app.config['REDIS_BROKER_URL'])
 
 

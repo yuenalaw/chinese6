@@ -6,6 +6,8 @@ from hanziconv import HanziConv
 import hanzidentifier
 from redis import Redis, ConnectionPool
 import requests
+import time
+from requests.exceptions import HTTPError
 from src.app.config import Config
 from transformers import AutoTokenizer, BertForTokenClassification
 from transformers import pipeline
@@ -14,6 +16,8 @@ import dimsim
 from src.app.schemas.KeywordSchema import KeywordSchema
 from collections import Counter
 from src.app.textrazor_client import text_razor_client
+from pyunsplash import PyUnsplash
+import base64
         
 # @inproceedings{qi2020stanza,
 #     title={Stanza: A {Python} Natural Language Processing Toolkit for Many Human Languages},
@@ -25,6 +29,7 @@ from src.app.textrazor_client import text_razor_client
 pool = ConnectionPool(host='redis', port=6379)
 
 class YouTubeHelper:
+    pu = PyUnsplash(api_key=Config.UNSPLASH_ACCESS_KEY)
     
     def __init__(self):
         self.stanza_nlp = None
@@ -139,18 +144,21 @@ class YouTubeHelper:
             calc_pinyin = self.redis.get(f'pinyin:{word}')
             if calc_pinyin is None:
                 if hanzidentifier.has_chinese(word):
-                    calc_pinyin = pinyin.get(word)  # Convert generator to list
-                    self.redis.set(f'pinyin:{word}', json.dumps(calc_pinyin))
-                else:
+                    calc_pinyin = pinyin.get(word, format="strip", delimiter=" ")
+                    if calc_pinyin is not None:
+                        calc_pinyin_json = json.dumps(calc_pinyin)
+                        self.redis.set(f'pinyin:{word}', calc_pinyin_json)
+                        return calc_pinyin_json
                     return None
-            return json.loads(calc_pinyin)
+                return None
+            return json.loads(calc_pinyin.decode('utf-8'))  # Decode the byte string and load the JSON data
         except TypeError as e:
             print(f"Serialization error pinyin: {e}")
             return None
         except Exception as e:
             print(f"Unexpected pinyin error: {e}")
             return None
-        
+
     def get_similarsoundwords(self, word):
         if word is None:
             return None
@@ -159,19 +167,19 @@ class YouTubeHelper:
             if cache_similarsounds is None:
                 candidates = list(dimsim.get_candidates(word, mode='simplified', theta=1))
                 if candidates:
-                    self.redis.set(f'similarsound:{word}', json.dumps(list(candidates)))
-                else:
-                    return None
-            else:
-                cache_similarsounds = json.loads(cache_similarsounds)
-            return cache_similarsounds[:3]
+                    candidates_json = json.dumps(list(candidates))
+                    self.redis.set(f'similarsound:{word}', candidates_json)
+                    return candidates_json
+                return None
+            return json.loads(cache_similarsounds.decode('utf-8'))  # Decode the byte string and load the JSON data
         except TypeError as e:
             print(f"Serialization error similar sounds: {e}")
             return None
         except Exception as e:
             print(f"Unexpected similar sounds error: {e}")
-            return None  
-        
+            return None
+
+            
     def get_translation(self, word):
         try:
             translation = self.redis.get(f'translation:{word}')
@@ -179,10 +187,12 @@ class YouTubeHelper:
                 if hanzidentifier.has_chinese(word):
                     translation = list(pinyin.cedict.all_phrase_translations(word))
                     # Convert to list and serialize to JSON
-                    self.redis.set(f'translation:{word}', json.dumps(translation))
+                    translation_json = json.dumps(translation)
+                    self.redis.set(f'translation:{word}', translation_json)
+                    return translation_json
                 else:
                     return None
-            return json.loads(translation)
+            return json.loads(translation.decode('utf-8'))
         except TypeError as e:
             print(f"Serialization translation error: {e}")
             return None
@@ -204,7 +214,6 @@ class YouTubeHelper:
             keyword_schema = KeywordSchema(entity.id, entity.freebase_types)
             keyword_schemas.append(keyword_schema)
             all_keywords.append(entity.id)
-            print(entity.id, entity.relevance_score, entity.confidence_score, entity.freebase_types)
         priority_keywords = Counter(all_keywords)
 
         sorted_keywords = sorted(
@@ -215,27 +224,49 @@ class YouTubeHelper:
         #remove duplicates
         seen_words = set()
         unique_keywords = [entity for entity in sorted_keywords if not (entity.ChineseWord in seen_words or seen_words.add(entity.ChineseWord))]
-        return unique_keywords
+        return unique_keywords[:30]
     
+    def get_with_backoff(self, url, max_retries=10):
+        for n in range(max_retries):
+            try:
+                response = requests.get(url)
+                response.raise_for_status()
+                return response
+            except HTTPError as e:
+                if e.response.status_code == 429 and n < max_retries - 1:  # Too Many Requests
+                    sleep_time = 2 ** n  # Exponential backoff
+                    print(f"Rate limit exceeded. Retrying in {sleep_time} seconds...")
+                    time.sleep(sleep_time)
+                    continue
+                else:
+                    raise
+        return None
+
     def get_images(self, keywords):
-        keyword_imgs = {}
+        keyword_imgs = []
+        customsearch_url = f"https://www.googleapis.com/customsearch/v1?key={Config.GOOGLE_IMG_API_KEY}&cx={Config.GOOGLE_CX}&searchType=image&q="
         try:
             for keywordObj in keywords:
                 keyword = keywordObj.ChineseWord
+                self.redis.delete(f'images:{keyword}') # DELETE THIS!! (after one round)
                 print(f"looking up images for {keyword}\n")
                 cached_imgs = self.redis.get(f'images:{keyword}')
                 if cached_imgs is None:
-                    response = requests.get(f'https://www.googleapis.com/customsearch/v1?key={Config.GOOGLE_IMG_API_KEY}&cx={Config.GOOGLE_CX}&searchType=image&q={keyword}')
-                    if response.status_code == 200:
-                        images_data = response.json()
-                        cached_imgs = images_data['items'][:3]
-                        self.redis.set(f'images:{keyword}', json.dumps(cached_imgs))
-                    else:
-                        return None
+                    try:
+                        photos = self.pu.photos(type_='random', count=1, featured=True, query="splash")
+                        [photo] = photos.entries
+                        download_link = photo.link_download
+                        #response = requests.get(download_link, allow_redirects=True)
+                        # Convert the image data to base64
+                        #image_base64 = base64.b64encode(response.content).decode('utf-8')
+                        self.redis.set(f'images:{keyword}', json.dumps(download_link))
+                    except requests.exceptions.RequestException as e:
+                        print(f"PyUnsplash API request failed: {e}")
+                        cached_imgs = None
                 else:
-                    if isinstance(cached_imgs, str):
-                        keyword_imgs[keyword] = json.loads(cached_imgs)
-                keyword_imgs[keyword] = cached_imgs
+                    if cached_imgs is not None:
+                        cached_imgs = json.loads(cached_imgs)
+                keyword_imgs.append({'keyword': keyword, 'img': cached_imgs})
             return keyword_imgs
         except TypeError as e:
             print(f"Serialization images error: {e}")
@@ -244,8 +275,9 @@ class YouTubeHelper:
             print(f"Unexpected images error: {e}")
             return None
 
+
     def get_keywords_and_img(self, transcript):
-        print(f"gettin getting keywords and img in youtube helper \n")
+        print(f"getting keywords and img in youtube helper \n")
         all_simplified = self.turn_to_simplified(transcript)
         keywords = self.get_keywords(all_simplified)
         keyword_images = self.get_images(keywords)
