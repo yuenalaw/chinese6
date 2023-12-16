@@ -303,7 +303,7 @@ def add_word(word, pinyin, similar_words, images, translation):
         print(f"An error occurred (add word): {e}")
         db.session.rollback()
 
-def add_sentence(user_id, sentence_id, sentence, edited_sentence, youtube_seconds, youtube_id, line_num, youtube_creator, video_title):
+def add_sentence(sentence_id, sentence, youtube_seconds, youtube_id, line_num, youtube_creator, video_title):
     try:
         existing_sentence = db.session.query(Sentence).filter(Sentence.id == sentence_id).first()
 
@@ -315,11 +315,6 @@ def add_sentence(user_id, sentence_id, sentence, edited_sentence, youtube_second
         else:
             sentence_id = existing_sentence.id
 
-        if edited_sentence is not None:
-            new_user_sentence = UserSentence(user_id=user_id, sentence_id=sentence_id, edited_sentence=edited_sentence)
-            db.session.add(new_user_sentence)
-            db.session.commit()
-
         return sentence_id
     except Exception as e:
         print(f"An error occurred (add sentence): {e}")
@@ -329,14 +324,24 @@ def add_review_records(user_id, word_id, sentence_id, note) -> None:
     # start a new transaction
     try:
         with db.session.begin():
-            # Create a new UserWordSentence
-            new_user_word_sentence = UserWordSentence(
+            # Check if UserWordSentence already exists
+            existing_user_word_sentence = UserWordSentence.query.filter_by(
                 user_id=user_id,
                 word_id=word_id,
-                sentence_id=sentence_id,
-                note=note
-            )
-            db.session.add(new_user_word_sentence)
+                sentence_id=sentence_id
+            ).first()
+
+            if existing_user_word_sentence is None:
+                # Create a new UserWordSentence
+                new_user_word_sentence = UserWordSentence(
+                    user_id=user_id,
+                    word_id=word_id,
+                    sentence_id=sentence_id,
+                    note=note
+                )
+                db.session.add(new_user_word_sentence)
+            else:
+                new_user_word_sentence = existing_user_word_sentence
 
             # Create a new UserWordReview with default values
             new_user_word_review = UserWordReview(
