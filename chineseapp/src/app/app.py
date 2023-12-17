@@ -10,6 +10,8 @@ from flask_socketio import SocketIO
 from flask_socketio import join_room
 from .database import db
 
+from celery import Celery, Task
+
 from src.app.blueprint.youtubebp import youtubebp
 from src.app.blueprint.example_bp import example_bp
 from src.app.blueprint.dbbp import db_bp
@@ -23,6 +25,29 @@ logging.config.dictConfig(app.config["DICT_LOGGER"])
 
 # Database config
 db.init_app(app)
+
+# celery
+app.config.from_mapping(
+    CELERY=dict(
+        broker_url=os.environ.get('CELERY_BROKER_URL'),
+        result_backend=os.environ.get('CELERY_RESULT_BACKEND'),
+        task_ignore_result = False
+    )
+)
+
+def celery_init_app(app: Flask) -> Celery:
+    class FlaskTask(Task):
+        def __call__(self, *args:object, **kwargs:object) -> object:
+            with app.app_context():
+                return self.run(*args, **kwargs)
+        
+    celery_app = Celery(app.name, task_cls=FlaskTask)
+    celery_app.config_from_object('src.app.config.DevelopmentConfig')
+    celery_app.set_default()
+    app.extensions["celery"] = celery_app
+    return celery_app
+
+celery_app = celery_init_app(app)
 
 # Enable CORS on blueprints
 CORS(youtubebp)

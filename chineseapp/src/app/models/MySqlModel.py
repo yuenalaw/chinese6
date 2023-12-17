@@ -40,6 +40,7 @@ class UserWordReview(db.Model):
     ease_factor = Column(Float)
     word_interval = Column(Integer)
     next_review = Column(Date)
+    reviewed_sentence_id = Column(Integer, ForeignKey('user_word_sentence.id'))  # Add this line
 
 class UserWordSentence(db.Model):
     __tablename__ = 'user_word_sentence'

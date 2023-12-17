@@ -57,7 +57,8 @@ services:
       - backnet
       - frontnet
       - brokernet
-    command: celery -A src.app.celery_app.celery_app --broker=redis://redis:6379 worker --loglevel=info --concurrency=2
+    # command: celery -A src.app.celery_app.celery_app --broker=redis://redis:6379 worker --loglevel=info --concurrency=2
+    command: celery -A src.app.celery_app --broker=redis://redis:6379 worker --loglevel=info --concurrency=2
     volumes:
       - modelvolume:/app/model_cache
       - stanzavolume:/app/stanza_resources
@@ -81,7 +82,7 @@ services:
       - backnet
       - frontnet
       - brokernet
-    command: celery -A src.app.celery_app.celery_app --broker=redis://redis:6379 flower --port=5555
+    command: celery -A src.app.celery_app --broker=redis://redis:6379 flower --port=5555
     volumes:
       - modelvolume:/app/model_cache
       - stanzavolume:/app/stanza_resources

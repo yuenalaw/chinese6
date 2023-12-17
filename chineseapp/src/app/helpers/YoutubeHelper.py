@@ -169,7 +169,7 @@ class YouTubeHelper:
                 if candidates:
                     candidates_json = json.dumps(list(candidates))
                     self.redis.set(f'similarsound:{word}', candidates_json)
-                    return candidates_json
+                    return candidates
                 return None
             return json.loads(cache_similarsounds.decode('utf-8'))  # Decode the byte string and load the JSON data
         except TypeError as e:
@@ -189,7 +189,7 @@ class YouTubeHelper:
                     # Convert to list and serialize to JSON
                     translation_json = json.dumps(translation)
                     self.redis.set(f'translation:{word}', translation_json)
-                    return translation_json
+                    return translation
                 else:
                     return None
             return json.loads(translation.decode('utf-8'))
@@ -248,7 +248,7 @@ class YouTubeHelper:
         try:
             for keywordObj in keywords:
                 keyword = keywordObj.ChineseWord
-                self.redis.delete(f'images:{keyword}') # DELETE THIS!! (after one round)
+                # self.redis.delete(f'images:{keyword}')
                 print(f"looking up images for {keyword}\n")
                 cached_imgs = self.redis.get(f'images:{keyword}')
                 if cached_imgs is None:
@@ -260,6 +260,7 @@ class YouTubeHelper:
                         # Convert the image data to base64
                         #image_base64 = base64.b64encode(response.content).decode('utf-8')
                         self.redis.set(f'images:{keyword}', json.dumps(download_link))
+                        cached_imgs = download_link
                     except requests.exceptions.RequestException as e:
                         print(f"PyUnsplash API request failed: {e}")
                         cached_imgs = None

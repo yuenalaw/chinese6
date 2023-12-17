@@ -247,18 +247,18 @@ class ModelRepository:
         
         print(f"On db side... Adding video to lesson. Youtube id: {youtube_id}\n transcript: {processed_transcript}\n keyword_to_images: {keyword_to_images}")
 
-        # Create a new VideoDetails instance,
-        video_details = VideoDetails(
-            id=youtube_id,
-            lesson_data=json.dumps(processed_transcript),  # Convert the list to a JSON string
-            lesson_keyword_imgs=json.dumps(keyword_to_images)  # Convert the dictionary to a JSON string
-        )
-
-        # Add the new VideoDetails instance to the session
-        db.session.add(video_details)
-
-        # Commit the session to save the changes
         try:
+            # Create a new VideoDetails instance,
+            video_details = VideoDetails(
+                id=youtube_id,
+                lesson_data=json.dumps(processed_transcript),  # Convert the list to a JSON string
+                lesson_keyword_imgs=json.dumps(keyword_to_images)  # Convert the dictionary to a JSON string
+            )
+
+            # Add the new VideoDetails instance to the session
+            db.session.add(video_details)
+
+            # Commit the session to save the changes
             db.session.commit()
             print(f"Added VideoDetails for youtube_id {youtube_id}")
         except Exception as e:
