@@ -35,7 +35,10 @@ services:
       - backnet
       - frontnet
       - brokernet
-    command: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 src.app.wsgi:app
+    #command: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 src.app.wsgi:app
+    command: >
+          bash -c "python src/app/init_db.py && 
+                  gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 src.app.wsgi:app"
     volumes:
       - ./src:/usr/src/app/src
       - modelvolume:/app/model_cache
@@ -57,8 +60,7 @@ services:
       - backnet
       - frontnet
       - brokernet
-    # command: celery -A src.app.celery_app.celery_app --broker=redis://redis:6379 worker --loglevel=info --concurrency=2
-    command: celery -A src.app.celery_app --broker=redis://redis:6379 worker --loglevel=info --concurrency=2
+    command: celery -A src.app.celery_worker.celery --broker=redis://redis:6379 worker --loglevel=info --concurrency=2
     volumes:
       - modelvolume:/app/model_cache
       - stanzavolume:/app/stanza_resources
@@ -82,7 +84,7 @@ services:
       - backnet
       - frontnet
       - brokernet
-    command: celery -A src.app.celery_app --broker=redis://redis:6379 flower --port=5555
+    command: celery -A src.app.celery_worker.celery --broker=redis://redis:6379 flower --port=5555
     volumes:
       - modelvolume:/app/model_cache
       - stanzavolume:/app/stanza_resources

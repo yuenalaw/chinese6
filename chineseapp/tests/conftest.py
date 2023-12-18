@@ -11,7 +11,7 @@ sys.path.append("..")
 dotenv_path = join(dirname(__file__), DOTENV_FILENAME)
 load_dotenv(dotenv_path)
 
-from src.app.app import app as _app
+from src.app.run import app as _app
 from src.app.database import db as _db
 
 @pytest.fixture

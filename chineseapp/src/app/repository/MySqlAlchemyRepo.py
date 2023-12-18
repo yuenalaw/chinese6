@@ -6,7 +6,7 @@ from typing import List, Tuple
 from sqlalchemy.exc import IntegrityError
 import redis
 import json
-import random
+import random 
 
 r = redis.Redis(host='localhost', port=6379)
 
@@ -217,6 +217,9 @@ class ModelRepository:
             print(f"An error occurred (updating UserSentence): {e}")
             db.session.rollback()
     
+    def video_details_exists(self, id):
+        return db.session.query(VideoDetails.id).filter_by(id=id).scalar() is not None
+    
     def get_lesson_data(self, youtube_id, user_id):
         video_details = VideoDetails.query.get(youtube_id)
         user_sentences = UserSentence.query.filter_by(youtube_id=youtube_id, user_id=user_id).all()
@@ -246,7 +249,6 @@ class ModelRepository:
     def add_video_lesson_to_db(self, youtube_id, processed_transcript, keyword_to_images):
         
         print(f"On db side... Adding video to lesson. Youtube id: {youtube_id}\n transcript: {processed_transcript}\n keyword_to_images: {keyword_to_images}")
-
         try:
             # Create a new VideoDetails instance,
             video_details = VideoDetails(

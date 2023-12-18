@@ -1,5 +1,5 @@
 from src.app.database import db
-from sqlalchemy import Column, Integer, Float, Date, Text, String, ForeignKey
+from sqlalchemy import Column, Integer, Float, Date, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import JSON
 
@@ -50,8 +50,8 @@ class UserWordSentence(db.Model):
     word_id = Column(Integer, ForeignKey('word.id'))  # reference Word directly
     youtube_id = Column(String(255), ForeignKey('video_details.id'))  # reference VideoDetails directly
     line_changed = Column(Integer)
-    note = Column(Text) # adding note here, as users can write notes about a certain word in a certain sentence. Means users draw more linkages rather than just one note per word, everywhere.
-    review = db.relationship('UserWordReview', backref='reviewed_sentence', uselist=False) # one to one relationship
+    note = Column(String(255)) # adding note here, as users can write notes about a certain word in a certain sentence. Means users draw more linkages rather than just one note per word, everywhere.
+    review = relationship('UserWordReview', backref='reviewed_sentence', uselist=False) # one to one relationship
 
 class UserSentence(db.Model):
     __tablename__ = 'user_sentence'
@@ -74,4 +74,5 @@ class VideoDetails(db.Model):
 
     id = Column(String(255), primary_key=True) # same as youtube id
     lesson_keyword_imgs = Column(JSON)
-    lesson_data = Column(Text, unique=True, nullable=False)
+    lesson_data = Column(JSON, nullable=False)
+    sentences = relationship('UserWordSentence', backref='video')

@@ -4,7 +4,7 @@ class ModelService:
     model_repository = ModelRepository()
 
     def video_exists(self, vid_id):
-        return False
+        return self.model_repository.video_details_exists(vid_id)
 
     def create_video_lesson(self, youtube_id, processed_transcript, keyword_to_images):
         try:

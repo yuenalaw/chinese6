@@ -1,22 +1,21 @@
-# from src.app.celery_app import celery_app
+from src.app.celery_app import celery
 from src.app.socket_util import send_message_client
 from src.app.helpers.YoutubeHelper import YouTubeHelper
 from src.app.helpers.ModelHelper import ModelService
 from youtube_transcript_api import YouTubeTranscriptApi
 from celery import group, chord
 import logging
-from celery import shared_task
+# from celery import shared_task
 
 logger = logging.getLogger(__name__)
 
-# Example task
-#@celery_app.task
-@shared_task(ignore_result=True)
+
+@celery.task()
 def example_task(param):
     return "This is an example"
 
-#@celery_app.task
-@shared_task(ignore_result=True)
+
+@celery.task()
 def process_video_transcript(id):
     try:
         youtube_helper = YouTubeHelper()
@@ -29,8 +28,8 @@ def process_video_transcript(id):
         logger.error("Error with processing video transcript:", exc_info=True)
         return str(e)
 
-#@celery_app.task
-@shared_task(ignore_result=True)
+
+@celery.task()
 def obtain_keywords_and_img(id):
     try:
         youtube_helper = YouTubeHelper()
@@ -41,25 +40,23 @@ def obtain_keywords_and_img(id):
         print("Error with keywords and image:", str(e))
         logger.error("Error with keywords and image:", exc_info=True)
         return str(e)
-    
-#@celery_app.task
-@shared_task(ignore_result=False)
+
+@celery.task()
 def prepare_add_to_db(results):
     try:
         model_service = ModelService()
         video_subtitles_details = results[0]
         video_keywords_img,id = results[1]
         model_service.create_video_lesson(id, video_subtitles_details, video_keywords_img)
-        return video_subtitles_details, video_keywords_img, id
+        return True
     except Exception as e:
         logger.error("Error in add_to_db:", exc_info=True)
         return None
 
-#@celery_app.task
-@shared_task(ignore_result=False)
+
+@celery.task()
 def execute_transcript_tasks(id):
     prepare_lesson = group(process_video_transcript.s(id), obtain_keywords_and_img.s(id))
-    results = chord(prepare_lesson)(prepare_add_to_db.s())
-    #results = prepare_lesson.apply_async()
+    result = chord(prepare_lesson)(prepare_add_to_db.s())
     print(f"Tasks are being executed in parallel\n")
-    return results
+    return result.id
