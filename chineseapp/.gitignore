@@ -66,6 +66,6 @@ docs/_build/
 *.DS_Store
 
 #config
-src/app/config.py
+#src/app/config.py
 
 /venv/
