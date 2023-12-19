@@ -3,21 +3,10 @@ from sqlalchemy import Column, Integer, Float, Date, Text, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import JSON
 
-class User(db.Model):
-    __tablename__ = 'user'
-
-    id = Column(Integer, primary_key=True)
-    username = Column(String(255), unique=True, nullable=False)
-    study_dates = relationship('UserStudyDate', backref='associated_user')
-    reviews = relationship('UserWordReview', backref='reviewing_user')
-    studied_sentences = relationship('UserWordSentence', backref='studying_user')
-    user_sentences = relationship('UserSentence', backref='sentences_user')
-
 class UserStudyDate(db.Model):
     __tablename__ = 'user_study_date'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
     study_date = Column(Date)
 
 class Word(db.Model): # word is kept as a table, as it allows for one word to be mapped to many sentences
@@ -33,7 +22,6 @@ class UserWordReview(db.Model):
     __tablename__ = 'user_word_review'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
     word_id = Column(Integer, ForeignKey('word.id'))
     last_reviewed = Column(Date)
     repetitions = Column(Integer)
@@ -46,7 +34,6 @@ class UserWordSentence(db.Model):
     __tablename__ = 'user_word_sentence'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
     word_id = Column(Integer, ForeignKey('word.id'))  # reference Word directly
     youtube_id = Column(String(255), ForeignKey('video_details.id'))  # reference VideoDetails directly
     line_changed = Column(Integer)
@@ -57,7 +44,6 @@ class UserSentence(db.Model):
     __tablename__ = 'user_sentence'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
     line_changed = Column(Integer)
     youtube_id = Column(String(255))
     user_sentence = Column(JSON) # does not have to be edited, just a sentence the user saves

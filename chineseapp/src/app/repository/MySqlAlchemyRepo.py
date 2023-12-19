@@ -11,29 +11,19 @@ import random
 r = redis.Redis(host='localhost', port=6379)
 
 class ModelRepository:
-    def add_user(self, username):
-        user = User(username=username)
-        db.session.add(user)
-        try:
-            db.session.commit()
-            return user
-        except IntegrityError:
-            db.session.rollback()
-            return User.query.filter_by(username=username).first()
     
-    def get_random_sentence(self, user_id: int, word_id: int):
+    def get_random_sentence(self, word_id: int):
         """
-        Fetch a random edited sentence containing a specific word for a specific user.
+        Fetch a random edited sentence containing a specific word.
 
         Parameters:
-        user_id (int): The ID of the user.
         word_id (int): The ID of the word.
 
         Returns:
         str: The sentence.
         """
         # Fetch all UserWordSentence entries for the given word
-        user_word_sentences = UserWordSentence.query.filter_by(user_id=user_id, word_id=word_id).all()
+        user_word_sentences = UserWordSentence.query.filter_by(word_id=word_id).all()
 
         # If there are no sentences for the word, return None
         if not user_word_sentences:
@@ -43,18 +33,15 @@ class ModelRepository:
         user_word_sentence = random.choice(user_word_sentences)
 
         # Get the UserSentence entry
-        user_sentence = UserSentence.query.filter_by(user_id=user_id, youtube_id=user_word_sentence.youtube_id, line_changed=user_word_sentence.line_changed).first()
+        user_sentence = UserSentence.query.filter_by(youtube_id=user_word_sentence.youtube_id, line_changed=user_word_sentence.line_changed).first()
         if user_sentence is None:
             return None
 
         return user_sentence.user_sentence
 
-    def get_review_words_today(self, user_id: int) -> List[Tuple[UserWordReview, Word]]:
+    def get_review_words_today(self) -> List[Tuple[UserWordReview, Word]]:
         """
-        Get words for review for a specific user today.
-
-        Parameters:
-        user_id (int): The ID of the user.
+        Get words for review for today
 
         Returns:
         List[Tuple[UserWordReview, Word]]: A list of tuples containing the review and word.
@@ -62,7 +49,7 @@ class ModelRepository:
         today = datetime.now().date()
 
         # Try to get the result from the cache
-        key = f"review_words:{user_id}:{today}"
+        key = f"review_words:{today}"
         result = r.get(key)
 
         if result is not None:
@@ -76,7 +63,6 @@ class ModelRepository:
             ).join(
                 Word, UserWordReview.word_id == Word.id
             ).filter(
-                UserWordReview.user_id == user_id,
                 UserWordReview.next_review <= today
             )
 
@@ -90,15 +76,15 @@ class ModelRepository:
             db.session.rollback()
             return []
 
-    def review_cards_today(self, user_id: int):
-        reviews_today = self.get_review_words_today(user_id)
+    def review_cards_today(self):
+        reviews_today = self.get_review_words_today()
         cards = []
         for review, word in reviews_today:
-            sentence = self.get_random_sentence(user_id, word.id)
+            sentence = self.get_random_sentence( word.id)
             cards.append({'word': word, 'sentence': sentence, 'review': review})
         return cards
 
-    def get_sentence_context(self, user_id: int, youtube_id: str, line_changed: int):
+    def get_sentence_context(self, youtube_id: str, line_changed: int):
         try:
             # Get the VideoDetails entry
             video_details = VideoDetails.query.get(youtube_id)
@@ -113,12 +99,12 @@ class ModelRepository:
 
             # Check if user has any edited versions of these
             if previous_sentence:
-                user_previous_sentence = UserSentence.query.filter_by(user_id=user_id, youtube_id=youtube_id, line_changed=line_changed - 1).first()
+                user_previous_sentence = UserSentence.query.filter_by(youtube_id=youtube_id, line_changed=line_changed - 1).first()
                 if user_previous_sentence:
                     previous_sentence = user_previous_sentence.user_sentence
 
             if next_sentence:
-                user_next_sentence = UserSentence.query.filter_by(user_id=user_id, youtube_id=youtube_id, line_changed=line_changed + 1).first()
+                user_next_sentence = UserSentence.query.filter_by(youtube_id=youtube_id, line_changed=line_changed + 1).first()
                 if user_next_sentence:
                     next_sentence = user_next_sentence.user_sentence
 
@@ -128,12 +114,11 @@ class ModelRepository:
             return None, None
 
 
-    def update_user_word_review(self, user_id: int, word_id: int, last_reviewed: date, repetitions: int, ease_factor: float, word_interval: int, next_review: date) -> None:
+    def update_user_word_review(self, word_id: int, last_reviewed: date, repetitions: int, ease_factor: float, word_interval: int, next_review: date) -> None:
         """
         Update a UserWordReview entry for a specific user and word sentence.
 
         Parameters:
-        user_id (int): The ID of the user.
         word_id (int): The ID of the word.
         last_reviewed (date): The date when the word was last reviewed.
         repetitions (int): The number of repetitions for the word.
@@ -143,7 +128,7 @@ class ModelRepository:
         """
         try:
             # Get the UserWordReview entry
-            review = db.session.query(UserWordReview).filter_by(user_id=user_id, word_id=word_id).first()
+            review = db.session.query(UserWordReview).filter_by(word_id=word_id).first()
             if review is None:
                 print(f"No such review found in db")
                 return None
@@ -157,17 +142,16 @@ class ModelRepository:
             # Commit the changes
             db.session.commit()
 
-            print(f"Updated UserWordReview for user_id {user_id} and word_id {word_id}")
+            print(f"Updated UserWordReview for word_id {word_id}")
         except Exception as e:
             print(f"An error occurred (updating UserWordReview): {e}")
             db.session.rollback()
 
-    def update_note(self, user_id: int, youtube_id: str, word_id: int, line_changed: int, note: str) -> None:
+    def update_note(self, youtube_id: str, word_id: int, line_changed: int, note: str) -> None:
         """
         Update the note for a specific user and word sentence.
 
         Parameters:
-        user_id (int): The ID of the user.
         youtube_id (str): The ID of the video.
         word_id (str): The ID of the word.
         line_changed (int): The index of the sentence in the lesson_data.
@@ -175,7 +159,7 @@ class ModelRepository:
         """
         try:
             # Get the UserWordSentence entry
-            user_word_sentence = db.session.query(UserWordSentence).filter_by(user_id=user_id, youtube_id=youtube_id, word_id=word_id, line_changed=line_changed).first()
+            user_word_sentence = db.session.query(UserWordSentence).filter_by(youtube_id=youtube_id, word_id=word_id, line_changed=line_changed).first()
             if user_word_sentence is None:
                 print(f"No such user word sentence; cannot update note")
                 return None
@@ -185,24 +169,23 @@ class ModelRepository:
             # Commit the changes
             db.session.commit()
 
-            print(f"Updated UserWordSentence for user_id {user_id}, youtube_id {youtube_id}, line_changed {line_changed}, and word_id {word_id}")
+            print(f"Updated UserWordSentence for youtube_id {youtube_id}, line_changed {line_changed}, and word_id {word_id}")
         except Exception as e:
             print(f"An error occurred (updating UserWordSentence): {e}")
             db.session.rollback()
 
-    def update_user_sentence(self, user_id: int, youtube_id: str, line_changed: int, user_sentence: json) -> None:
+    def update_user_sentence(self, youtube_id: str, line_changed: int, user_sentence: json) -> None:
         """
         Update the user_sentence for a specific user and sentence.
 
         Parameters:
-        user_id (int): The ID of the user.
         youtube_id (str): The ID of the video.
         line_changed (int): The index of the sentence in the lesson_data.
         user_sentence (str): The new user sentence.
         """
         try:
             # Get the UserSentence entry
-            user_sentence_entry = db.session.query(UserSentence).filter_by(user_id=user_id, youtube_id=youtube_id, line_changed=line_changed).first()
+            user_sentence_entry = db.session.query(UserSentence).filter_by(youtube_id=youtube_id, line_changed=line_changed).first()
             if user_sentence_entry is None:
                 print(f"No such user sentence; cannot update user sentence")
                 return None
@@ -212,14 +195,14 @@ class ModelRepository:
             # Commit the changes
             db.session.commit()
 
-            print(f"Updated UserSentence for user_id {user_id}, youtube_id {youtube_id}, and line_changed {line_changed}")
+            print(f"Updated UserSentence for youtube_id {youtube_id}, and line_changed {line_changed}")
         except Exception as e:
             print(f"An error occurred (updating UserSentence): {e}")
             db.session.rollback()
     
-    def get_lesson_data(self, youtube_id, user_id):
+    def get_lesson_data(self, youtube_id):
         video_details = VideoDetails.query.get(youtube_id)
-        user_sentences = UserSentence.query.filter_by(youtube_id=youtube_id, user_id=user_id).all()
+        user_sentences = UserSentence.query.filter_by(youtube_id=youtube_id).all()
 
         # Convert the list of UserSentence objects to a dictionary for easier lookup
         user_sentences_dict = {us.line_changed: us for us in user_sentences}
@@ -280,13 +263,12 @@ class ModelRepository:
             print(f"An error occurred (add word): {e}")
             db.session.rollback()
 
-    def add_review_records(self, user_id, word_id, youtube_id, line_changed, note) -> None:
+    def add_review_records(self, word_id, youtube_id, line_changed, note) -> None:
         # start a new transaction
         try:
             with db.session.begin():
                 # Check if UserWordSentence already exists
                 existing_user_word_sentence = UserWordSentence.query.filter_by(
-                    user_id=user_id,
                     word_id=word_id,
                     youtube_id=youtube_id,
                     line_changed=line_changed
@@ -295,7 +277,6 @@ class ModelRepository:
                 if existing_user_word_sentence is None:
                     # Create a new UserWordSentence
                     new_user_word_sentence = UserWordSentence(
-                        user_id=user_id,
                         word_id=word_id,
                         youtube_id=youtube_id,
                         line_changed=line_changed,
@@ -307,7 +288,6 @@ class ModelRepository:
 
                 # Create a new UserWordReview with default values
                 new_user_word_review = UserWordReview(
-                    user_id=user_id,
                     word_id=word_id,  # Assuming UserWordReview has a word_id field
                     last_reviewed=datetime.now().date(),
                     repetitions=0,
@@ -323,13 +303,13 @@ class ModelRepository:
             print(f"An error occurred (add review records): {e}")
             db.session.rollback()
     
-    def add_word_sentence_review(self, word, pinyin, similar_words, translation, sentence_id, user_id, note):
+    def add_word_sentence_review(self, word, pinyin, similar_words, translation, sentence_id, note):
         try:
             # Add word
             word_id = self.add_word(word, pinyin, similar_words, translation)
 
             # Add review records
-            self.add_review_records(user_id, word_id, sentence_id, note)
+            self.add_review_records(word_id, sentence_id, note)
 
             return True
         except Exception as e:
@@ -337,35 +317,31 @@ class ModelRepository:
             db.session.rollback()
             return False
 
-    def add_study_date(self, user_id: int, study_date: date = datetime.now().date()):
+    def add_study_date(self, study_date: date = datetime.now().date()):
         """
         Add a study date for a specific user.
 
         Parameters:
-        user_id (int): The ID of the user.
         study_date (date, optional): The study date. Defaults to today's date.
         """
         try:
-            new_study_date = UserStudyDate(user_id=user_id, study_date=study_date)
+            new_study_date = UserStudyDate(study_date=study_date)
             db.session.add(new_study_date)
             db.session.commit()
         except Exception as e:
             print(f"An error occurred (add study date): {e}")
             db.session.rollback()
 
-    def calculate_study_streak(self, user_id: int) -> int:
+    def calculate_study_streak(self) -> int:
         """
         Calculate the study streak for a specific user.
-
-        Parameters:
-        user_id (int): The ID of the user.
 
         Returns:
         int: The study streak of the user.
         """
         try:
             # Get the most recent study date
-            most_recent_study_date = db.session.query(UserStudyDate.study_date).filter(UserStudyDate.user_id == user_id).order_by(UserStudyDate.study_date.desc()).first()
+            most_recent_study_date = db.session.query(UserStudyDate.study_date).order_by(UserStudyDate.study_date.desc()).first()
 
             if most_recent_study_date is None:
                 return 0
@@ -374,7 +350,7 @@ class ModelRepository:
             previous_day = most_recent_study_date.study_date - timedelta(days=1)
 
             # Get the study date for the previous day
-            previous_study_date = db.session.query(UserStudyDate.study_date).filter(UserStudyDate.user_id == user_id, UserStudyDate.study_date == previous_day).first()
+            previous_study_date = db.session.query(UserStudyDate.study_date).filter(UserStudyDate.study_date == previous_day).first()
 
             streak = 1
 
@@ -382,7 +358,7 @@ class ModelRepository:
             while previous_study_date is not None:
                 streak += 1
                 previous_day -= timedelta(days=1)
-                previous_study_date = db.session.query(UserStudyDate.study_date).filter(UserStudyDate.user_id == user_id, UserStudyDate.study_date == previous_day).first()
+                previous_study_date = db.session.query(UserStudyDate.study_date).filter(UserStudyDate.study_date == previous_day).first()
 
             return streak
         except Exception as e:
