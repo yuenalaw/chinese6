@@ -244,7 +244,7 @@ class YouTubeHelper:
 
     def get_images(self, keywords):
         keyword_imgs = []
-        customsearch_url = f"https://www.googleapis.com/customsearch/v1?key={Config.GOOGLE_IMG_API_KEY}&cx={Config.GOOGLE_CX}&searchType=image&q="
+        # customsearch_url = f"https://www.googleapis.com/customsearch/v1?key={Config.GOOGLE_IMG_API_KEY}&cx={Config.GOOGLE_CX}&searchType=image&q="
         try:
             for keywordObj in keywords:
                 keyword = keywordObj.ChineseWord
