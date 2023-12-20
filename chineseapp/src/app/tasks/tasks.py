@@ -49,6 +49,7 @@ def prepare_add_to_db(results):
         model_service = ModelService()
         video_subtitles_details = results[0]
         video_keywords_img,id = results[1]
+        print(f"In prepare add to db... video sub details: {video_subtitles_details}\n video keywords img: {video_keywords_img}\n videoid: {id}")
         model_service.create_video_lesson(id, video_subtitles_details, video_keywords_img)
         return video_subtitles_details, video_keywords_img, id
     except Exception as e:

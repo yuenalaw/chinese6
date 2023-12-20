@@ -20,6 +20,7 @@ class ModelService:
         try:
             obtained_video = self.model_repository.get_lesson_data(youtube_id)
             print(f"i got... {obtained_video}")
+            return obtained_video
         except Exception as e:
             print(f"In model service; error occured getting video lesson: {e}")
             return False
@@ -36,6 +37,7 @@ class ModelService:
         try:
             study_streak = self.model_repository.calculate_study_streak()
             print(f"Study streak is {study_streak}!")
+            return study_streak
         except Exception as e:
             print(f"In model service; error occured getting streak: {e}")
             return False
@@ -76,6 +78,7 @@ class ModelService:
         try:
             previous, next = self.model_repository.get_sentence_context(youtube_id, line_changed)
             print(f"previous sentence: {previous}, next: {next}")
+            return previous, next
         except Exception as e:
             print(f"In model service; error occured getting context: {e}")
             return False  
@@ -84,6 +87,7 @@ class ModelService:
         try:
             cards = self.model_repository.get_review_words_today()
             print(f"Cards due today: {cards}")
+            return cards
         except Exception as e:
             print(f"In model service; error occured getting cards today: {e}")
             return False  

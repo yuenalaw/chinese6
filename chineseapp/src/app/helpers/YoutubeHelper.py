@@ -164,39 +164,50 @@ class YouTubeHelper:
             return None
 
     def get_similarsoundwords(self, word):
-        if word is None:
+        if not word:
             return None
+
         try:
             cache_similarsounds = self.redis.get(f'similarsound:{word}')
-            if cache_similarsounds is None:
-                candidates = list(dimsim.get_candidates(word, mode='simplified', theta=1))
-                if candidates:
-                    candidates_json = json.dumps(list(candidates))
-                    self.redis.set(f'similarsound:{word}', candidates_json)
-                    return candidates
+            if cache_similarsounds:
+                return json.loads(cache_similarsounds.decode('utf-8'))  # Decode the byte string and load the JSON data
+
+            candidates = list(set(dimsim.get_candidates(word, mode='simplified', theta=1)))  # Use set to remove duplicates
+            if not candidates:
                 return None
-            return json.loads(cache_similarsounds.decode('utf-8'))  # Decode the byte string and load the JSON data
+
+            # Limit the list of candidates to a maximum of 5
+            candidates = candidates[:5]
+
+            candidates_json = json.dumps(candidates)
+            self.redis.set(f'similarsound:{word}', candidates_json)
+            return candidates
+
         except TypeError as e:
             print(f"Serialization error similar sounds: {e}")
             return None
         except Exception as e:
             print(f"Unexpected similar sounds error: {e}")
             return None
-
             
     def get_translation(self, word):
+        if not word or not hanzidentifier.has_chinese(word):
+            return None
+
         try:
             translation = self.redis.get(f'translation:{word}')
-            if translation is None:
-                if hanzidentifier.has_chinese(word):
-                    translation = list(pinyin.cedict.all_phrase_translations(word))
-                    # Convert to list and serialize to JSON
-                    translation_json = json.dumps(translation)
-                    self.redis.set(f'translation:{word}', translation_json)
-                    return translation
-                else:
-                    return None
-            return json.loads(translation.decode('utf-8'))
+            if translation:
+                return json.loads(translation.decode('utf-8'))  # Decode the byte string and load the JSON data
+
+            translation = list(pinyin.cedict.all_phrase_translations(word))
+            if not translation:
+                return None
+
+            # Convert to list and serialize to JSON
+            translation_json = json.dumps(translation)
+            self.redis.set(f'translation:{word}', translation_json)
+            return translation
+
         except TypeError as e:
             print(f"Serialization translation error: {e}")
             return None
