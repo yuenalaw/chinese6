@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from src.app.tasks.tasks import execute_transcript_tasks
 from celery.result import AsyncResult
-from src.app.helpers.ModelHelper import ModelService
+from src.app.helpers.ModelService import ModelService
 from flask import jsonify
 
 youtubebp = Blueprint('youtubebp', __name__,

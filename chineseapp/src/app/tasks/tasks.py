@@ -1,7 +1,7 @@
 # from src.app.celery_app import celery_app
 from src.app.socket_util import send_message_client
 from src.app.helpers.YoutubeHelper import YouTubeHelper
-from src.app.helpers.ModelHelper import ModelService
+from src.app.helpers.ModelService import ModelService
 from youtube_transcript_api import YouTubeTranscriptApi
 from celery import group, chord
 import logging
@@ -11,12 +11,12 @@ logger = logging.getLogger(__name__)
 
 # Example task
 #@celery_app.task
-@shared_task(ignore_result=True)
+@shared_task(ignore_result=False)
 def example_task(param):
     return "This is an example"
 
 #@celery_app.task
-@shared_task(ignore_result=True)
+@shared_task(ignore_result=False)
 def process_video_transcript(id):
     try:
         youtube_helper = YouTubeHelper()
@@ -30,7 +30,7 @@ def process_video_transcript(id):
         return str(e)
 
 #@celery_app.task
-@shared_task(ignore_result=True)
+@shared_task(ignore_result=False)
 def obtain_keywords_and_img(id):
     try:
         youtube_helper = YouTubeHelper()

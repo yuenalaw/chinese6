@@ -60,4 +60,5 @@ class VideoDetails(db.Model):
 
     id = Column(String(255), primary_key=True) # same as youtube id
     lesson_keyword_imgs = Column(JSON)
-    lesson_data = Column(Text, unique=True, nullable=False)
+    lesson_data = Column(JSON, nullable=False)
+    sentences = relationship('UserWordSentence', backref='video')

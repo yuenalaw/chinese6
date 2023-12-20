@@ -16,6 +16,7 @@ from src.app.blueprint.youtubebp import youtubebp
 from src.app.blueprint.example_bp import example_bp
 from src.app.blueprint.dbbp import db_bp
 from src.app.exception_handler import init_exception_handler
+from src.app.models import MySqlModel
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -25,6 +26,8 @@ logging.config.dictConfig(app.config["DICT_LOGGER"])
 
 # Database config
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 # celery
 app.config.from_mapping(

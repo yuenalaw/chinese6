@@ -1,4 +1,4 @@
-from src.app.models.MySqlModel import User, UserStudyDate, Word, UserWordReview, UserWordSentence, UserSentence, VideoDetails
+from src.app.models.MySqlModel import UserStudyDate, Word, UserWordReview, UserWordSentence, UserSentence, VideoDetails
 from src.app.database import db
 from datetime import datetime, timedelta
 from datetime import date
@@ -116,7 +116,7 @@ class ModelRepository:
 
     def update_user_word_review(self, word_id: int, last_reviewed: date, repetitions: int, ease_factor: float, word_interval: int, next_review: date) -> None:
         """
-        Update a UserWordReview entry for a specific user and word sentence.
+        Update a UserWordReview entry for a word sentence.
 
         Parameters:
         word_id (int): The ID of the word.
@@ -176,12 +176,12 @@ class ModelRepository:
 
     def update_user_sentence(self, youtube_id: str, line_changed: int, user_sentence: json) -> None:
         """
-        Update the user_sentence for a specific user and sentence.
+        Update the user_sentence for a specific sentence.
 
         Parameters:
         youtube_id (str): The ID of the video.
         line_changed (int): The index of the sentence in the lesson_data.
-        user_sentence (str): The new user sentence.
+        user_sentence (json): The new user sentence -- THROUGH YOUTUBEHELPER.
         """
         try:
             # Get the UserSentence entry
@@ -199,6 +199,9 @@ class ModelRepository:
         except Exception as e:
             print(f"An error occurred (updating UserSentence): {e}")
             db.session.rollback()
+    
+    def video_details_exists(self, id):
+        return db.session.query(VideoDetails.id).filter_by(id=id).scalar() is not None
     
     def get_lesson_data(self, youtube_id):
         video_details = VideoDetails.query.get(youtube_id)
