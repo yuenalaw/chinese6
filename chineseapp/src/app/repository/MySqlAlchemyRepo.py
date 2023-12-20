@@ -127,6 +127,7 @@ class ModelRepository:
         next_review (date): The date for the next review of the word.
         """
         try:
+            print(f"word id is {word_id}, last reviewed is {last_reviewed}, repetitions is {repetitions}, ease factor is {ease_factor}, interval is {word_interval} and next review date is {next_review}")
             # Get the UserWordReview entry
             review = db.session.query(UserWordReview).filter_by(word_id=word_id).first()
             if review is None:
@@ -142,7 +143,7 @@ class ModelRepository:
             # Commit the changes
             db.session.commit()
 
-            print(f"Updated UserWordReview for word_id {word_id}")
+            print(f"Updated UserWordReview for word_id {word_id} with new repetition: {repetitions}, ease factor: {ease_factor}, interval: {word_interval}, next review date is {next_review}")
         except Exception as e:
             print(f"An error occurred (updating UserWordReview): {e}")
             db.session.rollback()
@@ -259,8 +260,10 @@ class ModelRepository:
                 new_word = Word(word=word, pinyin=pinyin, similar_words=similar_words, translation=translation)
                 db.session.add(new_word)
                 db.session.commit()
+                print(f"word id is {new_word.id}")
                 return new_word.id
-
+            
+            print(f"word id is {existing_word.id}")
             return existing_word.id
         except Exception as e:
             print(f"An error occurred (add word): {e}")
@@ -293,7 +296,7 @@ class ModelRepository:
                 new_user_word_review = UserWordReview(
                     word_id=word_id,  # Assuming UserWordReview has a word_id field
                     last_reviewed=datetime.now().date(),
-                    repetitions=0,
+                    repetitions=0, # default repetitions if new
                     ease_factor=2.5,  # default ease factor for SuperMemo2 algorithm
                     word_interval=1,
                     next_review=datetime.now().date()  # Review word tomorrow

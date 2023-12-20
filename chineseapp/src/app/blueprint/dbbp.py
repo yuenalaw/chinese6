@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from src.app.helpers.ModelService import ModelService
 
 db_bp = Blueprint('db_bp', __name__,
@@ -10,7 +10,7 @@ model_service = ModelService()
 
 @db_bp.route('/makelesson', methods=['POST'])
 def create_lesson():
-    request_data = request.form
+    request_data = request.get_json()
     print(f"request data is {request_data}")
     try:
         model_service.create_video_lesson(request_data['youtube_id'], request_data['processed_transcript'], request_data['keyword_to_images'])
@@ -47,9 +47,9 @@ def get_streak():
         print("Error:", str(e))
         return {'message': 'Failed to obtain study streak'}, 500
 
-@db_bp.route('/addreview', methods=['POST'])
+@db_bp.route('/addnewreview', methods=['POST'])
 def add_review():
-    request_data = request.form
+    request_data = request.get_json()
     print(f"request data is {request_data}")
     try:
         model_service.add_review(request_data['word'], request_data['pinyin'], request_data['similar_words'], request_data['translation'], request_data['sentence_id'], request_data['note'])
@@ -58,9 +58,33 @@ def add_review():
         print("Error:", str(e))
         return {'message': 'Failed to add review'}, 500
 
+@db_bp.route('/updatereview', methods=['POST'])
+def update_review():
+    request_data = request.get_json()
+    print(f"request data is {request_data}")
+    try:
+        model_service.update_user_word_review(request_data['word_id'], request_data['last_repetitions'], request_data['prev_ease_factor'], request_data['prev_word_interval'], request_data['quality'])
+        return {'message': 'Successfully updated review!'}, 200
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to update review'}, 500#
+
+@db_bp.route('/addword', methods=['POST'])
+def add_word():
+    # Parse JSON data from the request
+    request_data = request.get_json()
+
+    print(f"request data is {request_data}")
+    try:
+        model_service.add_word(request_data['word'], request_data['pinyin'], request_data['similar_words'], request_data['translation'])
+        return jsonify({'message': 'Successfully added word!'}), 200
+    except Exception as e:
+        print("Error:", str(e))
+        return jsonify({'message': 'Failed to add word'}), 500
+
 @db_bp.route('/updatesentence', methods=['POST'])
 def update_user_sentence():
-    request_data = request.form
+    request_data = request.get_json()
     print(f"request data is {request_data}")
     try:
         model_service.update_user_sentence(request_data['youtube_id'], request_data['line_changed'], request_data['new_sentence'])
@@ -71,7 +95,7 @@ def update_user_sentence():
 
 @db_bp.route('/updatenote', methods=['POST'])
 def update_note():
-    request_data = request.form
+    request_data = request.get_json()
     print(f"request data is {request_data}")
     try:
         model_service.update_note(request_data['youtube_id'], request_data['word_id'], request_data['line_changed'], request_data['note'])

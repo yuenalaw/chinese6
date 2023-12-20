@@ -143,8 +143,9 @@ class YouTubeHelper:
         try:
             calc_pinyin = self.redis.get(f'pinyin:{word}')
             if calc_pinyin is not None:
-                return json.loads(calc_pinyin.decode('utf-8'))  # Decode the byte string and load the JSON data
-
+                calc_pinyin = json.loads(calc_pinyin.decode('utf-8'))  # Decode the byte string and load the JSON data
+                calc_pinyin = calc_pinyin.replace('"', '')
+                return calc_pinyin
             if not hanzidentifier.has_chinese(word):
                 return None
 
@@ -152,6 +153,7 @@ class YouTubeHelper:
             if calc_pinyin is None:
                 return None
 
+            calc_pinyin = calc_pinyin.replace('"', '')
             calc_pinyin_json = json.dumps(calc_pinyin)
             self.redis.set(f'pinyin:{word}', calc_pinyin_json)
             return calc_pinyin_json
@@ -259,11 +261,9 @@ class YouTubeHelper:
 
     def get_images(self, keywords):
         keyword_imgs = []
-        # customsearch_url = f"https://www.googleapis.com/customsearch/v1?key={Config.GOOGLE_IMG_API_KEY}&cx={Config.GOOGLE_CX}&searchType=image&q="
         try:
             for keywordObj in keywords:
                 keyword = keywordObj.ChineseWord
-                # self.redis.delete(f'images:{keyword}')
                 print(f"looking up images for {keyword}\n")
                 cached_imgs = self.redis.get(f'images:{keyword}')
                 if cached_imgs is None:
@@ -271,9 +271,6 @@ class YouTubeHelper:
                         photos = self.pu.photos(type_='random', count=1, featured=True, query="splash")
                         [photo] = photos.entries
                         download_link = photo.link_download
-                        #response = requests.get(download_link, allow_redirects=True)
-                        # Convert the image data to base64
-                        #image_base64 = base64.b64encode(response.content).decode('utf-8')
                         self.redis.set(f'images:{keyword}', json.dumps(download_link))
                         cached_imgs = download_link
                     except requests.exceptions.RequestException as e:

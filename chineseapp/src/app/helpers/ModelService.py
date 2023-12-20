@@ -1,8 +1,10 @@
 from src.app.repository.MySqlAlchemyRepo import ModelRepository
-from datetime import date
+from src.app.helpers.SRSHelper import SRSHelper
+from datetime import date, timedelta
 
 class ModelService:
     model_repository = ModelRepository()
+    SRS_helper = SRSHelper()
 
     def video_exists(self, vid_id):
         return self.model_repository.video_details_exists(vid_id)
@@ -50,6 +52,14 @@ class ModelService:
             print(f"In model service; error occured adding review: {e}")
             return False
     
+    def add_word(self, word, pinyin, similar_words, translation):
+        try:
+            self.model_repository.add_word(word, pinyin, similar_words, translation)
+            print(f"Added word!")
+        except Exception as e:
+            print(f"In model service; error occured adding word: {e}")
+            return False
+    
     def update_user_sentence(self, youtube_id, line_changed, new_sentence):
         """
         new sentence has the same json structure as old, going through youtube helper and getting pinyin etc
@@ -70,9 +80,17 @@ class ModelService:
             print(f"In model service; error occured updating note: {e}")
             return False  
     
-    def update_user_word_review(self, word_id: int, last_reviewed: date, repetitions: int, ease_factor: float, word_interval: int, next_review: date):
+    def update_user_word_review(self, word_id: int, last_repetitions: int, last_ease_factor: float, word_interval: int, quality: int):
         # talk to the SRS service here to increment repetitions, NEW ease factor, word interval, next review
-        pass
+        last_reviewed = date.today()
+        interval, repetitions, ease_factor = self.SRS_helper.sm2(last_repetitions, last_ease_factor, word_interval, quality)
+        next_review = last_reviewed + timedelta(days=interval)
+        try:
+            self.model_repository.update_user_word_review(word_id, last_reviewed, repetitions, ease_factor, interval, next_review)
+            print(f"Updated user word review!")
+        except Exception as e:
+            print(f"In model service; error occured updating user word review: {e}")
+            return False
 
     def get_sentence_context(self, youtube_id, line_changed):
         try:

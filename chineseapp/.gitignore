@@ -1,7 +1,7 @@
 # findCP specific
 .env
 files/
-static/
+# static/
 findcp-env/
 supervisor/pro
 supervisor/dev/logs
