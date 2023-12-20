@@ -142,16 +142,20 @@ class YouTubeHelper:
     def get_pinyin(self, word):
         try:
             calc_pinyin = self.redis.get(f'pinyin:{word}')
-            if calc_pinyin is None:
-                if hanzidentifier.has_chinese(word):
-                    calc_pinyin = pinyin.get(word, format="strip", delimiter=" ")
-                    if calc_pinyin is not None:
-                        calc_pinyin_json = json.dumps(calc_pinyin)
-                        self.redis.set(f'pinyin:{word}', calc_pinyin_json)
-                        return calc_pinyin_json
-                    return None
+            if calc_pinyin is not None:
+                return json.loads(calc_pinyin.decode('utf-8'))  # Decode the byte string and load the JSON data
+
+            if not hanzidentifier.has_chinese(word):
                 return None
-            return json.loads(calc_pinyin.decode('utf-8'))  # Decode the byte string and load the JSON data
+
+            calc_pinyin = pinyin.get(word, format="strip", delimiter=" ")
+            if calc_pinyin is None:
+                return None
+
+            calc_pinyin_json = json.dumps(calc_pinyin)
+            self.redis.set(f'pinyin:{word}', calc_pinyin_json)
+            return calc_pinyin_json
+
         except TypeError as e:
             print(f"Serialization error pinyin: {e}")
             return None
