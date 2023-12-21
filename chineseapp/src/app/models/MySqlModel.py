@@ -1,6 +1,6 @@
 from src.app.database import db
 from sqlalchemy import Column, Integer, Float, Date, Text, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, class_mapper
 from sqlalchemy.dialects.mysql import JSON
 
 class UserStudyDate(db.Model):
@@ -17,6 +17,9 @@ class Word(db.Model): # word is kept as a table, as it allows for one word to be
     pinyin = Column(String(255))
     similar_words = Column(JSON)
     translation = Column(JSON)
+    def to_dict(self):
+        return {c.key: getattr(self, c.key)
+                for c in class_mapper(self.__class__).columns}
 
 class UserWordReview(db.Model):
     __tablename__ = 'user_word_review'
@@ -28,7 +31,9 @@ class UserWordReview(db.Model):
     ease_factor = Column(Float)
     word_interval = Column(Integer)
     next_review = Column(Date)
-    reviewed_sentence_id = Column(Integer, ForeignKey('user_word_sentence.id'))  # Add this line
+    def to_dict(self):
+        return {c.key: getattr(self, c.key)
+                for c in class_mapper(self.__class__).columns}
 
 class UserWordSentence(db.Model):
     __tablename__ = 'user_word_sentence'
@@ -38,6 +43,7 @@ class UserWordSentence(db.Model):
     youtube_id = Column(String(255), ForeignKey('video_details.id'))  # reference VideoDetails directly
     line_changed = Column(Integer)
     note = Column(Text) # adding note here, as users can write notes about a certain word in a certain sentence. Means users draw more linkages rather than just one note per word, everywhere.
+    sentence = Column(String(255))
     review = db.relationship('UserWordReview', backref='reviewed_sentence', uselist=False) # one to one relationship
 
 class UserSentence(db.Model):

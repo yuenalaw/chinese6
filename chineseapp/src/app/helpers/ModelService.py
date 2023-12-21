@@ -16,7 +16,7 @@ class ModelService:
             return True
         except Exception as e:
             print(f"In model service; error occured in the repo when creating video lesson: {e}")
-            return False
+            raise
     
     def get_video(self, youtube_id):
         try:
@@ -25,7 +25,7 @@ class ModelService:
             return obtained_video
         except Exception as e:
             print(f"In model service; error occured getting video lesson: {e}")
-            return False
+            raise
 
     def add_study_date(self):
         try:
@@ -33,7 +33,7 @@ class ModelService:
             print(f"Updated study date!")
         except Exception as e:
             print(f"In model service; error occured updating study date: {e}")
-            return False
+            raise
 
     def get_streak(self):
         try:
@@ -42,15 +42,15 @@ class ModelService:
             return study_streak
         except Exception as e:
             print(f"In model service; error occured getting streak: {e}")
-            return False
+            raise
     
-    def add_review(self, word, pinyin, similar_words, translation, sentence_id, note):
+    def add_review(self, word, pinyin, similar_words, translation, youtube_id, line_changed, sentence, note):
         try:
-            self.model_repository.add_word_sentence_review(word, pinyin, similar_words, translation, sentence_id, note)
+            self.model_repository.add_word_sentence_review(word, pinyin, similar_words, translation, youtube_id, line_changed, sentence, note)
             print(f"Added review!")
         except Exception as e:
             print(f"In model service; error occured adding review: {e}")
-            return False
+            raise
     
     def add_word(self, word, pinyin, similar_words, translation):
         try:
@@ -58,7 +58,7 @@ class ModelService:
             print(f"Added word!")
         except Exception as e:
             print(f"In model service; error occured adding word: {e}")
-            return False
+            raise
     
     def update_user_sentence(self, youtube_id, line_changed, new_sentence):
         """
@@ -70,7 +70,7 @@ class ModelService:
             print(f"Updated user sentence")
         except Exception as e:
             print(f"In model service; error occured adding new user sentence: {e}")
-            return False
+            raise
     
     def update_note(self, youtube_id: str, word_id: int, line_changed: int, note: str):
         try:
@@ -78,7 +78,7 @@ class ModelService:
             print(f"Added/ update note!")
         except Exception as e:
             print(f"In model service; error occured updating note: {e}")
-            return False  
+            raise 
     
     def update_user_word_review(self, word_id: int, last_repetitions: int, last_ease_factor: float, word_interval: int, quality: int):
         # talk to the SRS service here to increment repetitions, NEW ease factor, word interval, next review
@@ -90,7 +90,7 @@ class ModelService:
             print(f"Updated user word review!")
         except Exception as e:
             print(f"In model service; error occured updating user word review: {e}")
-            return False
+            raise
 
     def get_sentence_context(self, youtube_id, line_changed):
         try:
@@ -99,13 +99,13 @@ class ModelService:
             return previous, next
         except Exception as e:
             print(f"In model service; error occured getting context: {e}")
-            return False  
+            raise
 
     def get_cards_today(self):
         try:
-            cards = self.model_repository.get_review_words_today()
+            cards = self.model_repository.review_cards_today()
             print(f"Cards due today: {cards}")
             return cards
         except Exception as e:
             print(f"In model service; error occured getting cards today: {e}")
-            return False  
+            raise

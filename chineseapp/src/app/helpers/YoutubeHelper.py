@@ -87,7 +87,6 @@ class YouTubeHelper:
         for i, segment in enumerate(transcript):
             simplified_text = HanziConv.toSimplified(segment['text'])
             doc = self.stanza_nlp(simplified_text)
-            sentences = []
             for j, sentence in enumerate(doc.sentences):
                 seg_res = []
                 if sentence.text and not sentence.text.strip().isalnum():
@@ -114,15 +113,13 @@ class YouTubeHelper:
                     "sentence": sentence.text,
                     "entries": seg_res
                 }
-                sentences.append(sentence_obj)
             results.append({
                 "segment": simplified_text,
                 "start": segment['start'],
                 "duration": segment['duration'],
-                "sentences": sentences
+                "sentences": sentence_obj
             })
-        return results
-    
+        return json.dumps(results)
     
     def generate_punctuation(self,x: str):
         if not self.model or not self.tokenizer or not self.ner:
@@ -156,7 +153,7 @@ class YouTubeHelper:
             calc_pinyin = calc_pinyin.replace('"', '')
             calc_pinyin_json = json.dumps(calc_pinyin)
             self.redis.set(f'pinyin:{word}', calc_pinyin_json)
-            return calc_pinyin_json
+            return calc_pinyin
 
         except TypeError as e:
             print(f"Serialization error pinyin: {e}")
@@ -204,6 +201,9 @@ class YouTubeHelper:
             translation = list(pinyin.cedict.all_phrase_translations(word))
             if not translation:
                 return None
+
+            # filter those that are non-string
+            translation = [item for item in translation if isinstance(item, str)]
 
             # Convert to list and serialize to JSON
             translation_json = json.dumps(translation)
@@ -280,7 +280,7 @@ class YouTubeHelper:
                     if cached_imgs is not None:
                         cached_imgs = json.loads(cached_imgs)
                 keyword_imgs.append({'keyword': keyword, 'img': cached_imgs})
-            return keyword_imgs
+            return json.dumps(keyword_imgs)
         except TypeError as e:
             print(f"Serialization images error: {e}")
             return None
