@@ -11,9 +11,8 @@ youtubebp = Blueprint('youtubebp', __name__,
 
 model_service = ModelService()
 
-@youtubebp.route('/vid') #/vid?v=<id>
-def process_video():
-    id=request.args.get('v')
+@youtubebp.route('/vid/<id>', methods=['GET'])
+def process_video(id):
     try:
         # enqueue celery task
         print(f"trying to enqueue with video... {id}")
