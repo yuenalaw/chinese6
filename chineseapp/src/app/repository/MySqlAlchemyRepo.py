@@ -196,15 +196,18 @@ class ModelRepository:
             # Get the UserSentence entry
             user_sentence_entry = db.session.query(UserSentence).filter_by(youtube_id=youtube_id, line_changed=line_changed).first()
             if user_sentence_entry is None:
-                print(f"No such user sentence; cannot update user sentence")
-                return None
-            # Update the user_sentence
-            user_sentence_entry.user_sentence = user_sentence
+                # Create a new UserSentence
+                user_sentence_entry = UserSentence(youtube_id=youtube_id, line_changed=line_changed, user_sentence=user_sentence)
+                db.session.add(user_sentence_entry)
+                print(f"Created UserSentence for youtube_id {youtube_id}, and line_changed {line_changed}")
+            else:
+                # Update the user_sentence
+                user_sentence_entry.user_sentence = user_sentence
+                print(f"Updated UserSentence for youtube_id {youtube_id}, and line_changed {line_changed}")
 
             # Commit the changes
             db.session.commit()
 
-            print(f"Updated UserSentence for youtube_id {youtube_id}, and line_changed {line_changed}")
         except Exception as e:
             print(f"An error occurred (updating UserSentence): {e}")
             db.session.rollback()
