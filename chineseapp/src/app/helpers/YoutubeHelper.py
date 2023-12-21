@@ -202,9 +202,6 @@ class YouTubeHelper:
             if not translation:
                 return None
 
-            # filter those that are non-string
-            translation = [item for item in translation if isinstance(item, str)]
-
             # Convert to list and serialize to JSON
             translation_json = json.dumps(translation)
             self.redis.set(f'translation:{word}', translation_json)
