@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from src.app.tasks.tasks import execute_transcript_tasks
+from src.app.tasks.tasks import execute_transcript_tasks, execute_new_sentence
 from celery.result import AsyncResult
 from src.app.helpers.ModelService import ModelService
 from flask import jsonify
@@ -30,6 +30,18 @@ def process_video():
     except Exception as e:
         print("Error:", str(e))
         return {'message': 'Failed to enqueue task'}, 500
+
+@youtubebp.route('/updatesentence', methods=['POST'])
+def update_user_sentence():
+    request_data = request.get_json()
+    try:
+        task = execute_new_sentence.apply_async([request_data['youtube_id'], request_data['line_changed'], request_data['sentence']])
+        task_id = task.id
+        print(f"Task ID:{task_id}") # send this to the client for them to check below method
+        return {'message': 'Sentence task has been added to the queue', 'task_id': task_id}, 202
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to update user sentence'}, 500
 
 @youtubebp.route('/task/<task_id>', methods=['GET']) # client polls this
 def taskstatus(task_id):

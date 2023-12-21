@@ -9,15 +9,12 @@ import requests
 import time
 from requests.exceptions import HTTPError
 from src.app.config import Config
-from transformers import AutoTokenizer, BertForTokenClassification
-from transformers import pipeline
 import json
 import dimsim
 from src.app.schemas.KeywordSchema import KeywordSchema
 from collections import Counter
 from src.app.textrazor_client import text_razor_client
 from pyunsplash import PyUnsplash
-import base64
         
 # @inproceedings{qi2020stanza,
 #     title={Stanza: A {Python} Natural Language Processing Toolkit for Many Human Languages},
@@ -33,30 +30,9 @@ class YouTubeHelper:
     
     def __init__(self):
         self.stanza_nlp = None
-        self.translation_cache = {}
-        self.pinyin_cache = {}
-        self.bing_url = "https://api.bing.microsoft.com/v7.0/images/search"
-        self.TAG = "raynardj/classical-chinese-punctuation-guwen-biaodian"
-        self.model = None
-        self.tokenizer = None
-        self.ner = None
         self.redis = Redis(connection_pool=pool)  # Connect to your Redis server
-        self.MAX_CHARS = 200
         self.text_razor_client = text_razor_client
     
-    def init_ner_helper(self):
-        try:
-            if self.model is None:
-                self.model = BertForTokenClassification.from_pretrained(self.TAG, cache_dir='/app/model_cache')
-                print(f"NER model downloaded to: app/model_cache")
-            if self.tokenizer is None:
-                self.tokenizer = AutoTokenizer.from_pretrained(self.TAG, cache_dir='/app/tokenizer_cache')
-                print(f"Tokenizer downloaded to: app/tokenizer_cache")
-            if self.ner is None:
-                self.ner = pipeline("ner", model=self.model, tokenizer=self.tokenizer)
-        except Exception as e:
-            print("Error initializing ner pipelines:", str(e))
-
     def init_stanza_helper(self):
         try:
             print(f"downloading stanza....")
@@ -80,6 +56,42 @@ class YouTubeHelper:
         print("finished simplified!")
         return simplified_transcript.strip()
 
+    def process_words(self, sentence):
+        seg_res = []
+        for word in sentence.words:
+            word_text = word.text
+            word_upos = word.upos
+
+            calculated_pinyin = self.get_pinyin(word_text)
+            calculated_translation = self.get_translation(word_text)
+            similar_sounds = self.get_similarsoundwords(word_text)
+
+            entry = {
+                "word": word_text,
+                "upos": word_upos,
+                "pinyin": calculated_pinyin,
+                "translation": calculated_translation,
+                "similarsounds": similar_sounds
+            }
+            seg_res.append(entry)
+        return seg_res
+
+    def process_sentence(self, sentence):
+        if not self.stanza_nlp:
+            self.init_stanza_helper()
+
+        simplified_text = HanziConv.toSimplified(sentence)
+        doc = self.stanza_nlp(simplified_text)
+
+        seg_res = self.process_words(doc.sentences[0])
+
+        sentence_obj = {
+            "sentence": doc.sentences[0].text,
+            "entries": seg_res
+        }
+
+        return json.dumps(sentence_obj)
+
     def video_processing(self, transcript):
         if not self.stanza_nlp:
             self.init_stanza_helper()
@@ -88,53 +100,22 @@ class YouTubeHelper:
             simplified_text = HanziConv.toSimplified(segment['text'])
             doc = self.stanza_nlp(simplified_text)
             for j, sentence in enumerate(doc.sentences):
-                seg_res = []
                 if sentence.text and not sentence.text.strip().isalnum():
                     continue #skip those that are just punctuation
-                for word in sentence.words:
-                    word_text = word.text
-                    word_upos = word.upos
 
-                    calculated_pinyin = self.get_pinyin(word_text)
+                seg_res = self.process_words(sentence)
 
-                    calculated_translation = self.get_translation(word_text)
-
-                    similar_sounds = self.get_similarsoundwords(word_text)
-
-                    entry = {
-                        "word": word_text,
-                        "upos": word_upos,
-                        "pinyin": calculated_pinyin,
-                        "translation": calculated_translation,
-                        "similarsounds": similar_sounds
-                    }
-                    seg_res.append(entry)
                 sentence_obj = {
                     "sentence": sentence.text,
                     "entries": seg_res
                 }
-            results.append({
-                "segment": simplified_text,
-                "start": segment['start'],
-                "duration": segment['duration'],
-                "sentences": sentence_obj
-            })
+                results.append({
+                    "segment": simplified_text,
+                    "start": segment['start'],
+                    "duration": segment['duration'],
+                    "sentences": sentence_obj
+                })
         return json.dumps(results)
-    
-    def generate_punctuation(self,x: str):
-        if not self.model or not self.tokenizer or not self.ner:
-            print("initialising ner model...")
-            self.init_ner_helper()
-        print("adding punctuation...")
-
-        outputs = self.ner(x)
-        x_list = list(x)
-        for i, output in enumerate(outputs):
-            x_list.insert(output['end']+i, output['entity'])
-        
-        print("finished punctuation!")
-        
-        return "".join(x_list)
     
     def get_pinyin(self, word):
         try:

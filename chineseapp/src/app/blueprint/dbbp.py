@@ -80,16 +80,6 @@ def add_word():
         print("Error:", str(e))
         return jsonify({'message': 'Failed to add word'}), 500
 
-@db_bp.route('/updatesentence', methods=['POST'])
-def update_user_sentence():
-    request_data = request.get_json()
-    try:
-        model_service.update_user_sentence(request_data['youtube_id'], request_data['line_changed'], request_data['new_sentence'])
-        return {'message': 'Successfully updated user sentence!'}, 200
-    except Exception as e:
-        print("Error:", str(e))
-        return {'message': 'Failed to update user sentence'}, 500
-
 @db_bp.route('/updatenote', methods=['POST'])
 def update_note():
     request_data = request.get_json()

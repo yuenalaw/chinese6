@@ -26,6 +26,7 @@ class UserWordReview(db.Model):
 
     id = Column(Integer, primary_key=True)
     word_id = Column(Integer, ForeignKey('word.id'))
+    user_word_sentence_id = Column(Integer, ForeignKey('user_word_sentence.id'))
     last_reviewed = Column(Date)
     repetitions = Column(Integer)
     ease_factor = Column(Float)

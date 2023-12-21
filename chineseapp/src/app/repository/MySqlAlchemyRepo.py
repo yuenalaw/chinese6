@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from datetime import date
 from typing import List, Tuple
 from sqlalchemy.exc import IntegrityError
-import redis
 import json
 import random
 
@@ -18,7 +17,7 @@ class ModelRepository:
         word_id (int): The ID of the word.
 
         Returns:
-        str: The sentence.
+        tuple: The sentence and its note
         """
         try:
             # Fetch all UserWordSentence entries for the given word
@@ -27,7 +26,7 @@ class ModelRepository:
             # If there are no sentences for the word, return None
             if not user_word_sentences:
                 print(f"no sentence exists for this word!")
-                return None
+                return None, None, None
 
             # Choose a random UserWordSentence
             user_word_sentence = random.choice(user_word_sentences)
@@ -35,9 +34,9 @@ class ModelRepository:
             # Get the UserSentence entry
             user_sentence = UserSentence.query.filter_by(youtube_id=user_word_sentence.youtube_id, line_changed=user_word_sentence.line_changed).first()
             if user_sentence is not None:
-                return user_sentence.user_sentence
+                return user_sentence.user_sentence, user_word_sentence.note, user_word_sentence.line_changed
 
-            return user_word_sentence.sentence
+            return user_word_sentence.sentence, user_word_sentence.note, user_word_sentence.line_changed
         except Exception as e:
             print(f"An error occurred getting random sentence: {e}")
             raise
@@ -76,8 +75,8 @@ class ModelRepository:
             reviews_today = self.get_review_words_today()
             cards = []
             for review, word in reviews_today:
-                sentence = self.get_random_sentence( word.id)
-                cards.append({'word': word.to_dict(), 'sentence': sentence, 'review': review.to_dict()})
+                sentence, note, line_changed = self.get_random_sentence( word.id)
+                cards.append({'word': word.to_dict(), 'sentence': sentence, 'note': note, 'line_changed':line_changed, 'review': review.to_dict()})
             return cards
         except Exception as e:
             print(f"An error occurred calling get review words today: {e}")
@@ -317,6 +316,7 @@ class ModelRepository:
             # Create a new UserWordReview with default values
             new_user_word_review = UserWordReview(
                 word_id=word_id,  # Assuming UserWordReview has a word_id field
+                user_word_sentence_id=new_user_word_sentence.id,
                 last_reviewed=datetime.now().date(),
                 repetitions=0, # default repetitions if new
                 ease_factor=2.5,  # default ease factor for SuperMemo2 algorithm

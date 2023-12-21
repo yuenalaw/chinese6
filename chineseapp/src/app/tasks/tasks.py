@@ -3,9 +3,8 @@ from src.app.socket_util import send_message_client
 from src.app.helpers.YoutubeHelper import YouTubeHelper
 from src.app.helpers.ModelService import ModelService
 from youtube_transcript_api import YouTubeTranscriptApi
-from celery import group, chord
+from celery import group, chord, chain, shared_task
 import logging
-from celery import shared_task
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +55,28 @@ def prepare_add_to_db(results):
         logger.error("Error in add_to_db:", exc_info=True)
         return None
 
+@shared_task(ignore_result=False)
+def update_user_sentence(processed_sentence, youtube_id, line_changed):
+    try:
+        model_service = ModelService()
+        print(f"in the celery update user sentence, before model service, with processed sentence: {processed_sentence}")
+        model_service.update_user_sentence(youtube_id, line_changed, processed_sentence)
+        return processed_sentence
+    except Exception as e:
+        logger.error("Error in update_user_sentence:", exc_info=True)
+        return None
+
+@shared_task(ignore_result=False)
+def process_new_sentence(sentence):
+    try:
+        youtube_helper = YouTubeHelper()
+        processed_sentence = youtube_helper.process_sentence(sentence)
+        return processed_sentence
+    except Exception as e:
+        print("Error with processing sentence:", str(e))
+        logger.error("Error with processing sentence:", exc_info=True)
+        return str(e)
+
 #@celery_app.task
 @shared_task(ignore_result=False)
 def execute_transcript_tasks(id):
@@ -64,3 +85,12 @@ def execute_transcript_tasks(id):
     #results = prepare_lesson.apply_async()
     print(f"Tasks are being executed in parallel\n")
     return results
+
+@shared_task(ignore_result=False)
+def execute_new_sentence(youtube_id, line_changed, sentence):
+    processed_sentence = chain(
+        process_new_sentence.s(sentence),
+        update_user_sentence.s(youtube_id, line_changed)
+    )
+    result = processed_sentence.apply_async()
+    return result
