@@ -1,117 +1,74 @@
-version: "3.9"
+version: '3.9'
 
 services:
-
   redis:
+    # image: arm64v8/redis -- for macos
     image: "redis:alpine"
     networks:
-      - brokernet
+    - backnet
+    expose:
+      - 6379
 
   db:
+    # image: arm64v8/mysql -- for macos
     image: mysql:8.0.20
-    restart: always
+    restart: no
     ports:
-      - "3325:3306"
+      - "3306:3306"
     expose:
       - 3306
-    command: '--init-file /data/application/init.sql --default-authentication-plugin=mysql_native_password'
     volumes:
-      - ./scripts/mysql.sql:/data/application/init.sql
+      - ./db/initdb.d:/docker-entrypoint-initdb.d
+      - ./db/conf.d:/etc/mysql/conf.d
+      - mysql-local:/var/lib/mysql
     env_file:
       - ./.docker.env
     networks:
       - backnet
 
   backend:
-    build: 
-      context: .
-      dockerfile: docker/backend/Dockerfile
-    restart: always
+    build:
+      context: backend
+      dockerfile: Dockerfile.hot
+    restart: no
     ports:
       - "5000:5000"
     expose:
       - 5000
-    networks:
-      - backnet
-      - frontnet
-      - brokernet
-    #command: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 src.app.wsgi:app
-    command: >
-          bash -c "python src/app/init_db.py && 
-                  gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 src.app.wsgi:app"
-    volumes:
-      - ./src:/usr/src/app/src
-      - modelvolume:/app/model_cache
-      - stanzavolume:/app/stanza_resources
-      - tokenizer_cache_volume:/app/tokenizer_cache
-
-    env_file:
-      - ./.docker.env
+    command:
+      flask --app src.init_app --debug run --host 0.0.0.0
     depends_on:
       - db
       - redis
-
+    env_file:
+      - ./.docker.env
+    volumes:
+      - ./backend/src:/app/src
+    networks:
+      - backnet
+  
   worker:
-    build: 
-      context: .
-      dockerfile: docker/worker/Dockerfile
-    restart: always
+    build:
+      context: worker
+      dockerfile: Dockerfile
+    restart: no
     networks:
       - backnet
-      - frontnet
-      - brokernet
-    command: celery -A src.app.celery_worker.celery --broker=redis://redis:6379 worker --loglevel=info --concurrency=2
-    volumes:
-      - modelvolume:/app/model_cache
-      - stanzavolume:/app/stanza_resources
-      - tokenizer_cache_volume:/app/tokenizer_cache
-    env_file:
-      - ./.docker.env
+    command: celery -A src.init_celery worker -l info -E
+    # command: ls -la src
     depends_on:
-      - db
-      - redis
-
-  flower:
-    build: 
-      context: .
-      dockerfile: docker/worker/Dockerfile
-    restart: always
+          - redis
     ports:
-      - "5555:5555"
+      - "6666:5555"
     expose:
       - 5555
-    networks:
-      - backnet
-      - frontnet
-      - brokernet
-    command: celery -A src.app.celery_worker.celery --broker=redis://redis:6379 flower --port=5555
     volumes:
-      - modelvolume:/app/model_cache
+      - ./worker/src:/app/src
       - stanzavolume:/app/stanza_resources
-      - tokenizer_cache_volume:/app/tokenizer_cache
-    env_file:
-      - ./.docker.env
-    depends_on:
-      - redis
 
-  proxy:
-    build: 
-      context: .
-      dockerfile: docker/proxy/Dockerfile
-    restart: always
-    ports:
-      - 80:80
-    depends_on: 
-      - backend
-    networks:
-      - frontnet
-  
 networks:
   backnet:
-  frontnet:
-  brokernet:
 
 volumes:
-  modelvolume:
   stanzavolume:
-  tokenizer_cache_volume:
+  mysql-local:
