@@ -94,6 +94,7 @@ class ModelRepository:
 
             # Get the sentences
             lesson_data = json.loads(video_details.lesson_data)
+            print(f"This is the lesson data: {lesson_data}")
             previous_sentence = lesson_data[line_changed - 1] if line_changed > 0 else None
             next_sentence = lesson_data[line_changed + 1] if line_changed < len(lesson_data) - 1 else None
 
@@ -101,12 +102,12 @@ class ModelRepository:
             if previous_sentence:
                 user_previous_sentence = UserSentence.query.filter_by(youtube_id=youtube_id, line_changed=line_changed - 1).first()
                 if user_previous_sentence:
-                    previous_sentence = user_previous_sentence.user_sentence
+                    previous_sentence = json.loads(user_previous_sentence.user_sentence)
 
             if next_sentence:
                 user_next_sentence = UserSentence.query.filter_by(youtube_id=youtube_id, line_changed=line_changed + 1).first()
                 if user_next_sentence:
-                    next_sentence = user_next_sentence.user_sentence
+                    next_sentence = json.loads(user_next_sentence.user_sentence)
 
             return previous_sentence, next_sentence
         except Exception as e:
@@ -246,9 +247,12 @@ class ModelRepository:
 
     def add_video_lesson_to_db(self, youtube_id, processed_transcript, keyword_to_images):
         
-        print(f"On db side... Adding video to lesson. Youtube id: {youtube_id}\n transcript: {processed_transcript}\n keyword_to_images: {keyword_to_images}")
+        print(f"On db side... Adding video to lesson. Youtube id: {youtube_id}\n")
 
         try:
+            # Delete any existing VideoDetails with the same youtube_id
+            VideoDetails.query.filter_by(id=youtube_id).delete()
+
             # Create a new VideoDetails instance,
             video_details = VideoDetails(
                 id=youtube_id,

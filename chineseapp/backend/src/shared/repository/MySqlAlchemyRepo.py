@@ -2,7 +2,6 @@ from ..model.models import db, UserStudyDate, Word, UserWordReview, UserWordSent
 from datetime import datetime, timedelta
 from datetime import date
 from typing import List, Tuple
-from sqlalchemy.exc import IntegrityError
 import json
 import random
 
@@ -94,6 +93,7 @@ class ModelRepository:
 
             # Get the sentences
             lesson_data = json.loads(video_details.lesson_data)
+            print(f"This is the lesson data: {lesson_data}")
             previous_sentence = lesson_data[line_changed - 1] if line_changed > 0 else None
             next_sentence = lesson_data[line_changed + 1] if line_changed < len(lesson_data) - 1 else None
 
@@ -112,7 +112,6 @@ class ModelRepository:
         except Exception as e:
             print(f"An error occurred while getting sentence context: {e}")
             raise
-
 
     def update_user_word_review(self, word_id: int, last_reviewed: date, repetitions: int, ease_factor: float, word_interval: int, next_review: date) -> None:
         """
@@ -264,6 +263,18 @@ class ModelRepository:
             print(f"Added VideoDetails for youtube_id {youtube_id}")
         except Exception as e:
             print(f"An error occurred while adding VideoDetails: {e}")
+            db.session.rollback()
+            raise
+    
+    def delete_video_lesson_from_db(self, youtube_id):
+        try:
+            if (self.video_details_exists(youtube_id)):
+                video_details = VideoDetails.query.get(youtube_id)
+                db.session.delete(video_details)
+                db.session.commit()
+                print(f"Deleted VideoDetails for youtube_id {youtube_id}")
+        except Exception as e:
+            print(f"An error occurred while deleting VideoDetails: {e}")
             db.session.rollback()
             raise
 

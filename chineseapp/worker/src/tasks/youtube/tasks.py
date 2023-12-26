@@ -5,6 +5,7 @@ from ..helper.ModelService import ModelService
 from youtube_transcript_api import YouTubeTranscriptApi
 from celery import group, chord, chain
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 app = create_app() # using the same instance of Flask app as backend
@@ -16,7 +17,6 @@ def process_video_transcript(id):
         transcript_orig = YouTubeTranscriptApi.get_transcript(id, languages=['zh-Hans', 'zh-Hant', 'zh-TW'])
         processed_transcript = youtube_helper.process_transcript(transcript_orig)
         return processed_transcript
-        # send_message_client(video_id, {'task_id':video_id, 'result': transcript}) # client will subscribe to this room name!
     except Exception as e:
         print("Error with processing video transcript:", str(e))
         logger.error("Error with processing video transcript:", exc_info=True)
@@ -41,7 +41,6 @@ def prepare_add_to_db(results):
             model_service = ModelService()
             video_subtitles_details = results[0]
             video_keywords_img,id = results[1]
-            print(f"In prepare add to db... video sub details: {video_subtitles_details}\n video keywords img: {video_keywords_img}\n videoid: {id}")
             model_service.create_video_lesson(id, video_subtitles_details, video_keywords_img)
             return video_subtitles_details, video_keywords_img, id
         except Exception as e:
@@ -50,11 +49,13 @@ def prepare_add_to_db(results):
 
 @celery.task(name="update_user_sentence")
 def update_user_sentence(processed_sentence, youtube_id, line_changed):
-    try:
-        model_service = ModelService()
-        print(f"in the celery update user sentence, before model service, with processed sentence: {processed_sentence}")
-        model_service.update_user_sentence(youtube_id, line_changed, processed_sentence)
-        return processed_sentence
+    try:    
+        with app.app_context():
+            model_service = ModelService()
+            print(f"in the celery update user sentence, before model service, with processed sentence: {processed_sentence}")
+            processed_sentence = json.loads(processed_sentence)
+            model_service.update_user_sentence(youtube_id, line_changed, processed_sentence)
+            return processed_sentence
     except Exception as e:
         logger.error("Error in update_user_sentence:", exc_info=True)
         return None

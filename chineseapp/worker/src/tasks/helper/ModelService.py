@@ -1,6 +1,7 @@
 from ...shared.repository.MySqlAlchemyRepo import ModelRepository
 from .SRSHelper import SRSHelper
 from datetime import date, timedelta
+import json
 
 class ModelService:
     model_repository = ModelRepository()
@@ -11,6 +12,8 @@ class ModelService:
 
     def create_video_lesson(self, youtube_id, processed_transcript, keyword_to_images):
         try:
+            processed_transcript = json.loads(processed_transcript)
+            keyword_to_images = json.loads(keyword_to_images)
             self.model_repository.add_video_lesson_to_db(youtube_id, processed_transcript, keyword_to_images)
             print(f"Successfully added video to db!")
             return True

@@ -16,8 +16,8 @@ def process_video(id):
         print(f"trying to enqueue with video... {id}")
 
         # check if video already exists in the db
-        if (model_service.video_exists(id)):
-            return {'message': 'Video exists in our db!', 'task_id': task_id}, 200
+        # if (model_service.video_exists(id)):
+        #     return {'message': 'Video exists in our db!'}, 200
 
         sig = celery.signature("execute_transcript_tasks")
         task = sig.delay(id)
@@ -34,7 +34,7 @@ def update_user_sentence():
     request_data = request.get_json()
     try:
         sig = celery.signature("execute_new_sentence")
-        task = sig.delay([request_data['youtube_id'], request_data['line_changed'], request_data['sentence']])
+        task = sig.delay(request_data['youtube_id'], request_data['line_changed'], request_data['sentence'])
         task_id = task.id
         print(f"Task ID:{task_id}") # send this to the client for them to check below method
         return {'message': 'Sentence task has been added to the queue', 'task_id': task_id}, 202
