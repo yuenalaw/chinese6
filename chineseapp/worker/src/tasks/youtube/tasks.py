@@ -1,4 +1,5 @@
 from ...celery_app import celery
+from ...init_app import create_app
 from ..helper.YoutubeHelper import YouTubeHelper
 from ..helper.ModelService import ModelService
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -6,6 +7,7 @@ from celery import group, chord, chain
 import logging
 
 logger = logging.getLogger(__name__)
+app = create_app() # using the same instance of Flask app as backend
 
 @celery.task(name="process_video_transcript")
 def process_video_transcript(id):
@@ -34,16 +36,17 @@ def obtain_keywords_and_img(id):
     
 @celery.task(name="prepare_add_to_db")
 def prepare_add_to_db(results):
-    try:
-        model_service = ModelService()
-        video_subtitles_details = results[0]
-        video_keywords_img,id = results[1]
-        print(f"In prepare add to db... video sub details: {video_subtitles_details}\n video keywords img: {video_keywords_img}\n videoid: {id}")
-        model_service.create_video_lesson(id, video_subtitles_details, video_keywords_img)
-        return video_subtitles_details, video_keywords_img, id
-    except Exception as e:
-        logger.error("Error in add_to_db:", exc_info=True)
-        return None
+    with app.app_context():
+        try:
+            model_service = ModelService()
+            video_subtitles_details = results[0]
+            video_keywords_img,id = results[1]
+            print(f"In prepare add to db... video sub details: {video_subtitles_details}\n video keywords img: {video_keywords_img}\n videoid: {id}")
+            model_service.create_video_lesson(id, video_subtitles_details, video_keywords_img)
+            return video_subtitles_details, video_keywords_img, id
+        except Exception as e:
+            logger.error("Error in add_to_db:", exc_info=True)
+            return None
 
 @celery.task(name="update_user_sentence")
 def update_user_sentence(processed_sentence, youtube_id, line_changed):
@@ -72,7 +75,6 @@ def process_new_sentence(sentence):
 def execute_transcript_tasks(id):
     prepare_lesson = group(process_video_transcript.s(id), obtain_keywords_and_img.s(id))
     results = chord(prepare_lesson)(prepare_add_to_db.s())
-    #results = prepare_lesson.apply_async()
     print(f"Tasks are being executed in parallel\n")
     return results
 
