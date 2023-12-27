@@ -9,14 +9,15 @@ youtubebp = Blueprint('youtubebp', __name__,
 
 model_service = ModelService()
 
-@youtubebp.route('/vid/<id>', methods=['GET'])
-def process_video(id):
+@youtubebp.route('/vid', methods=['POST'])
+def process_video():
+    request_data = request.get_json()
     try:
         # enqueue celery task
-        print(f"trying to enqueue with video... {id}")
+        print(f"trying to enqueue with video... {request_data['video_id']}")
 
         sig = celery.signature("execute_transcript_tasks")
-        task = sig.delay(id)
+        task = sig.delay(request_data['video_id'], request_data['forced'])
         task_id = task.id
         
         print(f"Task ID:{task_id}") # send this to the client for them to check below method
@@ -30,7 +31,7 @@ def add_full_transcript():
     request_data = request.get_json()
     try:
         sig = celery.signature("execute_transcript_tasks_non_youtube")
-        task = sig.delay(request_data['id'], request_data['transcript'])
+        task = sig.delay(request_data['id'], request_data['transcript'], request_data['forced'])
         task_id = task.id 
         print(f"Task ID:{task_id}") # send this to the client for them to check below method
         return {'message': 'Full transcript task has been added to the queue', 'task_id': task_id}, 202

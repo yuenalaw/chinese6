@@ -1,4 +1,5 @@
-from ..model.models import db, UserSentence, VideoDetails
+from ..model.models import db, UserWordReview, UserWordSentence, UserSentence, VideoDetails
+from sqlalchemy import and_
 import json
 
 class ModelRepository:
@@ -43,8 +44,20 @@ class ModelRepository:
         print(f"On db side... Adding video to lesson. Vid id: {video_id}\n")
 
         try:
-            # Delete any existing VideoDetails with the same video_id
-            VideoDetails.query.filter_by(id=video_id).delete()
+            if self.video_details_exists(video_id):
+                # Delete any existing UserWordReview with the same user_word_sentence_id
+                UserWordReview.query.filter(UserWordReview.user_word_sentence_id.in_(
+                    db.session.query(UserWordSentence.id).filter_by(video_id=video_id)
+                )).delete(synchronize_session='fetch')
+
+                # Delete any existing UserSentence with the same video_id
+                UserSentence.query.filter_by(video_id=video_id).delete()
+
+                # Delete any existing UserWordSentence with the same video_id
+                UserWordSentence.query.filter_by(video_id=video_id).delete()
+
+                # Delete any existing VideoDetails with the same video_id
+                VideoDetails.query.filter_by(id=video_id).delete()
 
             # Create a new VideoDetails instance,
             video_details = VideoDetails(

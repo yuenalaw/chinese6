@@ -29,8 +29,8 @@ class UserWordReview(db.Model):
     __tablename__ = 'user_word_review'
 
     id = Column(Integer, primary_key=True)
-    word_id = Column(Integer, ForeignKey('word.id'))
-    user_word_sentence_id = Column(Integer, ForeignKey('user_word_sentence.id'))
+    word_id = Column(Integer, ForeignKey('word.id', ondelete='CASCADE'))
+    user_word_sentence_id = Column(Integer, ForeignKey('user_word_sentence.id', ondelete='CASCADE'))
     last_reviewed = Column(Date)
     repetitions = Column(Integer)
     ease_factor = Column(Float)
@@ -44,8 +44,8 @@ class UserWordSentence(db.Model):
     __tablename__ = 'user_word_sentence'
 
     id = Column(Integer, primary_key=True)
-    word_id = Column(Integer, ForeignKey('word.id'))  # reference Word directly
-    video_id = Column(String(255), ForeignKey('video_details.id'))  # reference VideoDetails directly
+    word_id = Column(Integer, ForeignKey('word.id', ondelete='CASCADE'))  # reference Word directly
+    video_id = Column(String(255), ForeignKey('video_details.id', ondelete='CASCADE'))  # reference VideoDetails directly
     line_changed = Column(Integer)
     note = Column(Text) # adding note here, as users can write notes about a certain word in a certain sentence. Means users draw more linkages rather than just one note per word, everywhere.
     sentence = Column(String(255))
@@ -56,7 +56,7 @@ class UserSentence(db.Model):
 
     id = Column(Integer, primary_key=True)
     line_changed = Column(Integer)
-    video_id = Column(String(255), ForeignKey('video_details.id'))  # reference VideoDetails directly
+    video_id = Column(String(255), ForeignKey('video_details.id', ondelete='CASCADE'))  # reference VideoDetails directly
     user_sentence = Column(JSON) # does not have to be edited, just a sentence the user saves
     """
     {'sentence': '加州留学生的生活', 'entries': [{'word': '加州', 'upos': 'PROPN', 'pinyin': None, 'translation': None, 'similarsounds': None}, 

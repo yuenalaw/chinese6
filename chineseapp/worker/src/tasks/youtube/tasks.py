@@ -57,13 +57,13 @@ def obtain_keywords_and_img_otherid(id, transcript):
         return str(e)
     
 @celery.task(name="prepare_add_to_db")
-def prepare_add_to_db(results):
+def prepare_add_to_db(results, forced):
     with app.app_context():
         try:
             model_service = ModelService()
             video_subtitles_details = results[0]
             video_keywords_img,id = results[1]
-            model_service.create_video_lesson(id, video_subtitles_details, video_keywords_img)
+            model_service.create_video_lesson(id, video_subtitles_details, video_keywords_img, forced)
             return video_subtitles_details, video_keywords_img, id
         except Exception as e:
             logger.error("Error in add_to_db:", exc_info=True)
@@ -95,9 +95,9 @@ def process_new_sentence(sentence):
 
 
 @celery.task(name="execute_transcript_tasks")
-def execute_transcript_tasks(id):
+def execute_transcript_tasks(id, forced):
     prepare_lesson = group(process_video_transcript.s(id), obtain_keywords_and_img_youtube.s(id))
-    results = chord(prepare_lesson)(prepare_add_to_db.s())
+    results = chord(prepare_lesson)(prepare_add_to_db.s(forced))
     print(f"Tasks are being executed in parallel\n")
     return results
 
@@ -111,10 +111,10 @@ def execute_new_sentence(video_id, line_changed, sentence):
     return result
 
 @celery.task(name="execute_transcript_tasks_non_youtube")
-def execute_transcript_tasks_non_youtube(id, transcript):
+def execute_transcript_tasks_non_youtube(id, transcript, forced):
     youtube_helper = YouTubeHelper()
     transcript_format_for_keywords = youtube_helper.convert_transcript_to_format(transcript)
     prepare_lesson = group(process_video_transcript_from_transcript.s(transcript), obtain_keywords_and_img_otherid.s(id, transcript_format_for_keywords))
-    results = chord(prepare_lesson)(prepare_add_to_db.s())
+    results = chord(prepare_lesson)(prepare_add_to_db.s(forced))
     print(f"Tasks are being executed in parallel for transcript non youtube\n")
     return results
