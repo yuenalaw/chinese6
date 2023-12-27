@@ -12,17 +12,17 @@ model_service = ModelService()
 def create_lesson():
     request_data = request.get_json()
     try:
-        model_service.create_video_lesson(request_data['youtube_id'], request_data['processed_transcript'], request_data['keyword_to_images'])
+        model_service.create_video_lesson(request_data['video_id'], request_data['processed_transcript'], request_data['keyword_to_images'])
         return {'message': 'Successfully added video to db!'}, 200
     except Exception as e:
         print("Error:", str(e))
         return {'message': 'Failed to add video to db'}, 500
 
-@db_bp.route('/getlesson/<youtube_id>', methods=['GET'])
-def obtain_lesson(youtube_id):
-    print(f"obtaining lesson for {youtube_id}")
+@db_bp.route('/getlesson/<video_id>', methods=['GET'])
+def obtain_lesson(video_id):
+    print(f"obtaining lesson for {video_id}")
     try:
-        obtained_video = model_service.get_video(youtube_id)
+        obtained_video = model_service.get_video(video_id)
         return {'message': 'Successfully obtained video!', 'video': obtained_video}, 200
     except Exception as e:
         print("Error:", str(e))
@@ -51,7 +51,7 @@ def add_review():
     request_data = request.get_json()
     print(f"request data is {request_data}")
     try:
-        model_service.add_review(request_data['word'], request_data['pinyin'], request_data['similar_words'], request_data['translation'], request_data['youtube_id'], request_data['line_changed'], request_data['sentence'], request_data['note'])
+        model_service.add_review(request_data['word'], request_data['pinyin'], request_data['similar_words'], request_data['translation'], request_data['video_id'], request_data['line_changed'], request_data['sentence'], request_data['note'])
         return {'message': 'Successfully added review!'}, 200
     except Exception as e:
         print("Error:", str(e))
@@ -85,16 +85,16 @@ def update_note():
     request_data = request.get_json()
     print(f"request data is {request_data}")
     try:
-        model_service.update_note(request_data['youtube_id'], request_data['word_id'], request_data['line_changed'], request_data['note'])
+        model_service.update_note(request_data['video_id'], request_data['word_id'], request_data['line_changed'], request_data['note'])
         return {'message': 'Successfully updated note!'}, 200
     except Exception as e:
         print("Error:", str(e))
         return {'message': 'Failed to update note'}, 500
 
-@db_bp.route('/getcontext/<youtube_id>/<line_changed>',methods=['GET'])
-def get_context(youtube_id, line_changed):
+@db_bp.route('/getcontext/<video_id>/<line_changed>',methods=['GET'])
+def get_context(video_id, line_changed):
     try:
-        context = model_service.get_sentence_context(youtube_id, line_changed)
+        context = model_service.get_sentence_context(video_id, line_changed)
         return {'message': 'Successfully obtained context!', 'context': context}, 200
     except Exception as e:
         print("Error:", str(e))

@@ -66,6 +66,7 @@ services:
       - ./.docker.env
     volumes:
       - ./worker/src:/app/src
+      - stanzavolume:/app/stanza_resources
 
 networks:
   backnet:

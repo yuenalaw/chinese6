@@ -45,7 +45,7 @@ class UserWordSentence(db.Model):
 
     id = Column(Integer, primary_key=True)
     word_id = Column(Integer, ForeignKey('word.id'))  # reference Word directly
-    youtube_id = Column(String(255), ForeignKey('video_details.id'))  # reference VideoDetails directly
+    video_id = Column(String(255), ForeignKey('video_details.id'))  # reference VideoDetails directly
     line_changed = Column(Integer)
     note = Column(Text) # adding note here, as users can write notes about a certain word in a certain sentence. Means users draw more linkages rather than just one note per word, everywhere.
     sentence = Column(String(255))
@@ -56,7 +56,7 @@ class UserSentence(db.Model):
 
     id = Column(Integer, primary_key=True)
     line_changed = Column(Integer)
-    youtube_id = Column(String(255), ForeignKey('video_details.id'))  # reference VideoDetails directly
+    video_id = Column(String(255), ForeignKey('video_details.id'))  # reference VideoDetails directly
     user_sentence = Column(JSON) # does not have to be edited, just a sentence the user saves
     """
     {'sentence': '加州留学生的生活', 'entries': [{'word': '加州', 'upos': 'PROPN', 'pinyin': None, 'translation': None, 'similarsounds': None}, 
@@ -69,7 +69,7 @@ class UserSentence(db.Model):
 class VideoDetails(db.Model):
     __tablename__ = 'video_details'
 
-    id = Column(String(255), primary_key=True) # same as youtube id
+    id = Column(String(255), primary_key=True)
     lesson_keyword_imgs = Column(JSON)
     lesson_data = Column(JSON, nullable=False)
     sentences = relationship('UserWordSentence', backref='video', cascade="all, delete-orphan")

@@ -22,8 +22,19 @@ def process_video_transcript(id):
         logger.error("Error with processing video transcript:", exc_info=True)
         return str(e)
 
-@celery.task(name="obtain_keywords_and_img")
-def obtain_keywords_and_img(id):
+@celery.task(name="process_video_transcript_from_transcript")
+def process_video_transcript_from_transcript(transcript):
+    try:
+        youtube_helper = YouTubeHelper()
+        processed_transcript = youtube_helper.process_transcript(transcript)
+        return processed_transcript
+    except Exception as e:
+        print("Error with processing video transcript from transcript:", str(e))
+        logger.error("Error with processing video transcript from transcript:", exc_info=True)
+        return str(e)
+
+@celery.task(name="obtain_keywords_and_img_youtube")
+def obtain_keywords_and_img_youtube(id):
     try:
         youtube_helper = YouTubeHelper()
         transcript_orig = YouTubeTranscriptApi.get_transcript(id, languages=['zh-Hans', 'zh-Hant', 'zh-TW'])
@@ -31,6 +42,17 @@ def obtain_keywords_and_img(id):
         return keyword_imgs,id
     except Exception as e:
         print("Error with keywords and image:", str(e))
+        logger.error("Error with keywords and image:", exc_info=True)
+        return str(e)
+
+@celery.task(name="obtain_keywords_and_img_otherid")
+def obtain_keywords_and_img_otherid(id, transcript):
+    try:
+        youtube_helper = YouTubeHelper()
+        keyword_imgs = youtube_helper.get_keywords_and_img(transcript)
+        return keyword_imgs,id
+    except Exception as e:
+        print("Error with keywords and image other id:", str(e))
         logger.error("Error with keywords and image:", exc_info=True)
         return str(e)
     
@@ -48,13 +70,13 @@ def prepare_add_to_db(results):
             return None
 
 @celery.task(name="update_user_sentence")
-def update_user_sentence(processed_sentence, youtube_id, line_changed):
+def update_user_sentence(processed_sentence, id, line_changed):
     try:    
         with app.app_context():
             model_service = ModelService()
             print(f"in the celery update user sentence, before model service, with processed sentence: {processed_sentence}")
             processed_sentence = json.loads(processed_sentence)
-            model_service.update_user_sentence(youtube_id, line_changed, processed_sentence)
+            model_service.update_user_sentence(id, line_changed, processed_sentence)
             return processed_sentence
     except Exception as e:
         logger.error("Error in update_user_sentence:", exc_info=True)
@@ -74,16 +96,23 @@ def process_new_sentence(sentence):
 
 @celery.task(name="execute_transcript_tasks")
 def execute_transcript_tasks(id):
-    prepare_lesson = group(process_video_transcript.s(id), obtain_keywords_and_img.s(id))
+    prepare_lesson = group(process_video_transcript.s(id), obtain_keywords_and_img_youtube.s(id))
     results = chord(prepare_lesson)(prepare_add_to_db.s())
     print(f"Tasks are being executed in parallel\n")
     return results
 
 @celery.task(name="execute_new_sentence")
-def execute_new_sentence(youtube_id, line_changed, sentence):
+def execute_new_sentence(video_id, line_changed, sentence):
     processed_sentence = chain(
         process_new_sentence.s(sentence),
-        update_user_sentence.s(youtube_id, line_changed)
+        update_user_sentence.s(video_id, line_changed)
     )
     result = processed_sentence.apply_async()
     return result
+
+@celery.task(name="execute_transcript_tasks_non_youtube")
+def execute_transcript_tasks_non_youtube(id, transcript):
+    prepare_lesson = group(process_video_transcript_from_transcript.s(transcript), obtain_keywords_and_img_otherid.s(id, transcript))
+    results = chord(prepare_lesson)(prepare_add_to_db.s())
+    print(f"Tasks are being executed in parallel for transcript non youtube\n")
+    return results
