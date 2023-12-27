@@ -8,16 +8,6 @@ db_bp = Blueprint('db_bp', __name__,
 
 model_service = ModelService()
 
-@db_bp.route('/makelesson', methods=['POST'])
-def create_lesson():
-    request_data = request.get_json()
-    try:
-        model_service.create_video_lesson(request_data['video_id'], request_data['processed_transcript'], request_data['keyword_to_images'])
-        return {'message': 'Successfully added video to db!'}, 200
-    except Exception as e:
-        print("Error:", str(e))
-        return {'message': 'Failed to add video to db'}, 500
-
 @db_bp.route('/getlesson/<video_id>', methods=['GET'])
 def obtain_lesson(video_id):
     print(f"obtaining lesson for {video_id}")

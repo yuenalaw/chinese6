@@ -26,7 +26,7 @@ def process_video_transcript(id):
 def process_video_transcript_from_transcript(transcript):
     try:
         youtube_helper = YouTubeHelper()
-        processed_transcript = youtube_helper.process_transcript(transcript)
+        processed_transcript = youtube_helper.process_transcript(transcript, False)
         return processed_transcript
     except Exception as e:
         print("Error with processing video transcript from transcript:", str(e))
@@ -112,7 +112,9 @@ def execute_new_sentence(video_id, line_changed, sentence):
 
 @celery.task(name="execute_transcript_tasks_non_youtube")
 def execute_transcript_tasks_non_youtube(id, transcript):
-    prepare_lesson = group(process_video_transcript_from_transcript.s(transcript), obtain_keywords_and_img_otherid.s(id, transcript))
+    youtube_helper = YouTubeHelper()
+    transcript_format_for_keywords = youtube_helper.convert_transcript_to_format(transcript)
+    prepare_lesson = group(process_video_transcript_from_transcript.s(transcript), obtain_keywords_and_img_otherid.s(id, transcript_format_for_keywords))
     results = chord(prepare_lesson)(prepare_add_to_db.s())
     print(f"Tasks are being executed in parallel for transcript non youtube\n")
     return results
