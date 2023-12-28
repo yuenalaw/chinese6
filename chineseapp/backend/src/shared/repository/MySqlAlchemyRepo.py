@@ -32,9 +32,9 @@ class ModelRepository:
             # Get the UserSentence entry
             user_sentence = UserSentence.query.filter_by(video_id=user_word_sentence.video_id, line_changed=user_word_sentence.line_changed).first()
             if user_sentence is not None:
-                return user_sentence.user_sentence, user_word_sentence.note, user_word_sentence.line_changed
+                return user_sentence.user_sentence, user_word_sentence.note, user_word_sentence.line_changed, user_word_sentence.image_path
 
-            return user_word_sentence.sentence, user_word_sentence.note, user_word_sentence.line_changed
+            return user_word_sentence.sentence, user_word_sentence.note, user_word_sentence.line_changed, user_word_sentence.image_path
         except Exception as e:
             print(f"An error occurred getting random sentence: {e}")
             raise
@@ -72,8 +72,8 @@ class ModelRepository:
             reviews_today = self.get_review_words_today()
             cards = []
             for review, word in reviews_today:
-                sentence, note, line_changed = self.get_random_sentence( word.id)
-                cards.append({'word': word.to_dict(), 'sentence': sentence, 'note': note, 'line_changed':line_changed, 'review': review.to_dict()})
+                sentence, note, line_changed, image_path = self.get_random_sentence( word.id)
+                cards.append({'word': word.to_dict(), 'sentence': sentence, 'note': note, 'line_changed':line_changed, 'review': review.to_dict(), 'image_path':image_path})
             return cards
         except Exception as e:
             print(f"An error occurred calling get review words today: {e}")
@@ -176,6 +176,36 @@ class ModelRepository:
             db.session.rollback()
             raise
     
+    def update_image_path(self, video_id: str, word_id: int, line_changed: int, image_path: str) -> None:
+        """
+        Update the image path for a specific user and word sentence.
+
+        Parameters:
+        video_id (str): The ID of the video.
+        word_id (str): The ID of the word.
+        line_changed (int): The index of the sentence in the lesson_data.
+        image path (str): The new image path.
+        """
+        try:
+            # ensure line changed is int
+            line_changed = int(line_changed)
+            # Get the UserWordSentence entry
+            user_word_sentence = db.session.query(UserWordSentence).filter_by(video_id=video_id, word_id=word_id, line_changed=line_changed).first()
+            if user_word_sentence is None:
+                print(f"No such user word sentence; cannot update note")
+                return None
+            # Update the note
+            user_word_sentence.image_path = image_path
+
+            # Commit the changes
+            db.session.commit()
+
+            print(f"Updated UserWordSentence for video_id {video_id}, line_changed {line_changed}, and word_id {word_id}")
+        except Exception as e:
+            print(f"An error occurred (updating UserWordSentence): {e}")
+            db.session.rollback()
+            raise
+    
     def video_details_exists(self, id):
         return db.session.query(VideoDetails.id).filter_by(id=id).scalar() is not None
     
@@ -261,7 +291,7 @@ class ModelRepository:
             db.session.rollback()
             raise
 
-    def add_review_records(self, word_id, video_id, line_changed, sentence, note) -> None:
+    def add_review_records(self, word_id, video_id, line_changed, sentence, note, image_path) -> None:
         # start a new transaction
         try:
             # ensure line changed is int
@@ -280,7 +310,8 @@ class ModelRepository:
                     video_id=video_id,
                     line_changed=line_changed,
                     sentence=sentence,
-                    note=note
+                    note=note,
+                    image_path=image_path
                 )
                 db.session.add(new_user_word_sentence)
                 db.session.commit()
@@ -305,12 +336,12 @@ class ModelRepository:
             db.session.rollback()
             raise
     
-    def add_word_sentence_review(self, word, pinyin, similar_words, translation, video_id, line_changed, sentence, note):
+    def add_word_sentence_review(self, word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path):
         try:
             # Add word
             word_id = self.add_word(word, pinyin, similar_words, translation)
             # Add review records
-            self.add_review_records(word_id, video_id, line_changed, sentence, note)
+            self.add_review_records(word_id, video_id, line_changed, sentence, note, image_path)
 
             return True
         except Exception as e:

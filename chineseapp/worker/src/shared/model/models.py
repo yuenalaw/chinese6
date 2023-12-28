@@ -49,6 +49,7 @@ class UserWordSentence(db.Model):
     line_changed = Column(Integer)
     note = Column(Text) # adding note here, as users can write notes about a certain word in a certain sentence. Means users draw more linkages rather than just one note per word, everywhere.
     sentence = Column(String(255))
+    image_path = Column(String(255))
     review = db.relationship('UserWordReview', backref='reviewed_sentence', uselist=False, cascade="all, delete-orphan")  # one to one relationship
 
 class UserSentence(db.Model):

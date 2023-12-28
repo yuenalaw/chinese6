@@ -35,9 +35,9 @@ class ModelService:
             print(f"In model service; error occured getting streak: {e}")
             raise
     
-    def add_review(self, word, pinyin, similar_words, translation, video_id, line_changed, sentence, note):
+    def add_review(self, word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path):
         try:
-            self.model_repository.add_word_sentence_review(word, pinyin, similar_words, translation, video_id, line_changed, sentence, note)
+            self.model_repository.add_word_sentence_review(word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path)
             print(f"Added review!")
         except Exception as e:
             print(f"In model service; error occured adding review: {e}")
@@ -55,6 +55,14 @@ class ModelService:
         try:
             self.model_repository.update_note(video_id, word_id, line_changed, note)
             print(f"Added/ update note!")
+        except Exception as e:
+            print(f"In model service; error occured updating note: {e}")
+            raise 
+    
+    def update_image_path(self, video_id: str, word_id: int, line_changed: int, image_path: str):
+        try:
+            self.model_repository.update_image_path(video_id, word_id, line_changed, image_path)
+            print(f"Added/ update image path!")
         except Exception as e:
             print(f"In model service; error occured updating note: {e}")
             raise 

@@ -12,8 +12,10 @@ model_service = ModelService()
 def obtain_lesson(video_id):
     print(f"obtaining lesson for {video_id}")
     try:
-        obtained_video = model_service.get_video(video_id)
-        return {'message': 'Successfully obtained video!', 'video': obtained_video}, 200
+        if model_service.video_exists(video_id):
+            obtained_video = model_service.get_video(video_id)
+            return {'message': 'Successfully obtained video!', 'video': obtained_video}, 200
+        return {'message': 'Video does not exist... yet!'}, 404
     except Exception as e:
         print("Error:", str(e))
         return {'message': 'Failed to obtain video'}, 500
@@ -41,7 +43,7 @@ def add_review():
     request_data = request.get_json()
     print(f"request data is {request_data}")
     try:
-        model_service.add_review(request_data['word'], request_data['pinyin'], request_data['similar_words'], request_data['translation'], request_data['video_id'], request_data['line_changed'], request_data['sentence'], request_data['note'])
+        model_service.add_review(request_data['word'], request_data['pinyin'], request_data['similar_words'], request_data['translation'], request_data['video_id'], request_data['line_changed'], request_data['sentence'], request_data['note'], request_data['image_path'])
         return {'message': 'Successfully added review!'}, 200
     except Exception as e:
         print("Error:", str(e))
@@ -80,6 +82,17 @@ def update_note():
     except Exception as e:
         print("Error:", str(e))
         return {'message': 'Failed to update note'}, 500
+
+@db_bp.route('/updateimagepath', methods=['POST'])
+def update_image_path():
+    request_data = request.get_json()
+    print(f"request data is {request_data}")
+    try:
+        model_service.update_image_path(request_data['video_id'], request_data['word_id'], request_data['line_changed'], request_data['image_path'])
+        return {'message': 'Successfully updated image path!'}, 200
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to update image path'}, 500
 
 @db_bp.route('/getcontext/<video_id>/<line_changed>',methods=['GET'])
 def get_context(video_id, line_changed):
