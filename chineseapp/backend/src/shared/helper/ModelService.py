@@ -9,18 +9,9 @@ class ModelService:
     def video_exists(self, vid_id):
         return self.model_repository.video_details_exists(vid_id)
 
-    def create_video_lesson(self, youtube_id, processed_transcript, keyword_to_images):
+    def get_video(self, id):
         try:
-            self.model_repository.add_video_lesson_to_db(youtube_id, processed_transcript, keyword_to_images)
-            print(f"Successfully added video to db!")
-            return True
-        except Exception as e:
-            print(f"In model service; error occured in the repo when creating video lesson: {e}")
-            raise
-    
-    def get_video(self, youtube_id):
-        try:
-            obtained_video = self.model_repository.get_lesson_data(youtube_id)
+            obtained_video = self.model_repository.get_lesson_data(id)
             print(f"i got... {obtained_video}")
             return obtained_video
         except Exception as e:
@@ -44,9 +35,9 @@ class ModelService:
             print(f"In model service; error occured getting streak: {e}")
             raise
     
-    def add_review(self, word, pinyin, similar_words, translation, youtube_id, line_changed, sentence, note):
+    def add_review(self, word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path):
         try:
-            self.model_repository.add_word_sentence_review(word, pinyin, similar_words, translation, youtube_id, line_changed, sentence, note)
+            self.model_repository.add_word_sentence_review(word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path)
             print(f"Added review!")
         except Exception as e:
             print(f"In model service; error occured adding review: {e}")
@@ -60,22 +51,18 @@ class ModelService:
             print(f"In model service; error occured adding word: {e}")
             raise
     
-    def update_user_sentence(self, youtube_id, line_changed, new_sentence):
-        """
-        new sentence has the same json structure as old, going through youtube helper and getting pinyin etc
-        """
+    def update_note(self, video_id: str, word_id: int, line_changed: int, note: str):
         try:
-            print(f"obtained new sentence is: {new_sentence}")
-            self.model_repository.update_user_sentence(youtube_id, line_changed, new_sentence)
-            print(f"Updated user sentence")
-        except Exception as e:
-            print(f"In model service; error occured adding new user sentence: {e}")
-            raise
-    
-    def update_note(self, youtube_id: str, word_id: int, line_changed: int, note: str):
-        try:
-            self.model_repository.update_note(youtube_id, word_id, line_changed, note)
+            self.model_repository.update_note(video_id, word_id, line_changed, note)
             print(f"Added/ update note!")
+        except Exception as e:
+            print(f"In model service; error occured updating note: {e}")
+            raise 
+    
+    def update_image_path(self, video_id: str, word_id: int, line_changed: int, image_path: str):
+        try:
+            self.model_repository.update_image_path(video_id, word_id, line_changed, image_path)
+            print(f"Added/ update image path!")
         except Exception as e:
             print(f"In model service; error occured updating note: {e}")
             raise 
@@ -92,9 +79,9 @@ class ModelService:
             print(f"In model service; error occured updating user word review: {e}")
             raise
 
-    def get_sentence_context(self, youtube_id, line_changed):
+    def get_sentence_context(self, video_id, line_changed):
         try:
-            previous, next = self.model_repository.get_sentence_context(youtube_id, line_changed)
+            previous, next = self.model_repository.get_sentence_context(video_id, line_changed)
             print(f"previous sentence: {previous}, next: {next}")
             return previous, next
         except Exception as e:

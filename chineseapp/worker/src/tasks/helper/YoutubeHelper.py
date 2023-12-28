@@ -42,6 +42,7 @@ class YouTubeHelper:
                 print(f"Stanza model downloaded to: app/stanza_resources")
         except Exception as e:
             print("Error initializing stanza pipelines:", str(e))
+            raise
 
     def turn_to_simplified(self, transcript): 
         print("turning to simplified...")
@@ -90,6 +91,73 @@ class YouTubeHelper:
         }
 
         return json.dumps(sentence_obj)
+    
+    def time_to_seconds(self, time_str):
+        # Convert a time string in the format 'HH:MM:SS,MS' to seconds
+        h, m, s_ms = time_str.split(':')
+        s, ms = s_ms.split(',')
+        return int(h) * 3600 + int(m) * 60 + int(s) + int(ms) / 1000
+
+    def convert_transcript_to_format(self, disney_transcript):
+        transcript = []
+        blocks = disney_transcript.strip().split('\n\n')
+        for block in blocks:
+            lines = block.split('\n')
+            for sentence in lines[2:]:
+                if sentence:
+                    transcript.append({'text': sentence})
+        
+        return transcript
+
+    def transcript_processing(self, transcript):
+        """
+        expecting transcript such as
+        1
+        00:00:00,083 --> 00:00:03,212
+        暑假一百零四天
+
+        2
+        00:00:03,337 --> 00:00:05,714
+        新學期開始以前
+
+        3
+        00:00:05,797 --> 00:00:08,800
+        我們可要
+
+        4
+        00:00:08,884 --> 00:00:11,929
+        好好利用這個假期
+
+        8
+        00:00:18,268 --> 00:00:20,646
+        去探索那些
+        前所未有的新事物
+
+        """
+        if not self.stanza_nlp:
+            self.init_stanza_helper()
+        results = []
+
+        # split transcript into blocks
+        blocks = transcript.strip().split('\n\n')
+        for block in blocks:
+            lines = block.split('\n')
+
+            # time range and text
+            start_time, end_time = [self.time_to_seconds(t) for t in lines[1].split(' --> ')]
+
+            for sentence in lines[2:]:
+                if sentence: # ignore empty lines
+                    sentence_obj_dumps = self.process_sentence(sentence)
+                    sentence_obj = json.loads(sentence_obj_dumps)
+                    results.append({
+                        "segment": sentence_obj['sentence'],
+                        "start": round(start_time, 2),
+                        "duration": round(end_time - start_time, 2),
+                        "sentence_obj": sentence_obj
+                    })
+            
+        return json.dumps(results)
 
     def video_processing(self, transcript):
         if not self.stanza_nlp:
@@ -194,8 +262,11 @@ class YouTubeHelper:
             print(f"Unexpected translation error: {e}")
             return None
 
-    def process_transcript(self, transcript):
-        processed_transcript = self.video_processing(transcript)
+    def process_transcript(self, transcript, isYTVideo=True):
+        if isYTVideo:
+            processed_transcript = self.video_processing(transcript)
+        else:
+            processed_transcript = self.transcript_processing(transcript)
         return processed_transcript
 
     def get_keywords(self, all_simplified):

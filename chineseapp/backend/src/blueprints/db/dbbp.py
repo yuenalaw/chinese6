@@ -8,22 +8,14 @@ db_bp = Blueprint('db_bp', __name__,
 
 model_service = ModelService()
 
-@db_bp.route('/makelesson', methods=['POST'])
-def create_lesson():
-    request_data = request.get_json()
+@db_bp.route('/getlesson/<video_id>', methods=['GET'])
+def obtain_lesson(video_id):
+    print(f"obtaining lesson for {video_id}")
     try:
-        model_service.create_video_lesson(request_data['youtube_id'], request_data['processed_transcript'], request_data['keyword_to_images'])
-        return {'message': 'Successfully added video to db!'}, 200
-    except Exception as e:
-        print("Error:", str(e))
-        return {'message': 'Failed to add video to db'}, 500
-
-@db_bp.route('/getlesson/<youtube_id>', methods=['GET'])
-def obtain_lesson(youtube_id):
-    print(f"obtaining lesson for {youtube_id}")
-    try:
-        obtained_video = model_service.get_video(youtube_id)
-        return {'message': 'Successfully obtained video!', 'video': obtained_video}, 200
+        if model_service.video_exists(video_id):
+            obtained_video = model_service.get_video(video_id)
+            return {'message': 'Successfully obtained video!', 'video': obtained_video}, 200
+        return {'message': 'Video does not exist... yet!'}, 404
     except Exception as e:
         print("Error:", str(e))
         return {'message': 'Failed to obtain video'}, 500
@@ -51,7 +43,7 @@ def add_review():
     request_data = request.get_json()
     print(f"request data is {request_data}")
     try:
-        model_service.add_review(request_data['word'], request_data['pinyin'], request_data['similar_words'], request_data['translation'], request_data['youtube_id'], request_data['line_changed'], request_data['sentence'], request_data['note'])
+        model_service.add_review(request_data['word'], request_data['pinyin'], request_data['similar_words'], request_data['translation'], request_data['video_id'], request_data['line_changed'], request_data['sentence'], request_data['note'], request_data['image_path'])
         return {'message': 'Successfully added review!'}, 200
     except Exception as e:
         print("Error:", str(e))
@@ -85,16 +77,27 @@ def update_note():
     request_data = request.get_json()
     print(f"request data is {request_data}")
     try:
-        model_service.update_note(request_data['youtube_id'], request_data['word_id'], request_data['line_changed'], request_data['note'])
+        model_service.update_note(request_data['video_id'], request_data['word_id'], request_data['line_changed'], request_data['note'])
         return {'message': 'Successfully updated note!'}, 200
     except Exception as e:
         print("Error:", str(e))
         return {'message': 'Failed to update note'}, 500
 
-@db_bp.route('/getcontext/<youtube_id>/<line_changed>',methods=['GET'])
-def get_context(youtube_id, line_changed):
+@db_bp.route('/updateimagepath', methods=['POST'])
+def update_image_path():
+    request_data = request.get_json()
+    print(f"request data is {request_data}")
     try:
-        context = model_service.get_sentence_context(youtube_id, line_changed)
+        model_service.update_image_path(request_data['video_id'], request_data['word_id'], request_data['line_changed'], request_data['image_path'])
+        return {'message': 'Successfully updated image path!'}, 200
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to update image path'}, 500
+
+@db_bp.route('/getcontext/<video_id>/<line_changed>',methods=['GET'])
+def get_context(video_id, line_changed):
+    try:
+        context = model_service.get_sentence_context(video_id, line_changed)
         return {'message': 'Successfully obtained context!', 'context': context}, 200
     except Exception as e:
         print("Error:", str(e))

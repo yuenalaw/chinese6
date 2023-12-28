@@ -2,7 +2,6 @@ from ..model.models import db, UserStudyDate, Word, UserWordReview, UserWordSent
 from datetime import datetime, timedelta
 from datetime import date
 from typing import List, Tuple
-from sqlalchemy.exc import IntegrityError
 import json
 import random
 
@@ -31,11 +30,11 @@ class ModelRepository:
             user_word_sentence = random.choice(user_word_sentences)
 
             # Get the UserSentence entry
-            user_sentence = UserSentence.query.filter_by(youtube_id=user_word_sentence.youtube_id, line_changed=user_word_sentence.line_changed).first()
+            user_sentence = UserSentence.query.filter_by(video_id=user_word_sentence.video_id, line_changed=user_word_sentence.line_changed).first()
             if user_sentence is not None:
-                return user_sentence.user_sentence, user_word_sentence.note, user_word_sentence.line_changed
+                return user_sentence.user_sentence, user_word_sentence.note, user_word_sentence.line_changed, user_word_sentence.image_path
 
-            return user_word_sentence.sentence, user_word_sentence.note, user_word_sentence.line_changed
+            return user_word_sentence.sentence, user_word_sentence.note, user_word_sentence.line_changed, user_word_sentence.image_path
         except Exception as e:
             print(f"An error occurred getting random sentence: {e}")
             raise
@@ -62,7 +61,6 @@ class ModelRepository:
 
             reviews = query.all()
 
-            print(f"in repo, got my reviews: {reviews}")
             return reviews
         except Exception as e:
             print(f"An error occurred (getting review words): {e}")
@@ -74,17 +72,17 @@ class ModelRepository:
             reviews_today = self.get_review_words_today()
             cards = []
             for review, word in reviews_today:
-                sentence, note, line_changed = self.get_random_sentence( word.id)
-                cards.append({'word': word.to_dict(), 'sentence': sentence, 'note': note, 'line_changed':line_changed, 'review': review.to_dict()})
+                sentence, note, line_changed, image_path = self.get_random_sentence( word.id)
+                cards.append({'word': word.to_dict(), 'sentence': sentence, 'note': note, 'line_changed':line_changed, 'review': review.to_dict(), 'image_path':image_path})
             return cards
         except Exception as e:
             print(f"An error occurred calling get review words today: {e}")
             raise
 
-    def get_sentence_context(self, youtube_id: str, line_changed: int):
+    def get_sentence_context(self, video_id: str, line_changed: int):
         try:
             # Get the VideoDetails entry
-            video_details = VideoDetails.query.get(youtube_id)
+            video_details = VideoDetails.query.get(video_id)
             if video_details is None:
                 print(f"No such video details; cannot get sentence context")
                 return None, None
@@ -99,12 +97,12 @@ class ModelRepository:
 
             # Check if user has any edited versions of these
             if previous_sentence:
-                user_previous_sentence = UserSentence.query.filter_by(youtube_id=youtube_id, line_changed=line_changed - 1).first()
+                user_previous_sentence = UserSentence.query.filter_by(video_id=video_id, line_changed=line_changed - 1).first()
                 if user_previous_sentence:
                     previous_sentence = user_previous_sentence.user_sentence
 
             if next_sentence:
-                user_next_sentence = UserSentence.query.filter_by(youtube_id=youtube_id, line_changed=line_changed + 1).first()
+                user_next_sentence = UserSentence.query.filter_by(video_id=video_id, line_changed=line_changed + 1).first()
                 if user_next_sentence:
                     next_sentence = user_next_sentence.user_sentence
 
@@ -112,7 +110,6 @@ class ModelRepository:
         except Exception as e:
             print(f"An error occurred while getting sentence context: {e}")
             raise
-
 
     def update_user_word_review(self, word_id: int, last_reviewed: date, repetitions: int, ease_factor: float, word_interval: int, next_review: date) -> None:
         """
@@ -149,12 +146,12 @@ class ModelRepository:
             db.session.rollback()
             raise
 
-    def update_note(self, youtube_id: str, word_id: int, line_changed: int, note: str) -> None:
+    def update_note(self, video_id: str, word_id: int, line_changed: int, note: str) -> None:
         """
         Update the note for a specific user and word sentence.
 
         Parameters:
-        youtube_id (str): The ID of the video.
+        video_id (str): The ID of the video.
         word_id (str): The ID of the word.
         line_changed (int): The index of the sentence in the lesson_data.
         note (str): The new note.
@@ -163,7 +160,7 @@ class ModelRepository:
             # ensure line changed is int
             line_changed = int(line_changed)
             # Get the UserWordSentence entry
-            user_word_sentence = db.session.query(UserWordSentence).filter_by(youtube_id=youtube_id, word_id=word_id, line_changed=line_changed).first()
+            user_word_sentence = db.session.query(UserWordSentence).filter_by(video_id=video_id, word_id=word_id, line_changed=line_changed).first()
             if user_word_sentence is None:
                 print(f"No such user word sentence; cannot update note")
                 return None
@@ -173,51 +170,49 @@ class ModelRepository:
             # Commit the changes
             db.session.commit()
 
-            print(f"Updated UserWordSentence for youtube_id {youtube_id}, line_changed {line_changed}, and word_id {word_id}")
+            print(f"Updated UserWordSentence for video_id {video_id}, line_changed {line_changed}, and word_id {word_id}")
         except Exception as e:
             print(f"An error occurred (updating UserWordSentence): {e}")
             db.session.rollback()
             raise
-
-    def update_user_sentence(self, youtube_id: str, line_changed: int, user_sentence: json) -> None:
+    
+    def update_image_path(self, video_id: str, word_id: int, line_changed: int, image_path: str) -> None:
         """
-        Update the user_sentence for a specific sentence.
+        Update the image path for a specific user and word sentence.
 
         Parameters:
-        youtube_id (str): The ID of the video.
+        video_id (str): The ID of the video.
+        word_id (str): The ID of the word.
         line_changed (int): The index of the sentence in the lesson_data.
-        user_sentence (json): The new user sentence -- THROUGH YOUTUBEHELPER.
+        image path (str): The new image path.
         """
         try:
             # ensure line changed is int
             line_changed = int(line_changed)
-            # Get the UserSentence entry
-            user_sentence_entry = db.session.query(UserSentence).filter_by(youtube_id=youtube_id, line_changed=line_changed).first()
-            if user_sentence_entry is None:
-                # Create a new UserSentence
-                user_sentence_entry = UserSentence(youtube_id=youtube_id, line_changed=line_changed, user_sentence=user_sentence)
-                db.session.add(user_sentence_entry)
-                print(f"Created UserSentence for youtube_id {youtube_id}, and line_changed {line_changed}")
-            else:
-                # Update the user_sentence
-                user_sentence_entry.user_sentence = user_sentence
-                print(f"Updated UserSentence for youtube_id {youtube_id}, and line_changed {line_changed}")
+            # Get the UserWordSentence entry
+            user_word_sentence = db.session.query(UserWordSentence).filter_by(video_id=video_id, word_id=word_id, line_changed=line_changed).first()
+            if user_word_sentence is None:
+                print(f"No such user word sentence; cannot update note")
+                return None
+            # Update the note
+            user_word_sentence.image_path = image_path
 
             # Commit the changes
             db.session.commit()
 
+            print(f"Updated UserWordSentence for video_id {video_id}, line_changed {line_changed}, and word_id {word_id}")
         except Exception as e:
-            print(f"An error occurred (updating UserSentence): {e}")
+            print(f"An error occurred (updating UserWordSentence): {e}")
             db.session.rollback()
             raise
     
     def video_details_exists(self, id):
         return db.session.query(VideoDetails.id).filter_by(id=id).scalar() is not None
     
-    def get_lesson_data(self, youtube_id):
+    def get_lesson_data(self, video_id):
         try:
-            video_details = VideoDetails.query.get(youtube_id)
-            user_sentences = UserSentence.query.filter_by(youtube_id=youtube_id).all()
+            video_details = VideoDetails.query.get(video_id)
+            user_sentences = UserSentence.query.filter_by(video_id=video_id).all()
 
             # Convert the list of UserSentence objects to a dictionary for easier lookup
             user_sentences_dict = {us.line_changed: us for us in user_sentences}
@@ -244,14 +239,12 @@ class ModelRepository:
             print(f"An error occurred while getting lesson data: {e}")
             raise
 
-    def add_video_lesson_to_db(self, youtube_id, processed_transcript, keyword_to_images):
+    def add_video_lesson_to_db(self, video_id, processed_transcript, keyword_to_images):
         
-        print(f"On db side... Adding video to lesson. Youtube id: {youtube_id}\n transcript: {processed_transcript}\n keyword_to_images: {keyword_to_images}")
-
         try:
             # Create a new VideoDetails instance,
             video_details = VideoDetails(
-                id=youtube_id,
+                id=video_id,
                 lesson_data=json.dumps(processed_transcript),  # Convert the list to a JSON string
                 lesson_keyword_imgs=json.dumps(keyword_to_images)  # Convert the dictionary to a JSON string
             )
@@ -261,9 +254,21 @@ class ModelRepository:
 
             # Commit the session to save the changes
             db.session.commit()
-            print(f"Added VideoDetails for youtube_id {youtube_id}")
+            print(f"Added VideoDetails for video_id {video_id}")
         except Exception as e:
             print(f"An error occurred while adding VideoDetails: {e}")
+            db.session.rollback()
+            raise
+    
+    def delete_video_lesson_from_db(self, video_id):
+        try:
+            if (self.video_details_exists(video_id)):
+                video_details = VideoDetails.query.get(video_id)
+                db.session.delete(video_details)
+                db.session.commit()
+                print(f"Deleted VideoDetails for video_id {video_id}")
+        except Exception as e:
+            print(f"An error occurred while deleting VideoDetails: {e}")
             db.session.rollback()
             raise
 
@@ -286,7 +291,7 @@ class ModelRepository:
             db.session.rollback()
             raise
 
-    def add_review_records(self, word_id, youtube_id, line_changed, sentence, note) -> None:
+    def add_review_records(self, word_id, video_id, line_changed, sentence, note, image_path) -> None:
         # start a new transaction
         try:
             # ensure line changed is int
@@ -294,7 +299,7 @@ class ModelRepository:
             # Check if UserWordSentence already exists
             existing_user_word_sentence = UserWordSentence.query.filter_by(
                 word_id=word_id,
-                youtube_id=youtube_id,
+                video_id=video_id,
                 line_changed=line_changed
             ).first()
 
@@ -302,10 +307,11 @@ class ModelRepository:
                 # Create a new UserWordSentence
                 new_user_word_sentence = UserWordSentence(
                     word_id=word_id,
-                    youtube_id=youtube_id,
+                    video_id=video_id,
                     line_changed=line_changed,
                     sentence=sentence,
-                    note=note
+                    note=note,
+                    image_path=image_path
                 )
                 db.session.add(new_user_word_sentence)
                 db.session.commit()
@@ -330,12 +336,12 @@ class ModelRepository:
             db.session.rollback()
             raise
     
-    def add_word_sentence_review(self, word, pinyin, similar_words, translation, youtube_id, line_changed, sentence, note):
+    def add_word_sentence_review(self, word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path):
         try:
             # Add word
             word_id = self.add_word(word, pinyin, similar_words, translation)
             # Add review records
-            self.add_review_records(word_id, youtube_id, line_changed, sentence, note)
+            self.add_review_records(word_id, video_id, line_changed, sentence, note, image_path)
 
             return True
         except Exception as e:
