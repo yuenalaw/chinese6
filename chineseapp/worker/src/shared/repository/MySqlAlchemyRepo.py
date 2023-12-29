@@ -39,7 +39,7 @@ class ModelRepository:
     def video_details_exists(self, id):
         return db.session.query(VideoDetails.id).filter_by(id=id).scalar() is not None
 
-    def add_video_lesson_to_db(self, video_id, processed_transcript, keyword_to_images):
+    def add_video_lesson_to_db(self, video_id, processed_transcript, keyword_to_images, source):
         
         print(f"On db side... Adding video to lesson. Vid id: {video_id}\n")
 
@@ -63,7 +63,8 @@ class ModelRepository:
             video_details = VideoDetails(
                 id=video_id,
                 lesson_data=json.dumps(processed_transcript),  # Convert the list to a JSON string
-                lesson_keyword_imgs=json.dumps(keyword_to_images)  # Convert the dictionary to a JSON string
+                lesson_keyword_imgs=json.dumps(keyword_to_images),  # Convert the dictionary to a JSON string
+                source=source
             )
 
             # Add the new VideoDetails instance to the session

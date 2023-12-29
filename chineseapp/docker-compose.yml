@@ -67,25 +67,7 @@ services:
     volumes:
       - ./worker/src:/app/src
       - stanzavolume:/app/stanza_resources
-  
-  flutter:
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-    restart: no
-    ports:
-      - "8080:8080"
-    expose:
-      - 8080
-    volumes:
-      - ./frontend:/app/src
-    networks:
-      - backnet
-    depends_on:
-      - backend
-      - db
-      - redis
-
+      
 networks:
   backnet:
 

@@ -73,5 +73,6 @@ class VideoDetails(db.Model):
     id = Column(String(255), primary_key=True) # same as youtube id
     lesson_keyword_imgs = Column(JSON)
     lesson_data = Column(JSON, nullable=False)
+    source = Column(String(30)) #youtube or disney for example
     sentences = relationship('UserWordSentence', backref='video', cascade="all, delete-orphan")
     user_sentences = relationship('UserSentence', backref='video', cascade="all, delete-orphan")

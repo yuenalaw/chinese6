@@ -12,7 +12,6 @@ class ModelService:
     def get_video(self, id):
         try:
             obtained_video = self.model_repository.get_lesson_data(id)
-            print(f"i got... {obtained_video}")
             return obtained_video
         except Exception as e:
             print(f"In model service; error occured getting video lesson: {e}")

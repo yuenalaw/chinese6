@@ -234,30 +234,9 @@ class ModelRepository:
                 else:
                     lesson_data.append({'segment': segment})
 
-            return lesson_data
+            return {"source": video_details.source, "lessons": lesson_data}
         except Exception as e:
             print(f"An error occurred while getting lesson data: {e}")
-            raise
-
-    def add_video_lesson_to_db(self, video_id, processed_transcript, keyword_to_images):
-        
-        try:
-            # Create a new VideoDetails instance,
-            video_details = VideoDetails(
-                id=video_id,
-                lesson_data=json.dumps(processed_transcript),  # Convert the list to a JSON string
-                lesson_keyword_imgs=json.dumps(keyword_to_images)  # Convert the dictionary to a JSON string
-            )
-
-            # Add the new VideoDetails instance to the session
-            db.session.add(video_details)
-
-            # Commit the session to save the changes
-            db.session.commit()
-            print(f"Added VideoDetails for video_id {video_id}")
-        except Exception as e:
-            print(f"An error occurred while adding VideoDetails: {e}")
-            db.session.rollback()
             raise
     
     def delete_video_lesson_from_db(self, video_id):

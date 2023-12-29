@@ -17,7 +17,7 @@ def process_video():
         print(f"trying to enqueue with video... {request_data['video_id']}")
 
         sig = celery.signature("execute_transcript_tasks")
-        task = sig.delay(request_data['video_id'], request_data['forced'])
+        task = sig.delay(request_data['video_id'], request_data['source'], request_data['forced'])
         callbackid = task.id        
         print(f"callback is {callbackid}") # send this to the client for them to check below method
         return {'message': 'Video task has been added to the queue', 'callback': callbackid}, 202
@@ -30,10 +30,10 @@ def add_full_transcript():
     request_data = request.get_json()
     try:
         sig = celery.signature("execute_transcript_tasks_non_youtube")
-        task = sig.delay(request_data['id'], request_data['transcript'], request_data['forced'])
+        task = sig.delay(request_data['id'], request_data['transcript'], request_data['source'], request_data['forced'])
         callbackid = task.id        
         print(f"Callback is {callbackid}") # send this to the client for them to check below method
-        return {'message': 'Full transcript task has been added to the queue', 'group': groupid, 'callback': callbackid}, 202
+        return {'message': 'Full transcript task has been added to the queue', 'callback': callbackid}, 202
     except Exception as e:
         print("Error:", str(e))
         return {'message': 'Failed to enqueue transcript task'}, 500
