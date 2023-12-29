@@ -110,7 +110,31 @@ class ModelRepository:
         except Exception as e:
             print(f"An error occurred while getting sentence context: {e}")
             raise
+    
+    def get_user_word_review(self, word, video_id: str, line_changed: int):
+        try:
+            # Get the Word entry
+            word = Word.query.filter_by(word=word).first()
+            if word is None:
+                print(f"No such word; cannot get user word review")
+                return None
+            # Get the UserWordSentence entry
+            user_word_sentence = UserWordSentence.query.filter_by(word_id=word.id, video_id=video_id, line_changed=line_changed).first()
+            if user_word_sentence is None:
+                print(f"No such user word sentence; cannot get user word review")
+                return None
 
+            # Get the UserWordReview entry
+            user_word_review = UserWordReview.query.filter_by(user_word_sentence_id=user_word_sentence.id).first()
+            if user_word_review is None:
+                print(f"No such user word review; cannot get user word review")
+                return None
+
+            return {"user_word_review": user_word_review.to_dict(), "word_id": word.id}
+        except Exception as e:
+            print(f"An error occurred while getting user word review: {e}")
+            raise
+        
     def update_user_word_review(self, word_id: int, last_reviewed: date, repetitions: int, ease_factor: float, word_interval: int, next_review: date) -> None:
         """
         Update a UserWordReview entry for a word sentence.
@@ -144,6 +168,24 @@ class ModelRepository:
         except Exception as e:
             print(f"An error occurred (updating UserWordReview): {e}")
             db.session.rollback()
+            raise
+    
+    def get_user_word_sentence(self, word, video_id: str, line_changed: int):
+        try:
+            # Get the Word entry
+            word = Word.query.filter_by(word=word).first()
+            if word is None:
+                print(f"No such word; cannot get user word review")
+                return None
+            # Get the UserWordSentence entry
+            user_word_sentence = UserWordSentence.query.filter_by(word_id=word.id, video_id=video_id, line_changed=line_changed).first()
+            if user_word_sentence is None:
+                print(f"No such user word sentence; cannot get user word review")
+                return None
+            
+            return {"word_id": word.id, "user_word_sentence": user_word_sentence.to_dict()}
+        except Exception as e:
+            print(f"An error occurred while getting user word sentence: {e}")
             raise
 
     def update_note(self, video_id: str, word_id: int, line_changed: int, note: str) -> None:
@@ -314,7 +356,7 @@ class ModelRepository:
             print(f"An error occurred (add review records): {e}")
             db.session.rollback()
             raise
-    
+
     def add_word_sentence_review(self, word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path):
         try:
             # Add word

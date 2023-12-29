@@ -38,6 +38,15 @@ def get_streak():
         print("Error:", str(e))
         return {'message': 'Failed to obtain study streak'}, 500
 
+@db_bp.route('/getreview/<word>/<video_id>/<line_changed>',methods=['GET'])
+def get_review(word, video_id, line_changed):
+    try:
+        review = model_service.get_review(word, video_id, line_changed)
+        return {'message': 'Successfully obtained review!', 'review': review}, 200
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to obtain review'}, 500
+
 @db_bp.route('/addnewreview', methods=['POST'])
 def add_review():
     request_data = request.get_json()
@@ -71,6 +80,15 @@ def add_word():
     except Exception as e:
         print("Error:", str(e))
         return jsonify({'message': 'Failed to add word'}), 500
+
+@db_bp.route('/getwordsentence/<word>/<video_id>/<line_changed>',methods=['GET'])
+def get_word_sentence(word, video_id, line_changed):
+    try:
+        word_sentence = model_service.get_word_sentence(word, video_id, line_changed)
+        return {'message': 'Successfully obtained word sentence!', 'word_sentence': word_sentence}, 200
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to obtain word sentence'}, 500
 
 @db_bp.route('/updatenote', methods=['POST'])
 def update_note():

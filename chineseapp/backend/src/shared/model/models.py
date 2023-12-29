@@ -51,6 +51,9 @@ class UserWordSentence(db.Model):
     sentence = Column(String(255))
     image_path = Column(String(255))
     review = db.relationship('UserWordReview', backref='reviewed_sentence', uselist=False, cascade="all, delete-orphan")  # one to one relationship
+    def to_dict(self):
+        return {c.key: getattr(self, c.key)
+                for c in class_mapper(self.__class__).columns}
 
 class UserSentence(db.Model):
     __tablename__ = 'user_sentence'

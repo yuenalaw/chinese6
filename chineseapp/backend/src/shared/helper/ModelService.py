@@ -34,6 +34,14 @@ class ModelService:
             print(f"In model service; error occured getting streak: {e}")
             raise
     
+    def get_review(self, word, video_id, line_changed):
+        try:
+            review = self.model_repository.get_user_word_review(word, video_id, line_changed)
+            return review
+        except Exception as e:
+            print(f"In model service; error occured getting review: {e}")
+            raise
+    
     def add_review(self, word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path):
         try:
             self.model_repository.add_word_sentence_review(word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path)
@@ -50,6 +58,15 @@ class ModelService:
             print(f"In model service; error occured adding word: {e}")
             raise
     
+    def get_word_sentence(self, word, video_id, line_changed):
+        try:
+            word_sentence = self.model_repository.get_user_word_sentence(word, video_id, line_changed)
+            print(f"Word sentence is {word_sentence}!")
+            return word_sentence
+        except Exception as e:
+            print(f"In model service; error occured getting word sentence: {e}")
+            raise
+
     def update_note(self, video_id: str, word_id: int, line_changed: int, note: str):
         try:
             self.model_repository.update_note(video_id, word_id, line_changed, note)
