@@ -77,5 +77,9 @@ class VideoDetails(db.Model):
     lesson_keyword_imgs = Column(JSON)
     lesson_data = Column(JSON, nullable=False)
     source = Column(String(30)) #youtube or disney for example
+    title = Column(String(255))
     sentences = relationship('UserWordSentence', backref='video', cascade="all, delete-orphan")
     user_sentences = relationship('UserSentence', backref='video', cascade="all, delete-orphan")
+    def to_dict(self):
+        return {c.key: getattr(self, c.key)
+                for c in class_mapper(self.__class__).columns}

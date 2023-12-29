@@ -64,7 +64,8 @@ class ModelRepository:
                 id=video_id,
                 lesson_data=json.dumps(processed_transcript),  # Convert the list to a JSON string
                 lesson_keyword_imgs=json.dumps(keyword_to_images),  # Convert the dictionary to a JSON string
-                source=source
+                source=source,
+                title=video_id
             )
 
             # Add the new VideoDetails instance to the session

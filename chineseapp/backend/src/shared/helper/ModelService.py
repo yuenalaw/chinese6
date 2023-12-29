@@ -42,6 +42,14 @@ class ModelService:
             print(f"In model service; error occured getting review: {e}")
             raise
     
+    def get_library(self):
+        try:
+            library = self.model_repository.get_library()
+            return library
+        except Exception as e:
+            print(f"In model service; error occured getting library: {e}")
+            raise
+    
     def add_review(self, word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path):
         try:
             self.model_repository.add_word_sentence_review(word, pinyin, similar_words, translation, video_id, line_changed, sentence, note, image_path)
@@ -75,6 +83,14 @@ class ModelService:
             print(f"In model service; error occured updating note: {e}")
             raise 
     
+    def update_video_title(self, video_id, title):
+        try:
+            self.model_repository.update_video_title(video_id, title)
+            print(f"Updated video title!")
+        except Exception as e:
+            print(f"In model service; error occured updating video title: {e}")
+            raise
+
     def update_image_path(self, video_id: str, word_id: int, line_changed: int, image_path: str):
         try:
             self.model_repository.update_image_path(video_id, word_id, line_changed, image_path)

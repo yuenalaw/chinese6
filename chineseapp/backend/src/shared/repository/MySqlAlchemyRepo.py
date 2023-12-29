@@ -218,6 +218,25 @@ class ModelRepository:
             db.session.rollback()
             raise
     
+    def update_video_title(self, video_id, title):
+        try:
+            # Get the VideoDetails entry
+            video_details = VideoDetails.query.get(video_id)
+            if video_details is None:
+                print(f"No such video details; cannot update title")
+                return None
+            # Update the title
+            video_details.title = title
+
+            # Commit the changes
+            db.session.commit()
+
+            print(f"Updated VideoDetails for video_id {video_id}")
+        except Exception as e:
+            print(f"An error occurred (updating VideoDetails title): {e}")
+            db.session.rollback()
+            raise
+
     def update_image_path(self, video_id: str, word_id: int, line_changed: int, image_path: str) -> None:
         """
         Update the image path for a specific user and word sentence.
@@ -251,6 +270,15 @@ class ModelRepository:
     def video_details_exists(self, id):
         return db.session.query(VideoDetails.id).filter_by(id=id).scalar() is not None
     
+    def get_library(self):
+        try:
+            library = VideoDetails.query.all()
+            library = [video.to_dict() for video in VideoDetails.query.all()]
+            return library
+        except Exception as e:
+            print(f"An error occurred while getting library: {e}")
+            raise
+    
     def get_lesson_data(self, video_id):
         try:
             video_details = VideoDetails.query.get(video_id)
@@ -276,7 +304,7 @@ class ModelRepository:
                 else:
                     lesson_data.append({'segment': segment})
 
-            return {"source": video_details.source, "lessons": lesson_data}
+            return {"source": video_details.source, "title": video_details.title, "lessons": lesson_data}
         except Exception as e:
             print(f"An error occurred while getting lesson data: {e}")
             raise

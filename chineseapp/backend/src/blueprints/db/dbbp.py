@@ -101,6 +101,26 @@ def update_note():
         print("Error:", str(e))
         return {'message': 'Failed to update note'}, 500
 
+@db_bp.route('/updatetitle', methods=['POST'])
+def update_video_title():
+    request_data = request.get_json()
+    print(f"request data is {request_data}")
+    try:
+        model_service.update_video_title(request_data['video_id'], request_data['title'])
+        return {'message': 'Successfully updated video title!'}, 200
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to update video title'}, 500
+
+@db_bp.route('/getlibrary', methods=['GET'])
+def get_library():
+    try:
+        library = model_service.get_library()
+        return {'message': 'Successfully obtained library!', 'library': library}, 200
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to obtain library'}, 500
+    
 @db_bp.route('/updateimagepath', methods=['POST'])
 def update_image_path():
     request_data = request.get_json()
