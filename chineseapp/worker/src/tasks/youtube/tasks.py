@@ -2,25 +2,30 @@ from ...celery_app import celery
 from ...init_app import create_app
 from ..helper.YoutubeHelper import YouTubeHelper
 from ..helper.ModelService import ModelService
-from youtube_transcript_api import YouTubeTranscriptApi
 from celery import group, chord, chain
+from celery.result import AsyncResult
 import logging
 import json
 
 logger = logging.getLogger(__name__)
 app = create_app() # using the same instance of Flask app as backend
 
+@celery.task 
+def error_handler(uuid):
+    result = AsyncResult(uuid)
+    error_message = f'Task {uuid} raised exception: {result.result!r}'
+    return error_message
+
 @celery.task(name="process_video_transcript")
-def process_video_transcript(id):
+def process_video_transcript(transcript_orig):
     try:
         youtube_helper = YouTubeHelper()
-        transcript_orig = YouTubeTranscriptApi.get_transcript(id, languages=['zh-Hans', 'zh-Hant', 'zh-TW'])
         processed_transcript = youtube_helper.process_transcript(transcript_orig)
         return processed_transcript
     except Exception as e:
-        print("Error with processing video transcript:", str(e))
         logger.error("Error with processing video transcript:", exc_info=True)
-        return str(e)
+        error = f"Error with processing video transcript: {str(e)}"
+        return error
 
 @celery.task(name="process_video_transcript_from_transcript")
 def process_video_transcript_from_transcript(transcript):
@@ -33,36 +38,24 @@ def process_video_transcript_from_transcript(transcript):
         logger.error("Error with processing video transcript from transcript:", exc_info=True)
         return str(e)
 
-@celery.task(name="obtain_keywords_and_img_youtube")
-def obtain_keywords_and_img_youtube(id):
-    try:
-        youtube_helper = YouTubeHelper()
-        transcript_orig = YouTubeTranscriptApi.get_transcript(id, languages=['zh-Hans', 'zh-Hant', 'zh-TW'])
-        keyword_imgs = youtube_helper.get_keywords_and_img(transcript_orig)
-        return keyword_imgs,id
-    except Exception as e:
-        print("Error with keywords and image:", str(e))
-        logger.error("Error with keywords and image:", exc_info=True)
-        return str(e)
-
-@celery.task(name="obtain_keywords_and_img_otherid")
-def obtain_keywords_and_img_otherid(id, transcript):
+@celery.task(name="obtain_keywords_and_img")
+def obtain_keywords_and_img(transcript):
     try:
         youtube_helper = YouTubeHelper()
         keyword_imgs = youtube_helper.get_keywords_and_img(transcript)
-        return keyword_imgs,id
+        return keyword_imgs
     except Exception as e:
         print("Error with keywords and image other id:", str(e))
         logger.error("Error with keywords and image:", exc_info=True)
         return str(e)
     
 @celery.task(name="prepare_add_to_db")
-def prepare_add_to_db(results, source, forced):
+def prepare_add_to_db(results, id, source, forced):
     with app.app_context():
         try:
             model_service = ModelService()
             video_subtitles_details = results[0]
-            video_keywords_img,id = results[1]
+            video_keywords_img = results[1]
             model_service.create_video_lesson(id, video_subtitles_details, video_keywords_img, source, forced)
             return video_subtitles_details, video_keywords_img, id
         except Exception as e:
@@ -95,9 +88,10 @@ def process_new_sentence(sentence):
 
 
 @celery.task(name="execute_transcript_tasks")
-def execute_transcript_tasks(id, source, forced):
-    prepare_lesson = group(process_video_transcript.s(id), obtain_keywords_and_img_youtube.s(id))
-    results = chord(prepare_lesson)(prepare_add_to_db.s(source, forced))
+def execute_transcript_tasks(id, transcript, source, forced):
+    prepare_lesson = group(process_video_transcript.s(transcript).on_error(error_handler.s()), 
+                        obtain_keywords_and_img.s(transcript).on_error(error_handler.s()))
+    results = chord(prepare_lesson)(prepare_add_to_db.s(id, source, forced))
     print(f"Tasks are being executed in parallel\n")
     return results
 
@@ -114,7 +108,7 @@ def execute_new_sentence(video_id, line_changed, sentence):
 def execute_transcript_tasks_non_youtube(id, transcript, source, forced):
     youtube_helper = YouTubeHelper()
     transcript_format_for_keywords = youtube_helper.convert_transcript_to_format(transcript)
-    prepare_lesson = group(process_video_transcript_from_transcript.s(transcript), obtain_keywords_and_img_otherid.s(id, transcript_format_for_keywords))
-    results = chord(prepare_lesson)(prepare_add_to_db.s(source, forced))
+    prepare_lesson = group(process_video_transcript_from_transcript.s(transcript), obtain_keywords_and_img.s(transcript_format_for_keywords))
+    results = chord(prepare_lesson)(prepare_add_to_db.s(id, source, forced))
     print(f"Tasks are being executed in parallel for transcript non youtube\n")
     return results

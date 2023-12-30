@@ -1,11 +1,8 @@
 from ...shared.repository.MySqlAlchemyRepo import ModelRepository
-from .SRSHelper import SRSHelper
-from datetime import date, timedelta
 import json
 
 class ModelService:
     model_repository = ModelRepository()
-    SRS_helper = SRSHelper()
 
     def video_exists(self, vid_id):
         return self.model_repository.video_details_exists(vid_id)

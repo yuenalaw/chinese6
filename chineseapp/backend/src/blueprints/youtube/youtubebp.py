@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from ...shared.helper.ModelService import ModelService
+from youtube_transcript_api import YouTubeTranscriptApi
 from ...celery_app import celery
 
 youtubebp = Blueprint('youtubebp', __name__,
@@ -15,17 +16,17 @@ def process_video():
     try:
         # enqueue celery task
         print(f"trying to enqueue with video... {request_data['video_id']}")
-
+        transcript_orig = YouTubeTranscriptApi.get_transcript(request_data['video_id'], languages=['zh-Hans', 'zh-Hant', 'zh-TW'])
         sig = celery.signature("execute_transcript_tasks")
-        task = sig.delay(request_data['video_id'], request_data['source'], request_data['forced'])
+        task = sig.delay(request_data['video_id'], transcript_orig, request_data['source'], request_data['forced'])
         callbackid = task.id        
         print(f"callback is {callbackid}") # send this to the client for them to check below method
         return {'message': 'Video task has been added to the queue', 'callback': callbackid}, 202
     except Exception as e:
         print("Error:", str(e))
-        return {'message': 'Failed to enqueue video task'}, 500
+        return {'message': f'Failed to enqueue video task: {e}'}, 500
 
-@youtubebp.route('/posttranscript', methods=['POST'])
+@youtubebp.route('/posttranscriptdisney', methods=['POST'])
 def add_full_transcript():
     request_data = request.get_json()
     try:
