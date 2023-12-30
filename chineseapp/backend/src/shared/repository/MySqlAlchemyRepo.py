@@ -288,14 +288,6 @@ class ModelRepository:
             user_sentences_dict = {us.line_changed: us for us in user_sentences}
 
             lesson_data = []
-            """video details.lesson data looks something like
-            [{'segment': '加州留学生的生活', 'start': 10.708, 'duration': 1.291, 
-            'sentences': [{'sentence': '加州留学生的生活', 'entries': [{'word': '加州', 'upos': 'PROPN', 'pinyin': None, 'translation': None, 'similarsounds': None}, 
-            {'word': '留学', 'upos': 'VERB', 'pinyin': None, 'translation': None, 'similarsounds': None}, 
-            {'word': '生', 'upos': 'PART', 'pinyin': None, 'translation': None, 'similarsounds': None}, 
-            {'word': '的', 'upos': 'PART', 'pinyin': None, 'translation': None, 'similarsounds': None}, 
-            {'word': '生活', 'upos': 'NOUN', 'pinyin': None, 'translation': None, 'similarsounds': None}]}]},
-            """
             lesson_data_json = json.loads(video_details.lesson_data)
             for index, segment in enumerate(lesson_data_json):
                 if index in user_sentences_dict:
@@ -303,8 +295,10 @@ class ModelRepository:
                     lesson_data.append({'segment': segment, 'user_sentence': user_sentence})
                 else:
                     lesson_data.append({'segment': segment})
+            
+            reformat_keywords_imgs = json.loads(video_details.lesson_keyword_imgs)
 
-            return {"source": video_details.source, "title": video_details.title, "lessons": lesson_data}
+            return {"source": video_details.source, "title": video_details.title, "keywords_img": reformat_keywords_imgs, "lessons": lesson_data}
         except Exception as e:
             print(f"An error occurred while getting lesson data: {e}")
             raise
