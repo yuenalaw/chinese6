@@ -6,7 +6,22 @@ class LanguageBackendAPI {
   static const String _apiPath = "/";
   
   Uri video(String videoId) => _buildUri(
-    endpoint: "vid/$videoId",
+    endpoint: "getlesson/$videoId",
+    parametersBuilder: () => {},
+  );
+
+  Uri word(String word) => _buildUri(
+    endpoint: "getword/$word",
+    parametersBuilder: () => {},
+  );
+
+  Uri userWordSentence(String word, String videoId, String lineChanged) => _buildUri(
+    endpoint: "getusersentence/$word/$videoId/$lineChanged",
+    parametersBuilder: () => {},
+  );
+
+  Uri addReview() => _buildUri(
+    endpoint: "addnewreview",
     parametersBuilder: () => {},
   );
 
