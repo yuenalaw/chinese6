@@ -42,6 +42,14 @@ class ModelService:
             print(f"In model service; error occured getting review: {e}")
             raise
     
+    def get_word(self, word):
+        try:
+            word_id = self.model_repository.get_word(word)
+            return word_id
+        except Exception as e:
+            print(f"In model service; error occured getting word: {e}")
+            raise
+    
     def get_library(self):
         try:
             library = self.model_repository.get_library()

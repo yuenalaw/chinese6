@@ -20,6 +20,15 @@ def obtain_lesson(video_id):
         print("Error:", str(e))
         return {'message': 'Failed to obtain video'}, 500
 
+@db_bp.route('/getword/<word>', methods=['GET'])
+def get_word(word):
+    try:
+        word = model_service.get_word(word)
+        return {'message': 'Successfully obtained word!', 'word': word}, 200
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to obtain word'}, 500
+
 @db_bp.route('/addstudydate')
 def add_study_date():
     try:

@@ -314,6 +314,17 @@ class ModelRepository:
             print(f"An error occurred while deleting VideoDetails: {e}")
             db.session.rollback()
             raise
+    
+    def get_word(self, word):
+        try:
+            word = Word.query.filter_by(word=word).first()
+            if word is None:
+                print(f"No such word; cannot get word")
+                return None
+            return word.to_dict()
+        except Exception as e:
+            print(f"An error occurred while getting word: {e}")
+            raise
 
     def add_word(self, word, pinyin, similar_words, translation):
         try:
