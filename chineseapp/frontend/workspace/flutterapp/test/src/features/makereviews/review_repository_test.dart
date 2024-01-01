@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutterapp/src/api/api.dart';
+import 'package:flutterapp/src/features/makereviews/domain/update_image.dart';
+import 'package:flutterapp/src/features/makereviews/domain/update_note.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:flutterapp/src/features/makereviews/data/review_repository.dart';
@@ -69,6 +71,36 @@ var mockReviewJson =
   "image_path": "initialpath"
 };
 
+var mockImage = UpdateImage(
+  videoId: "-acfusFM4d8",
+  wordId: 1,
+  lineChanged: 1,
+  imagePath: "initialpath"
+);
+
+var mockImageJson = 
+{
+  "video_id": "-acfusFM4d8",
+  "word_id": 1,
+  "line_changed": 1,
+  "image_path": "initialpath"
+};
+
+var mockNote = UpdateNote(
+  videoId: "-acfusFM4d8", 
+  wordId: 1, 
+  lineChanged: 1, 
+  note: "initialnote"
+);
+
+var mockNoteJson = 
+{
+  "video_id": "-acfusFM4d8",
+  "word_id": 1,
+  "line_changed": 1,
+  "note": "initialnote"
+};
+
 void main() {
   test('review repository with mocked http client, success', () async {
     final mockHttpClient = MockHttpClient();
@@ -113,6 +145,17 @@ void main() {
     expect(userWordSentence.wordId, 1);
   });
 
+  test('review repository for user word sentence with mocked http client, failure', () async {
+    final mockHttpClient = MockHttpClient();
+    final api = LanguageBackendAPI();
+    final reviewRepository = 
+      ReviewRepository(api: api, client: mockHttpClient);
+    when(() => mockHttpClient.get(api.userWordSentence("","",""))).thenAnswer(
+        (_) => Future.value(http.Response.bytes(utf8.encode(userWordSentenceJson), 404)));
+    final userWordSentence = await reviewRepository.getUserWordSentence(word:"", videoId: "", lineChanged:"");
+
+    expect(userWordSentence.wordId, null);
+  });
   test('review repository with for posting, success', () async {
     final mockHttpClient = MockHttpClient();
     final api = LanguageBackendAPI();
@@ -130,6 +173,48 @@ void main() {
       api.addReview(), 
       headers: any(named: 'headers'),
       body: equals(jsonEncode(mockReviewJson)),
+      encoding: any(named: 'encoding')
+    )).called(1);
+  });
+
+    test('review repository with for update image path, success', () async {
+    final mockHttpClient = MockHttpClient();
+    final api = LanguageBackendAPI();
+    final reviewRepository = 
+      ReviewRepository(api: api, client: mockHttpClient);
+    when(() => mockHttpClient.post(
+      api.updateImage(), 
+      headers: any(named: 'headers'),
+      body: equals(jsonEncode(mockImageJson)),
+      encoding: any(named: 'encoding')
+    ))
+    .thenAnswer((_) async => http.Response.bytes(utf8.encode(jsonEncode(mockImageJson)), 200));
+    await reviewRepository.updateImage(image:mockImage);
+    verify(() => mockHttpClient.post(
+      api.updateImage(), 
+      headers: any(named: 'headers'),
+      body: equals(jsonEncode(mockImageJson)),
+      encoding: any(named: 'encoding')
+    )).called(1);
+  });
+
+    test('review repository with for update note, success', () async {
+    final mockHttpClient = MockHttpClient();
+    final api = LanguageBackendAPI();
+    final reviewRepository = 
+      ReviewRepository(api: api, client: mockHttpClient);
+    when(() => mockHttpClient.post(
+      api.updateNote(), 
+      headers: any(named: 'headers'),
+      body: equals(jsonEncode(mockNoteJson)),
+      encoding: any(named: 'encoding')
+    ))
+    .thenAnswer((_) async => http.Response.bytes(utf8.encode(jsonEncode(mockNoteJson)), 200));
+    await reviewRepository.updateNote(note: mockNote);
+    verify(() => mockHttpClient.post(
+      api.updateNote(), 
+      headers: any(named: 'headers'),
+      body: equals(jsonEncode(mockNoteJson)),
       encoding: any(named: 'encoding')
     )).called(1);
   });

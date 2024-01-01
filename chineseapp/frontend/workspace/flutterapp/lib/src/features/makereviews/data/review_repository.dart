@@ -7,7 +7,8 @@ import 'package:flutterapp/src/features/makereviews/domain/user_word_sentence.da
 import 'package:flutterapp/src/features/makereviews/domain/word.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutterapp/src/features/makereviews/domain/review_query.dart';
-
+import 'package:flutterapp/src/features/makereviews/domain/update_image.dart';
+import 'package:flutterapp/src/features/makereviews/domain/update_note.dart';
 
 class ReviewRepository {
   ReviewRepository({
@@ -32,6 +33,26 @@ class ReviewRepository {
     String jsonString = json.encode(body);
     return _postData(
       uri: api.addReview(),
+      builder: (data) => json.encode(data),
+      body: jsonString,
+    );
+  }
+
+  Future<String> updateImage({required UpdateImage image}) async {
+    Map<String, dynamic> body = image.toJson();
+    String jsonString = json.encode(body);
+    return _postData(
+      uri: api.updateImage(),
+      builder: (data) => json.encode(data),
+      body: jsonString,
+    );
+  }
+
+  Future<String> updateNote({required UpdateNote note}) async {
+    Map<String, dynamic> body = note.toJson();
+    String jsonString = json.encode(body);
+    return _postData(
+      uri: api.updateNote(),
       builder: (data) => json.encode(data),
       body: jsonString,
     );

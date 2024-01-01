@@ -25,6 +25,16 @@ class LanguageBackendAPI {
     parametersBuilder: () => {},
   );
 
+  Uri updateImage() => _buildUri(
+    endpoint: "updateimagepath",
+    parametersBuilder: () => {},
+  );
+
+  Uri updateNote() => _buildUri(
+    endpoint: "updatenote",
+    parametersBuilder: () => {},
+  );
+
   Uri _buildUri({
     required String endpoint,
     required Map<String, dynamic> Function() parametersBuilder,
