@@ -50,6 +50,16 @@ class LanguageBackendAPI {
     parametersBuilder: () => {},
   );
 
+  Uri getLibrary() => _buildUri(
+    endpoint: "getlibrary",
+    parametersBuilder: () => {},
+  );
+
+  Uri getStreak() => _buildUri(
+    endpoint: "getstreak",
+    parametersBuilder: () => {},
+  );
+
   Uri _buildUri({
     required String endpoint,
     required Map<String, dynamic> Function() parametersBuilder,
