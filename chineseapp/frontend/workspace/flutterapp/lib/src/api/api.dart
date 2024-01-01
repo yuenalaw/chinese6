@@ -20,11 +20,6 @@ class LanguageBackendAPI {
     parametersBuilder: () => {},
   );
 
-  Uri addReview() => _buildUri(
-    endpoint: "addnewreview",
-    parametersBuilder: () => {},
-  );
-
   Uri updateImage() => _buildUri(
     endpoint: "updateimagepath",
     parametersBuilder: () => {},
@@ -32,6 +27,26 @@ class LanguageBackendAPI {
 
   Uri updateNote() => _buildUri(
     endpoint: "updatenote",
+    parametersBuilder: () => {},
+  );
+
+  Uri addReview() => _buildUri(
+    endpoint: "addnewreview",
+    parametersBuilder: () => {},
+  );
+
+  Uri getCardsToday() => _buildUri(
+    endpoint:"getcardstoday",
+    parametersBuilder: () => {},
+  );
+
+  Uri updateReviewStats() => _buildUri(
+    endpoint: "updatereview",
+    parametersBuilder: () => {},
+  );
+
+  Uri getContext(String videoId, int lineChanged) => _buildUri(
+    endpoint: "getcontext/$videoId/$lineChanged",
     parametersBuilder: () => {},
   );
 

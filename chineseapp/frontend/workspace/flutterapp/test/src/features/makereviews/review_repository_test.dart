@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:flutterapp/src/features/makereviews/data/review_repository.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_query.dart';
-
 import 'dart:convert';
 
 class MockHttpClient extends Mock implements http.Client {} 
