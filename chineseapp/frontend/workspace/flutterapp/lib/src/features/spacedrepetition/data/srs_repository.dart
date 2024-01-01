@@ -57,7 +57,7 @@ class SRSRepository {
     }
   }
 
-    Future<T> _postData<T>({
+  Future<T> _postData<T>({
     required Uri uri,
     required T Function(dynamic data) builder,
     required String body,

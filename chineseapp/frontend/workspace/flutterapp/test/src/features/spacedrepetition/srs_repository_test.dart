@@ -156,7 +156,7 @@ void main() {
   test('review repository with for update review, success', () async {
     final mockHttpClient = MockHttpClient();
     final api = LanguageBackendAPI();
-    final reviewRepository = 
+    final srsRepository = 
       SRSRepository(api: api, client: mockHttpClient);
     when(() => mockHttpClient.post(
       api.updateReviewStats(), 
@@ -165,7 +165,7 @@ void main() {
       encoding: any(named: 'encoding')
     ))
     .thenAnswer((_) async => http.Response.bytes(utf8.encode(jsonEncode(mockUpdateReviewJson)), 200));
-    await reviewRepository.updateReview(updateReviewObj: updateReview);
+    await srsRepository.updateReview(updateReviewObj: updateReview);
     verify(() => mockHttpClient.post(
       api.updateReviewStats(), 
       headers: any(named: 'headers'),

@@ -60,6 +60,11 @@ class LanguageBackendAPI {
     parametersBuilder: () => {},
   );
 
+  Uri updateTitle() => _buildUri(
+    endpoint: "updatetitle",
+    parametersBuilder: () => {},
+  );
+
   Uri _buildUri({
     required String endpoint,
     required Map<String, dynamic> Function() parametersBuilder,

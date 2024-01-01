@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutterapp/src/features/useroverview/data/useroverview_repository.dart';
 import 'package:flutterapp/src/features/useroverview/domain/library.dart';
 import 'package:flutterapp/src/features/useroverview/domain/streak.dart';
+import 'package:flutterapp/src/features/useroverview/domain/update_title.dart';
 import 'mock_library_encoded_json.dart';
 
 class MockHttpClient extends Mock implements http.Client {} 
@@ -16,6 +17,17 @@ const mockStreakJson =
 {
     "message": "Successfully obtained streak!",
     "streak": 1
+};
+
+final mockUpdateTitle = UpdateTitle(
+  videoId: "-acfusFM4d8",
+  title: "new title",
+);
+
+const mockUpdateTitleJson = 
+{
+  "video_id":"-acfusFM4d8", 
+  "title":"new title"
 };
 
 void main() {
@@ -64,5 +76,26 @@ void main() {
     when(() => mockHttpClient.get(api.getStreak())).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockStreakJson)), 404)));
     expect(() async => await userOverviewRepository.getStreak(), throwsException);
+  });
+
+  test('user overview repository with for update video title, success', () async {
+    final mockHttpClient = MockHttpClient();
+    final api = LanguageBackendAPI();
+    final userOverviewRepositoryRepository = 
+      UserOverviewRepository(api: api, client: mockHttpClient);
+    when(() => mockHttpClient.post(
+      api.updateTitle(), 
+      headers: any(named: 'headers'),
+      body: equals(jsonEncode(mockUpdateTitleJson)),
+      encoding: any(named: 'encoding')
+    ))
+    .thenAnswer((_) async => http.Response.bytes(utf8.encode(jsonEncode(mockUpdateTitleJson)), 200));
+    await userOverviewRepositoryRepository.updateTitle(titleObj: mockUpdateTitle);
+    verify(() => mockHttpClient.post(
+      api.updateTitle(), 
+      headers: any(named: 'headers'),
+      body: equals(jsonEncode(mockUpdateTitleJson)),
+      encoding: any(named: 'encoding')
+    )).called(1);
   });
 }
