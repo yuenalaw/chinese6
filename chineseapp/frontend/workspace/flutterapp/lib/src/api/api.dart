@@ -29,12 +29,13 @@ class LanguageBackendAPI {
     required String endpoint,
     required Map<String, dynamic> Function() parametersBuilder,
   }) {
+    Map<String, dynamic> parameters = parametersBuilder();
     return Uri(
       scheme: "http",
       host: _apiHost,
       port: _apiPort,
       path: "$_apiPath$endpoint",
-      queryParameters: parametersBuilder(),
+      queryParameters: parameters.isNotEmpty ? parameters : null
     );
   }
 }

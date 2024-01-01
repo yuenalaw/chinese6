@@ -27,12 +27,13 @@ class ReviewRepository {
     builder: (data) => Word.fromJson(data),
   );
 
-  Future<String> makeReview({required Review review}) async {
+  Future<String> makeReview({required ReviewQuery review}) async {
     Map<String, dynamic> body = review.toJson();
+    String jsonString = json.encode(body);
     return _postData(
       uri: api.addReview(),
-      builder: (data) => data,
-      body: body,
+      builder: (data) => json.encode(data),
+      body: jsonString,
     );
   }
 
@@ -61,13 +62,13 @@ class ReviewRepository {
   Future<T> _postData<T>({
     required Uri uri,
     required T Function(dynamic data) builder,
-    required Map<String, dynamic> body,
+    required String body,
   }) async {
     try {
       final response = await client.post(
         uri,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=UTF-8',
         },
         body: body,
       );
@@ -92,7 +93,7 @@ class ReviewRepository {
 
 // providers used by rest of app
 
-final userWordSentenceRepositoryProvider = Provider<ReviewRepository>((ref) {
+final reviewRepositoryProvider = Provider<ReviewRepository>((ref) {
   return ReviewRepository(
     api: LanguageBackendAPI(),
     client: http.Client(),

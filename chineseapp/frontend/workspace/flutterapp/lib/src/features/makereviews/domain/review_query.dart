@@ -1,4 +1,4 @@
-class Review {
+class ReviewQuery {
   final String word;
   final String pinyin;
   final List<String> similarWords;
@@ -9,7 +9,7 @@ class Review {
   final String note;
   final String imagePath;
 
-  Review({
+  ReviewQuery({
     required this.word,
     required this.pinyin,
     required this.similarWords,
@@ -21,9 +21,9 @@ class Review {
     required this.imagePath,
   });
 
-  factory Review.fromJson(Map<String, dynamic> json) {
+  factory ReviewQuery.fromJson(Map<String, dynamic> json) {
     var translationFromJson = List<List<dynamic>>.from(json['translation'].map((x) => List<dynamic>.from(x)));
-    return Review(
+    return ReviewQuery(
       word: json['word'],
       pinyin: json['pinyin'],
       similarWords: List<String>.from(json['similar_words']),
@@ -37,12 +37,11 @@ class Review {
   }
 
   Map<String, dynamic> toJson() {
-    var translationToJson = List<dynamic>.from(translation.map((x) => List<dynamic>.from(x)));
     return {
       'word': word,
       'pinyin': pinyin,
       'similar_words': similarWords,
-      'translation': translationToJson,
+      'translation': translation,
       'video_id': videoId,
       'line_changed': lineChanged,
       'sentence': sentence,
