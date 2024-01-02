@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutterapp/src/api/api.dart';
 import 'package:flutterapp/src/features/lessonoverview/data/video_repository.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence_callback.dart';
 import './video_lesson_encoded_json.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/lesson.dart';
@@ -88,6 +89,16 @@ final mockUpdateSentence = UpdateSentence(
   sentence: "我爱你"
 );
 
+  /*return {'message': 'Sentence task has been added to the queue', 'callback': task_id}, 202
+*/
+
+final mockUpdateSentenceCallback = UpdateSentenceCallback(
+  taskId: "taskidfake"
+);
+
+final mockUpdateSentenceCallbackJson = 
+{"callback": "taskidfake"};
+
 void main() {
   test('repository with mocked http client, success', () async {
     final mockHttpClient = MockHttpClient();
@@ -124,7 +135,7 @@ void main() {
       body: equals(jsonEncode(mockUpdateSentenceJson)),
       encoding: any(named: 'encoding')
     ))
-    .thenAnswer((_) async => http.Response.bytes(utf8.encode(jsonEncode(mockUpdateSentenceJson)), 200));
+    .thenAnswer((_) async => http.Response(jsonEncode(mockUpdateSentenceCallbackJson), 202));
     await videoRepository.updateSentence(updateSentenceObj: mockUpdateSentence);
     verify(() => mockHttpClient.post(
       api.updateSentence(), 

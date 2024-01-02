@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence_callback.dart';
 import 'package:flutterapp/src/features/lessonoverview/data/api_exception.dart';
 import 'package:flutterapp/src/api/api.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,12 +23,14 @@ class VideoRepository {
     builder: (data) => Video.fromJson(data),
   );
 
-  Future<String> updateSentence({required UpdateSentence updateSentenceObj}) async {
+  /*return {'message': 'Sentence task has been added to the queue', 'callback': task_id}, 202
+*/
+  Future<UpdateSentenceCallback> updateSentence({required UpdateSentence updateSentenceObj}) async {
     Map<String, dynamic> body = updateSentenceObj.toJson();
     String jsonString = json.encode(body);
     return _postData(
       uri: api.updateSentence(),
-      builder: (data) => json.encode(data),
+      builder: (data) => UpdateSentenceCallback.fromJson(data),
       body: jsonString,
     );
   }
@@ -71,7 +74,7 @@ class VideoRepository {
           String responseBody = utf8.decode(response.bodyBytes);
           Map<String, dynamic> data = json.decode(responseBody);
           return builder(data);
-        case 201:
+        case 202:
           String responseBody = utf8.decode(response.bodyBytes);
           Map<String, dynamic> data = json.decode(responseBody);
           return builder(data);
