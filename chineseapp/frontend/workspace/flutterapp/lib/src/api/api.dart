@@ -80,6 +80,16 @@ class LanguageBackendAPI {
     parametersBuilder: () => {},
   );
 
+  Uri checkSentenceTask(String taskId) => _buildUri(
+    endpoint: "updatesentencetask/$taskId",
+    parametersBuilder: () => {},
+  );
+
+  Uri getUpdatedSentence(String videoId, String lineChanged) => _buildUri(
+    endpoint: "getupdatedsentence/$videoId/$lineChanged",
+    parametersBuilder: () => {},
+  );
+
   Uri _buildUri({
     required String endpoint,
     required Map<String, dynamic> Function() parametersBuilder,

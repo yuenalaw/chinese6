@@ -54,7 +54,7 @@ class MakeLessonRepository {
           String responseBody = utf8.decode(response.bodyBytes);
           Map<String, dynamic> data = json.decode(responseBody);
           return builder(data);
-        case 201:
+        case 202:
           String responseBody = utf8.decode(response.bodyBytes);
           Map<String, dynamic> data = json.decode(responseBody);
           return builder(data);

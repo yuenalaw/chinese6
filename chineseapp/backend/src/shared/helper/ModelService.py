@@ -82,6 +82,15 @@ class ModelService:
         except Exception as e:
             print(f"In model service; error occured getting word sentence: {e}")
             raise
+    
+    def get_updated_user_sentence(self, video_id, line_changed):
+        try:
+            updated_sentence = self.model_repository.get_updated_user_sentence(video_id, line_changed)
+            print(f"Updated sentence is {updated_sentence}!")
+            return updated_sentence
+        except Exception as e:
+            print(f"In model service; error occured getting updated sentence: {e}")
+            raise
 
     def update_note(self, video_id: str, word_id: int, line_changed: int, note: str):
         try:

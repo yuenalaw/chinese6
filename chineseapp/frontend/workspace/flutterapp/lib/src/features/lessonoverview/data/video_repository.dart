@@ -1,13 +1,16 @@
 
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutterapp/src/features/lessonoverview/domain/please_wait_vid_or_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence_callback.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/updated_sentence_returned.dart';
 import 'package:flutterapp/src/features/lessonoverview/data/api_exception.dart';
 import 'package:flutterapp/src/api/api.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:either_dart/either.dart';
 
 class VideoRepository {
   VideoRepository({
@@ -18,9 +21,16 @@ class VideoRepository {
   final http.Client client;
 
   // get the lesson value (read once)
-  Future<Video> getVideo({required String videoId}) => _getData(
+  Future<Either<PleaseWaitVidOrSentence, Video>> getVideo({required String videoId}) => _getData(
     uri: api.video(videoId),
     builder: (data) => Video.fromJson(data),
+    processingBuilder: () => PleaseWaitVidOrSentence.fromJson({"message": "Please hold on while we process your video request..."}),
+  );
+
+  Future<Either<PleaseWaitVidOrSentence, UpdatedSentenceReturned>> getUpdatedSentence({required String videoId, required String lineChanged}) => _getData(
+    uri: api.getUpdatedSentence(videoId, lineChanged),
+    builder: (data) => UpdatedSentenceReturned.fromJson(data),
+    processingBuilder: () => PleaseWaitVidOrSentence.fromJson({"message": "Please hold on while we process your sentence request..."}),
   );
 
   /*return {'message': 'Sentence task has been added to the queue', 'callback': task_id}, 202
@@ -35,9 +45,10 @@ class VideoRepository {
     );
   }
 
-  Future<T> _getData<T>({
+  Future<Either<T1, T2>> _getData<T1,T2>({
     required Uri uri,
-    required T Function(dynamic data) builder,
+    required T2 Function(dynamic data) builder,
+    required T1 Function() processingBuilder,
   }) async {
     try {
       final response = await client.get(uri);
@@ -45,11 +56,15 @@ class VideoRepository {
         case 200:
         String responsebody = utf8.decode(response.bodyBytes);
         Map<String, dynamic> data = json.decode(responsebody);
-        return builder(data);
+        return Right(builder(data));
+        case 202:
+          String responsebody = utf8.decode(response.bodyBytes);
+          Map<String, dynamic> data = json.decode(responsebody);
+          return Right(builder(data));
         case 404:
-          throw Exception('Video not found');
+          return Left(processingBuilder());
         default:
-          throw Exception('Error fetching video');
+          throw Exception('Error fetching...');
       }
     } on SocketException catch(_) {
         throw NoInternetConnectionException();

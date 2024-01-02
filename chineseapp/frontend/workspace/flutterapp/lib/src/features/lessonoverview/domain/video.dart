@@ -36,6 +36,7 @@
 //           ]
 //         }
 //       ],
+//       "video_id":, "...",
 //       "source": "YouTube",
 //       "title": title,
 //     }
@@ -46,12 +47,14 @@ import 'lesson.dart';
 import 'keyword_img.dart';
 
 class Video {
+    final String videoId;
     final List<Lesson> lessons;
     final String source;
     final String title;
     final List<KeywordImg> keywordsImg;
 
     Video({
+      required this.videoId,
       required this.lessons,
       required this.source,
       required this.title,
@@ -67,8 +70,10 @@ class Video {
 
       String source = json['video']['source'];
       String title = json['video']['title'];
+      String videoId = json['video']['video_id'];
 
       return Video(
+        videoId: videoId,
         lessons: lessons,
         source: source,
         title: title,

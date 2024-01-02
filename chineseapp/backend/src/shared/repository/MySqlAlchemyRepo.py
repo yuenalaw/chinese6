@@ -187,6 +187,17 @@ class ModelRepository:
         except Exception as e:
             print(f"An error occurred while getting user word sentence: {e}")
             raise
+    
+    def get_updated_user_sentence(self, video_id: str, line_changed: int):
+        try:
+            user_sentence = UserSentence.query.filter_by(video_id=video_id, line_changed=line_changed).first()
+            if user_sentence:
+                return {"sentence": user_sentence.user_sentence['sentence'], "entries": user_sentence.user_sentence['entries']}
+            else:
+                return None
+        except Exception as e:
+            print(f"An error occurred while getting user sentence: {e}")
+            raise
 
     def update_note(self, video_id: str, word_id: int, line_changed: int, note: str) -> None:
         """
@@ -298,10 +309,12 @@ class ModelRepository:
             
             reformat_keywords_imgs = json.loads(video_details.lesson_keyword_imgs)
 
-            return {"source": video_details.source, "title": video_details.title, "keywords_img": reformat_keywords_imgs, "lessons": lesson_data}
+            return {"video_id": video_id, "source": video_details.source, "title": video_details.title, "keywords_img": reformat_keywords_imgs, "lessons": lesson_data}
         except Exception as e:
             print(f"An error occurred while getting lesson data: {e}")
             raise
+    
+
     
     def delete_video_lesson_from_db(self, video_id):
         try:

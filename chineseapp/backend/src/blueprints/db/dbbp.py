@@ -76,13 +76,12 @@ def update_review():
         return {'message': 'Successfully updated review!'}, 200
     except Exception as e:
         print("Error:", str(e))
-        return {'message': 'Failed to update review'}, 500#
+        return {'message': 'Failed to update review'}, 500
 
 @db_bp.route('/addword', methods=['POST'])
 def add_word():
     # Parse JSON data from the request
     request_data = request.get_json()
-
     try:
         model_service.add_word(request_data['word'], request_data['pinyin'], request_data['similar_words'], request_data['translation'])
         return jsonify({'message': 'Successfully added word!'}), 200
@@ -98,6 +97,17 @@ def get_word_sentence(word, video_id, line_changed):
     except Exception as e:
         print("Error:", str(e))
         return {'message': 'Failed to obtain word sentence'}, 500
+
+@db_bp.route('/getupdatedsentence/<video_id>/<line_changed>',methods=['GET'])
+def get_updated_user_sentence(video_id, line_changed):
+    try:
+        updated_sentence = model_service.get_updated_user_sentence(video_id, line_changed)
+        if updated_sentence.updated_sentence == None:
+            return {'message': 'No updated sentence found... yet:)'}, 404
+        return {'message': 'Successfully obtained updated sentence!', 'updated_sentence': updated_sentence}, 200
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to obtain updated sentence'}, 500
 
 @db_bp.route('/updatenote', methods=['POST'])
 def update_note():

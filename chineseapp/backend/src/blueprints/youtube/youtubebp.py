@@ -57,13 +57,13 @@ def check_sentence_task(task_id):
     try:
         task = celery.AsyncResult(task_id)
         if task.state == 'SUCCESS':
-            return {'message': 'Sentence task has been completed'}, 200
+            return {'message': 'Sentence task has been completed', 'status': 'SUCCESS'}, 200
         elif task.state == 'PENDING':
-            return {'message': 'Sentence task is still pending'}, 202
+            return {'message': 'Sentence task is still pending', 'status': 'PENDING'}, 202
         elif task.state == 'FAILURE':
-            return {'message': 'Sentence task has failed'}, 500
+            return {'message': 'Sentence task has failed', 'status': 'FAILURE'}, 500
         else:
-            return {'message': 'Sentence task is in an unknown state'}, 500
+            return {'message': 'Sentence task is in an unknown state', 'status': 'FAILURE'}, 500
     except Exception as e:
         print("Error:", str(e))
-        return {'message': 'Failed to check sentence task'}, 500
+        return {'message': 'Failed to check sentence task', 'status': 'FAILURE'}, 500
