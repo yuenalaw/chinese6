@@ -20,6 +20,11 @@ class LanguageBackendAPI {
     parametersBuilder: () => {},
   );
 
+  Uri updateSentence() => _buildUri(
+    endpoint: "updatesentence", 
+    parametersBuilder: () => {},
+  );
+
   Uri updateImage() => _buildUri(
     endpoint: "updateimagepath",
     parametersBuilder: () => {},
@@ -62,6 +67,16 @@ class LanguageBackendAPI {
 
   Uri updateTitle() => _buildUri(
     endpoint: "updatetitle",
+    parametersBuilder: () => {},
+  );
+
+  Uri postYouTubeRequest() => _buildUri(
+    endpoint: "vid", 
+    parametersBuilder: () => {},
+  );
+
+  Uri postDisneyRequest() => _buildUri(
+    endpoint: "posttranscriptdisney", 
     parametersBuilder: () => {},
   );
 

@@ -1,56 +1,39 @@
-
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
-import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
-import 'package:flutterapp/src/features/lessonoverview/data/api_exception.dart';
+import 'package:flutterapp/src/features/makelesson/domain/disney_request.dart';
+import 'package:flutterapp/src/features/makelesson/domain/youtube_request.dart';
 import 'package:flutterapp/src/api/api.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutterapp/src/features/makelesson/data/api_exception.dart';
 import 'package:http/http.dart' as http;
 
-class VideoRepository {
-  VideoRepository({
+class MakeLessonRepository {
+  MakeLessonRepository({
     required this.api,
     required this.client
   });
+    
   final LanguageBackendAPI api;
   final http.Client client;
 
-  // get the lesson value (read once)
-  Future<Video> getVideo({required String videoId}) => _getData(
-    uri: api.video(videoId),
-    builder: (data) => Video.fromJson(data),
-  );
-
-  Future<String> updateSentence({required UpdateSentence updateSentenceObj}) async {
-    Map<String, dynamic> body = updateSentenceObj.toJson();
+  Future<String> postYouTubeRequest({required YouTubeRequest ytRequest}) async {
+    Map<String, dynamic> body = ytRequest.toJson();
     String jsonString = json.encode(body);
     return _postData(
-      uri: api.updateSentence(),
+      uri: api.postYouTubeRequest(),
       builder: (data) => json.encode(data),
       body: jsonString,
     );
   }
 
-  Future<T> _getData<T>({
-    required Uri uri,
-    required T Function(dynamic data) builder,
-  }) async {
-    try {
-      final response = await client.get(uri);
-      switch (response.statusCode) {
-        case 200:
-        String responsebody = utf8.decode(response.bodyBytes);
-        Map<String, dynamic> data = json.decode(responsebody);
-        return builder(data);
-        case 404:
-          throw Exception('Video not found');
-        default:
-          throw Exception('Error fetching video');
-      }
-    } on SocketException catch(_) {
-        throw NoInternetConnectionException();
-    }
+  Future<String> postDisneyRequest({required DisneyRequest disneyRequest}) async {
+    Map<String, dynamic> body = disneyRequest.toJson();
+    String jsonString = json.encode(body);
+    return _postData(
+      uri: api.postDisneyRequest(),
+      builder: (data) => json.encode(data),
+      body: jsonString,
+    );
   }
 
   Future<T> _postData<T>({
@@ -84,10 +67,11 @@ class VideoRepository {
   }
 }
 
+
 // providers used by rest of app
 
-final videoRepositoryProvider = Provider<VideoRepository>((ref) {
-  return VideoRepository(
+final makeLessonRepositoryProvider = Provider<MakeLessonRepository>((ref) {
+  return MakeLessonRepository(
     api: LanguageBackendAPI(),
     client: http.Client(),
   );
