@@ -85,7 +85,7 @@ class LanguageBackendAPI {
     parametersBuilder: () => {},
   );
 
-  Uri getUpdatedSentence(String videoId, String lineChanged) => _buildUri(
+  Uri getUpdatedSentence(String videoId, int lineChanged) => _buildUri(
     endpoint: "getupdatedsentence/$videoId/$lineChanged",
     parametersBuilder: () => {},
   );

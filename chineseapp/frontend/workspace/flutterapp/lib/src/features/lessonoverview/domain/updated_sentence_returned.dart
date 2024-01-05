@@ -64,6 +64,8 @@
 }
 */
 
+import 'package:flutterapp/src/features/lessonoverview/domain/user_sentence.dart';
+
 import 'entry.dart';
 
 class UpdatedSentenceReturned {
@@ -79,6 +81,13 @@ class UpdatedSentenceReturned {
     final entries = (json['updated_sentence']['entries'] as List).map((entry) => Entry.fromJson(entry)).toList();
     final sentence = json['updated_sentence']['sentence'] as String;
     return UpdatedSentenceReturned(
+      entries: entries,
+      sentence: sentence,
+    );
+  }
+
+  UserSentence toUserSentence() {
+    return UserSentence(
       entries: entries,
       sentence: sentence,
     );

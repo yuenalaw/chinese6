@@ -20,14 +20,13 @@ class VideoRepository {
   final LanguageBackendAPI api;
   final http.Client client;
   
-  // get the lesson value (read once)
   Future<Either<PleaseWaitVidOrSentence, Video>> getVideo({required String videoId}) => _getData(
     uri: api.video(videoId),
     builder: (data) => Video.fromJson(data),
     processingBuilder: () => PleaseWaitVidOrSentence.fromJson({"message": "Please hold on while we process your video request..."}),
   );
 
-  Future<Either<PleaseWaitVidOrSentence, UpdatedSentenceReturned>> getUpdatedSentence({required String videoId, required String lineChanged}) => _getData(
+  Future<Either<PleaseWaitVidOrSentence, UpdatedSentenceReturned>> getUpdatedSentence({required String videoId, required int lineChanged}) => _getData(
     uri: api.getUpdatedSentence(videoId, lineChanged),
     builder: (data) => UpdatedSentenceReturned.fromJson(data),
     processingBuilder: () => PleaseWaitVidOrSentence.fromJson({"message": "Please hold on while we process your sentence request..."}),

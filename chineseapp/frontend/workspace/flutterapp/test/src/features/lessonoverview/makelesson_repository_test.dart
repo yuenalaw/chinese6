@@ -3,9 +3,9 @@ import 'package:flutterapp/src/api/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'dart:convert';
-import 'package:flutterapp/src/features/makelesson/data/makelesson_repository.dart';
-import 'package:flutterapp/src/features/makelesson/domain/disney_request.dart';
-import 'package:flutterapp/src/features/makelesson/domain/youtube_request.dart';
+import 'package:flutterapp/src/features/lessonoverview/data/makelesson_repository.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/disney_request.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/youtube_request.dart';
 
 class MockHttpClient extends Mock implements http.Client {}
 

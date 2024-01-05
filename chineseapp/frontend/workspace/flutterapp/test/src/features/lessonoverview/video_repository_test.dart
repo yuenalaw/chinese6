@@ -2,13 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutterapp/src/api/api.dart';
 import 'package:flutterapp/src/features/lessonoverview/data/video_repository.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
-import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence_callback.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/updated_sentence_returned.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/please_wait_vid_or_sentence.dart';
 import './video_lesson_encoded_json.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/lesson.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/segment.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence_callback.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/keyword_img.dart';
@@ -224,9 +224,9 @@ void main() {
     final api = LanguageBackendAPI();
     final videoRepository = 
       VideoRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", "2"))).thenAnswer(
+    when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", 2))).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockUpdatedSentenceJson)), 200)));
-    final updatedSentenceReturned = await videoRepository.getUpdatedSentence(videoId: "-acfusFM4d8", lineChanged: "2");
+    final updatedSentenceReturned = await videoRepository.getUpdatedSentence(videoId: "-acfusFM4d8", lineChanged: 2);
     expect(updatedSentenceReturned, isA<Right<PleaseWaitVidOrSentence, UpdatedSentenceReturned>>());
     // expect(updatedSentenceReturned.entries[0].word, "我");
   });
@@ -236,9 +236,9 @@ void main() {
     final api = LanguageBackendAPI();
     final videoRepository = 
       VideoRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", "2"))).thenAnswer(
+    when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", 2))).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockUpdatedSentenceJson)), 404)));
-    final updatedSentenceReturned = await videoRepository.getUpdatedSentence(videoId: "-acfusFM4d8", lineChanged: "2");
+    final updatedSentenceReturned = await videoRepository.getUpdatedSentence(videoId: "-acfusFM4d8", lineChanged: 2);
     expect(updatedSentenceReturned, isA<Left<PleaseWaitVidOrSentence, UpdatedSentenceReturned>>());
   });
 }

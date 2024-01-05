@@ -18,3 +18,12 @@ class Lesson {
     );
   }
 }
+
+extension MutableLesson on Lesson {
+  Lesson changeUserSentence(UserSentence userSentence) {
+    return Lesson(
+      segment: segment,
+      userSentence: userSentence,
+    );
+  }
+}

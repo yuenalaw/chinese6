@@ -14,5 +14,4 @@ class SRSHelper:
             prev_repetitions, prev_interval = 0,1
         
         prev_ease_factor = max(prev_ease_factor, 1.3)
-
         return prev_interval, prev_repetitions, prev_ease_factor

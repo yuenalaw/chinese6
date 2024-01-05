@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutterapp/src/features/makelesson/domain/disney_request.dart';
-import 'package:flutterapp/src/features/makelesson/domain/youtube_request.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/disney_request.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/youtube_request.dart';
 import 'package:flutterapp/src/api/api.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapp/src/features/makelesson/data/api_exception.dart';
+import 'package:flutterapp/src/features/lessonoverview/data/api_exception.dart';
 import 'package:http/http.dart' as http;
 
 class MakeLessonRepository {

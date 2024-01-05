@@ -34,7 +34,7 @@ void main() {
     final library = await existingVideosRepository.getLibrary();
 
     expect(library, isA<Library>());
-    expect(library.videos[0].id, "-acfusFM4d8");
+    expect(library.videos.keys.first, "-acfusFM4d8");
     expect(library.videos.length, 1);
   });
 
