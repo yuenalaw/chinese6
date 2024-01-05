@@ -1,15 +1,14 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutterapp/src/features/lessonoverview/domain/library.dart';
-import 'package:flutterapp/src/features/useroverview/domain/streak.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_title.dart';
 import 'package:flutterapp/src/api/api.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/useroverview/data/api_exception.dart';
 import 'package:http/http.dart' as http;
 
-class UserOverviewRepository {
-  UserOverviewRepository({
+class ExistingVideosRepository {
+  ExistingVideosRepository({
     required this.api,
     required this.client
   });
@@ -17,9 +16,9 @@ class UserOverviewRepository {
   final LanguageBackendAPI api;
   final http.Client client;
 
-  Future<Streak> getStreak() => _getData(
-    uri: api.getStreak(),
-    builder: (data) => Streak.fromJson(data),
+  Future<Library> getLibrary() => _getData(
+    uri: api.getLibrary(),
+    builder: (data) => Library.fromJson(data),
   );
 
   Future<String> updateTitle({required UpdateTitle titleObj}) async {
@@ -86,8 +85,8 @@ class UserOverviewRepository {
 
 // providers used by rest of app
 
-final userOverviewRepositoryProvider = Provider<UserOverviewRepository>((ref) {
-  return UserOverviewRepository(
+final existingVideosRepositoryProvider = Provider<ExistingVideosRepository>((ref) {
+  return ExistingVideosRepository(
     api: LanguageBackendAPI(),
     client: http.Client(),
   );

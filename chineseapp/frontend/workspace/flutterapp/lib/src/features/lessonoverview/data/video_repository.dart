@@ -19,7 +19,7 @@ class VideoRepository {
   });
   final LanguageBackendAPI api;
   final http.Client client;
-
+  
   // get the lesson value (read once)
   Future<Either<PleaseWaitVidOrSentence, Video>> getVideo({required String videoId}) => _getData(
     uri: api.video(videoId),
