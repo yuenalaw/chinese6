@@ -1,8 +1,8 @@
 class Library {
 
-  const Library([this.videos = const {}]);
+  Library([this.videos = const {}]);
 
-  final Map<String, VideoSimple> videos;
+  Map<String, VideoSimple> videos;
 
   factory Library.fromJson(Map<String, dynamic> json) {
     return Library(
@@ -66,5 +66,9 @@ extension MutableLibrary on Library {
 
     final VideoSimple updatedVideo = videoToUpdate.copyWith(title:title);
     return Library({...videos, videoId: updatedVideo});
+  }
+
+  set setVideos(Map<String, VideoSimple> newVideos) {
+    videos = newVideos;
   }
 }

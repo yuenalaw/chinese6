@@ -19,3 +19,19 @@ class DisneyRequest {
     };
   }
 }
+
+extension MutableDisneyRequest on DisneyRequest {
+  DisneyRequest copyWith({
+    String? videoId,
+    String? transcript,
+    String? source,
+    String? forced,
+  }) {
+    return DisneyRequest(
+      videoId: videoId ?? this.videoId,
+      transcript: transcript ?? this.transcript,
+      source: source ?? this.source,
+      forced: forced ?? this.forced,
+    );
+  }
+}
