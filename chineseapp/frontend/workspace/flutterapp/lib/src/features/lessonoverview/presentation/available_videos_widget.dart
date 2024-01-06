@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/application/video_controller.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/library.dart';
+import 'package:flutterapp/src/screens/lesson_overview_screen.dart';
 
 class AvailableVideos extends ConsumerWidget {
   const AvailableVideos({Key? key}) : super(key: key);
@@ -32,6 +33,7 @@ class AvailableVideos extends ConsumerWidget {
                 child: InkWell(
                   onTap: () {
                     ref.read(allReadyVideoSentencesProvider.notifier).updateVideoId(video.id);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LessonOverviewScreen()));
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(

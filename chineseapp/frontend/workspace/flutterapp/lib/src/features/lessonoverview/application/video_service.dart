@@ -22,8 +22,6 @@ class VideoService {
   */
   final List<String> preparingVideos = [];
   final Map<String, List<int>> preparingSentences = {};
-  Library cachedLibrary = Library();
-  Map<String, List<Lesson>> cachedLessons = {};
 
   Future<Library> _fetchVideos() async {
     final library = await ref.read(existingVideosRepositoryProvider).getLibrary();
@@ -69,7 +67,73 @@ class VideoService {
   }
 
   Future<List<Lesson>> getVideoSentences({required String videoId}) async {
-    final video = await _getSpecificVideo(videoId: videoId);
+    // final video = await _getSpecificVideo(videoId: videoId);
+    const encodedVideoJsonResponse = 
+    {
+        "message": "Successfully obtained video!",
+        "video": {
+            "keywords_img": [
+                {
+                    "img": "imageurl",
+                    "keyword": "亚洲"
+                }
+            ],
+            "lessons": [
+                {
+                    "segment": {
+                        "duration": 1.291,
+                        "segment": "加州留学生的生活",
+                        "sentences": {
+                            "entries": [
+                                {
+                                    "pinyin": "jia zhou",
+                                    "similarsounds": [
+                                        "甲胄",
+                                        "甲冑"
+                                    ],
+                                    "translation": [
+                                        [
+                                            "加州",
+                                            [
+                                                "California"
+                                            ]
+                                        ]
+                                    ],
+                                    "upos": "PROPN",
+                                    "word": "加州"
+                                }
+                            ],
+                            "sentence": "加州留学生的生活"
+                        },
+                        "start": 10.708
+                    },
+                    "user_sentence": {
+                        "entries": [
+                            {
+                                "pinyin": "wo",
+                                "similarsounds": null,
+                                "translation": [
+                                    [
+                                        "我",
+                                        [
+                                            "I"
+                                        ]
+                                    ]
+                                ],
+                                "upos": "PRON",
+                                "word": "我"
+                            }
+                        ],
+                        "sentence": "我爱你"
+                    }
+                }
+            ],
+            "video_id": "-acfusFM4d8",
+            "source": "YouTube",
+            "title": "-acfusFM4d8"
+        }
+    };
+    final video = Video.fromJson(encodedVideoJsonResponse);
     if (video.lessons.isNotEmpty){
       // change sentences if being updated
       for (var i=0; i < video.lessons.length; i++) {
@@ -83,17 +147,29 @@ class VideoService {
         }
       }
     }
-    cachedLessons[videoId] = video.lessons;
     return video.lessons;
   }
 
   Future<Library> getVideos() async {
-    final library = await _fetchVideos();
-    // if we have the video id that was in preparing videos, but now in library, 
-    //it has loaded
-    preparingVideos.removeWhere((videoId) => library.videos.containsKey(videoId));
-    cachedLibrary = library;
-    return library;
+    // final library = await _fetchVideos();
+    // // if we have the video id that was in preparing videos, but now in library, 
+    // //it has loaded
+    // preparingVideos.removeWhere((videoId) => library.videos.containsKey(videoId));
+    // cachedLibrary = library;
+    // return library;
+    const mockLibraryJson = {
+      "library": [
+        {
+          "id": "-acfusFM4d8",
+          "lesson_data": "[]",
+          "lesson_keyword_imgs": "[]",
+          "source": "YouTube",
+          "title": "-acfusFM4d8"
+        }
+      ],
+      "message": "Successfully obtained library!"
+    };
+    return Library.fromJson(mockLibraryJson);
   }
 
   Future<void> updateSentence({required UpdateSentence updatedSentence}) async {
