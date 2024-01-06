@@ -68,10 +68,7 @@ class VideoService {
     );
   }
 
-  Future<List<Lesson>> getVideoSentencesPer10s({required String videoId}) async {
-    if (cachedLessons.containsKey(videoId) && (!preparingSentences.containsKey(videoId) || (preparingSentences.containsKey(videoId) && preparingSentences[videoId]!.isEmpty))){
-      return cachedLessons[videoId]!;
-    }
+  Future<List<Lesson>> getVideoSentences({required String videoId}) async {
     final video = await _getSpecificVideo(videoId: videoId);
     if (video.lessons.isNotEmpty){
       // change sentences if being updated
@@ -90,10 +87,7 @@ class VideoService {
     return video.lessons;
   }
 
-  Future<Library> getVideosPer10s() async {
-    if (preparingVideos.isEmpty){
-      return cachedLibrary;
-    }
+  Future<Library> getVideos() async {
     final library = await _fetchVideos();
     // if we have the video id that was in preparing videos, but now in library, 
     //it has loaded

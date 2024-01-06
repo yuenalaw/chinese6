@@ -35,8 +35,12 @@ class ExistingVideosRepository {
     required Uri uri,
     required T Function(dynamic data) builder,
   }) async {
+    var headers = {
+      'Content-Type': 'application/json',
+      'Connection': 'keep-alive',
+    };
     try {
-      final response = await client.get(uri);
+      final response = await client.get(uri, headers: headers);
       switch (response.statusCode) {
         case 200:
         String responsebody = utf8.decode(response.bodyBytes);
