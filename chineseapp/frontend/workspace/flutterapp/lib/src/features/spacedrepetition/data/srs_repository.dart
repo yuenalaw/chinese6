@@ -43,6 +43,9 @@ class SRSRepository {
     var headers = {
       'Content-Type': 'application/json',
       'Connection': 'keep-alive',
+      'Accept': '*/*',
+      'Cache-Control': 'no-cache',
+      'Accept-Encoding': 'gzip, deflate, br',
     };
     try {
       final response = await client.get(uri, headers: headers);
@@ -71,6 +74,10 @@ class SRSRepository {
         uri,
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
+          'Cache-Control': 'no-cache',
+          'Accept': '*/*',
+          'Connection': 'keep-alive',
+          'Accept-Encoding': 'gzip, deflate, br',
         },
         body: body,
       );

@@ -46,6 +46,10 @@ class MakeLessonRepository {
         uri,
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
+          'Cache-Control': 'no-cache',
+          'Accept': '*/*',
+          'Connection': 'keep-alive',
+          'Accept-Encoding': 'gzip, deflate, br',
         },
         body: body,
       );

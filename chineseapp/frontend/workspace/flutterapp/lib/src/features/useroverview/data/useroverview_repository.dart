@@ -27,6 +27,9 @@ class UserOverviewRepository {
     var headers = {
       'Content-Type': 'application/json',
       'Connection': 'keep-alive',
+      'Accept': '*/*',
+      'Cache-Control': 'no-cache',
+      'Accept-Encoding': 'gzip, deflate, br',
     };
     try {
       final response = await client.get(uri, headers: headers);
