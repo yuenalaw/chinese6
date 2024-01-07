@@ -32,8 +32,7 @@ class AvailableVideos extends ConsumerWidget {
                 margin: const EdgeInsets.all(8.0),
                 child: InkWell(
                   onTap: () {
-                    ref.read(allReadyVideoSentencesProvider.notifier).updateVideoId(video.id);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LessonOverviewScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LessonOverviewScreen(videoId: video.id)));
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(

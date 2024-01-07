@@ -10,8 +10,12 @@ class Lesson {
   });
 
   factory Lesson.fromJson(Map<String, dynamic> json) {
-    final segment = Segment.fromJson(json['segment']); // non-nullable Segment
-    final userSentence = json['user_sentence'] != null ? UserSentence.fromJson(json['user_sentence']) : null; // nullable UserSentence
+    var segment = Segment.fromJson(json['segment']);
+    UserSentence? userSentence;
+    if (json['user_sentence'] != null) {
+      userSentence = UserSentence.fromJson(json['user_sentence']);
+    }
+
     return Lesson(
       segment: segment,
       userSentence: userSentence,

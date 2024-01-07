@@ -52,7 +52,7 @@ class MakeLessonRepository {
           'Accept-Encoding': 'gzip, deflate, br',
         },
         body: body,
-      );
+      ).timeout(const Duration(seconds: 10));
       switch (response.statusCode) {
         case 200:
           String responseBody = utf8.decode(response.bodyBytes);

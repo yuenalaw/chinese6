@@ -15,10 +15,10 @@ class Entry {
 
   factory Entry.fromJson(Map<String, dynamic> json) {
     return Entry(
-      pinyin: json['pinyin'],
+      pinyin: json['pinyin'] as String? ?? '',
       similarSounds: json['similarsounds'] != null ? List<String>.from(json['similarsounds']) : [],
       translation: json['translation'] != null ? (json['translation'] as List).map((e) => Translation.fromJson(e as List)).toList() : [],
-      upos: json['upos'],
+      upos: json['upos'] as String? ?? '',
       word: json['word'],
     );
   }

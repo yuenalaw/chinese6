@@ -12,20 +12,18 @@ import 'package:flutterapp/src/features/lessonoverview/domain/user_sentence.dart
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/youtube_request.dart';
 
+// to delete
+import 'to_delete_fake_data/fake_library.dart';
+import 'to_delete_fake_data/fake_video_overview.dart';
+
 class VideoService {
   VideoService(this.ref);
   final Ref ref;
 
-  /*
-  For preparing videos, we need to query _getvideosper10s every 10 seconds as long as the length > 0
-  For preparing sentences, also query getVideoSentences every 10 seconds as long as the length > 0
-  */
-  final List<String> preparingVideos = [];
-  final Map<String, List<int>> preparingSentences = {};
-
   Future<Library> _fetchVideos() async {
-    final library = await ref.read(existingVideosRepositoryProvider).getLibrary();
-    return library;
+    // final library = await ref.read(existingVideosRepositoryProvider).getLibrary();
+    // return library;
+    return Library.fromJson(fakeLibrary);
   }
 
   Future<void> _updateVideoTitle({required UpdateTitle titleObj}) async {
@@ -46,16 +44,21 @@ class VideoService {
     await ref.read(makeLessonRepositoryProvider).postDisneyRequest(disneyRequest: disneyRequest);
   }
 
-  Future<void> _updateSentence({required UpdateSentence updatedSentenceObj}) async {
-    await ref.read(videoRepositoryProvider).updateSentence(updateSentenceObj: updatedSentenceObj);
+  Future<void> _updateSentence({required UpdateSentence updatedSentenceObj, required Video video}) async {
+    //change frontend obj too
+    int lineChanged = updatedSentenceObj.lineChanged;
+    video.lessons[lineChanged].changeUserSentence(updatedSentenceObj.toUserSentence());
+    ref.read(videoRepositoryProvider).updateSentence(updateSentenceObj: updatedSentenceObj);
   }
 
   Future<Video> _getSpecificVideo({required String videoId}) async {
-    final video = await ref.read(videoRepositoryProvider).getVideo(videoId: videoId);
-    return video.fold(
-      (l) => throw Exception("Video not ready"),
-      (r) => r,
-    );
+    // final video = await ref.read(videoRepositoryProvider).getVideo(videoId: videoId);
+    // return video.fold(
+    //   (l) => throw Exception("Video not ready"),
+    //   (r) => r,
+    // );
+
+    return Video.fromJson(fakeVideo);
   }
 
   Future<UserSentence> _getUpdatedSentence({required String videoId, required int lineChanged}) async {
@@ -66,50 +69,34 @@ class VideoService {
     );
   }
 
-  Future<List<Lesson>> getVideoSentences({required String videoId}) async {
+  Future<Video> getVideoDetails({required String videoId}) async {
     final video = await _getSpecificVideo(videoId: videoId);
-    if (video.lessons.isNotEmpty){
-      // change sentences if being updated
-      for (var i=0; i < video.lessons.length; i++) {
-        if (preparingSentences[videoId]?.contains(i) == true) {
-          var updatedSentence = await _getUpdatedSentence(videoId: videoId, lineChanged: i);
-          video.lessons[i].changeUserSentence(updatedSentence);
-          if (updatedSentence.entries.isNotEmpty) {
-            // updated sentence has finished
-            preparingSentences[videoId]?.remove(i);
-          }
-        }
-      }
-    }
-    return video.lessons;
+    // if (video.lessons.isNotEmpty){
+    //   // change sentences if being updated
+    //   for (var i=0; i < video.lessons.length; i++) {
+    //     var updatedSentence = await _getUpdatedSentence(videoId: videoId, lineChanged: i);
+    //     video.lessons[i].changeUserSentence(updatedSentence);
+    //   }
+    // }
+    return video;
   }
 
   Future<Library> getVideos() async {
     final library = await _fetchVideos();
-    // if we have the video id that was in preparing videos, but now in library, 
-    //it has loaded
-    preparingVideos.removeWhere((videoId) => library.videos.containsKey(videoId));
     return library;
   }
 
-  Future<void> updateSentence({required UpdateSentence updatedSentence}) async {
-    if (preparingSentences.containsKey(updatedSentence.videoId)) {
-      preparingSentences[updatedSentence.videoId]!.add(updatedSentence.lineChanged);
-    } else {
-      preparingSentences[updatedSentence.videoId] = [updatedSentence.lineChanged];
-    }
-    await _updateSentence(updatedSentenceObj: updatedSentence);
+  Future<void> updateSentence({required UpdateSentence updatedSentence, required Video video}) async {
+    await _updateSentence(updatedSentenceObj: updatedSentence, video: video);
   }
 
   Future<void> addToPreparedVideosYT({required YouTubeRequest ytRequest}) async {
-    preparingVideos.add(ytRequest.videoId);
     // request backend
     await _createNewYoutubeLesson(ytRequest: ytRequest);
     return Future.value();
   }
 
   Future<void> addToPreparedVideosDisney(DisneyRequest disneyRequest, String transcriptPath) async {
-    preparingVideos.add(disneyRequest.videoId);
     await _createNewDisneyLesson(disneyRequest: disneyRequest, filePath: transcriptPath);
     return Future.value();
   }

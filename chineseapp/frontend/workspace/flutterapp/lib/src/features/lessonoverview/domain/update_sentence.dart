@@ -1,3 +1,6 @@
+import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/user_sentence.dart';
+
 class UpdateSentence {
   final String videoId;
   final int lineChanged;
@@ -16,4 +19,12 @@ class UpdateSentence {
       'sentence': sentence,
     };
   }
+
+  UserSentence toUserSentence() {
+    return UserSentence(
+      sentence: sentence,
+      entries: [Entry(word: "loading", translation: [], pinyin: "", similarSounds: [], upos: "")],
+    );
+  }
+
 }

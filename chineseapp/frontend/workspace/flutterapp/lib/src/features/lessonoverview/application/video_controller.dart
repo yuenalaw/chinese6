@@ -1,25 +1,19 @@
-import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/application/video_service.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/disney_request.dart';
-import 'package:flutterapp/src/features/lessonoverview/domain/lesson.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/library.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_title.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/youtube_request.dart';
 
 class AllReadyVideosController extends StateNotifier<AsyncValue<Library>> {
   AllReadyVideosController({ required this.videoService }) : super(const AsyncValue.loading()) {
     getAllReadyVideosFromLibrary();
-    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      if (videoService.preparingVideos.isNotEmpty) {
-        getAllReadyVideosFromLibrary();
-      }
-    });
   }
 
   final VideoService videoService;
-  late final Timer _timer;
 
   Future<void> getAllReadyVideosFromLibrary() async {
     state = const AsyncLoading();
@@ -27,44 +21,24 @@ class AllReadyVideosController extends StateNotifier<AsyncValue<Library>> {
       () => videoService.getVideos()
     );
   }
-
-  @override 
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
 }
 
-class AllReadyVideoSentencesController extends StateNotifier<AsyncValue<List<Lesson>>> {
+class VideoOverviewController extends StateNotifier<AsyncValue<Video>> with WidgetsBindingObserver {
   final VideoService videoService;
-  String videoId = '';
-  Timer? _timer;
+  String videoId;
 
-  AllReadyVideoSentencesController({ required this.videoService }) : super(const AsyncValue.loading());
-
-  void updateVideoId(String newVideoId) {
-    videoId = newVideoId;
-    getAllVideoSentences(videoId: videoId);
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      if (videoService.preparingSentences.isNotEmpty) {
-        getAllVideoSentences(videoId: videoId);
-      }
-    });
+  VideoOverviewController({ required this.videoService, required this.videoId }) 
+    : super(const AsyncValue.loading()) {
+      getVideoDetails();  
   }
 
-  Future<void> getAllVideoSentences({required String videoId}) async {
+  Future<void> getVideoDetails() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => videoService.getVideoSentences(videoId: videoId)
+      () => videoService.getVideoDetails(videoId: videoId)
     );
   }
 
-  @override 
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
 }
 
 
@@ -82,11 +56,11 @@ class VideoController extends StateNotifier<AsyncValue<void>> {
     );
   }
 
-  Future<void> updateSentence({required String videoId, required int lineChanged, required String sentence}) async {
+  Future<void> updateSentence({required Video video, required String videoId, required int lineChanged, required String sentence}) async {
     state = const AsyncLoading();
     final updatedSentence = UpdateSentence(videoId: videoId, lineChanged: lineChanged, sentence: sentence);
     state = await AsyncValue.guard(
-      () => videoService.updateSentence(updatedSentence: updatedSentence),
+      () => videoService.updateSentence(updatedSentence: updatedSentence, video: video),
     );
   }
 
@@ -121,9 +95,10 @@ final allReadyVideosProvider =
     );
   });
 
-final allReadyVideoSentencesProvider = 
-  StateNotifierProvider<AllReadyVideoSentencesController, AsyncValue<List<Lesson>>>((ref) {
-    return AllReadyVideoSentencesController(
+final videoOverviewProvider = 
+  StateNotifierProvider.family<VideoOverviewController, AsyncValue<Video>, String>((ref, videoId) {
+    return VideoOverviewController(
       videoService: ref.watch(videoServiceProvider),
+      videoId: videoId,
     );
   });
