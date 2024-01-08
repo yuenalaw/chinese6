@@ -32,6 +32,10 @@ class Entry {
       'word': word,
     };
   }
+
+  List<List<String>> getTranslationAsListOfLists() {
+    return translation.map((t) => t.translations).toList();
+  }
 }
 
 class Translation {

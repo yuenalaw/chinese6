@@ -24,13 +24,14 @@ class AllReadyVideosController extends StateNotifier<AsyncValue<Library>> {
 }
 
 class VideoOverviewController extends StateNotifier<AsyncValue<Video>> with WidgetsBindingObserver {
-  final VideoService videoService;
   String videoId;
 
   VideoOverviewController({ required this.videoService, required this.videoId }) 
     : super(const AsyncValue.loading()) {
       getVideoDetails();  
   }
+  
+  final VideoService videoService;
 
   Future<void> getVideoDetails() async {
     state = const AsyncLoading();

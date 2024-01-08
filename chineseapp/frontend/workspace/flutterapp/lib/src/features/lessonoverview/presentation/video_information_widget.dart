@@ -4,6 +4,7 @@ import 'package:flutterapp/src/constants/colours.dart';
 import 'package:flutterapp/src/features/lessonoverview/application/video_controller.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/keyword_img.dart';
+import 'package:flutterapp/src/screens/make_review_screen.dart';
 
 class KeywordCarousel extends StatelessWidget {
   final List<KeywordImg> keywordsImg;
@@ -24,13 +25,12 @@ class KeywordCarousel extends StatelessWidget {
             child: SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 200),
-                child: Expanded(
-                  child: Column( 
-                    children: <Widget>[ 
-                      Image.network(keywordImg.img),
-                      Text(keywordImg.keyword),
-                    ]
-                  ),
+                child: Column( 
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[ 
+                    Image.network(keywordImg.img),
+                    Text(keywordImg.keyword),
+                  ]
                 ),
               ),
             ),
@@ -100,7 +100,7 @@ class VideoInformation extends ConsumerWidget {
                             foregroundColor: Colors.black,
                           ),
                           onPressed: () {
-                            // Handle button press
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => MakeReviewScreen(videoId: videoId, lineNum: index, sentence: lesson.segment.segment, entries: entries, start: lesson.segment.start)));
                           },
                           child: Column(
                             children: <Widget>[
