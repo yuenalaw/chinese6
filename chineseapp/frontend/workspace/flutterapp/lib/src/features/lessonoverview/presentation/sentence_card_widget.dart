@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/src/constants/colours.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
+FlutterTts flutterTts = FlutterTts();
 
 class SentenceCard extends StatelessWidget {
   final List<Entry> entries;
@@ -24,6 +27,14 @@ class SentenceCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text('Start Time: $start'),
+                IconButton(
+                  icon: const Icon(Icons.volume_up),
+                  iconSize: 30.0,
+                  onPressed: () async {
+                    await flutterTts.setLanguage("zh-CN");
+                    await flutterTts.speak(sentence);
+                  }
+                ),
                 Text('Line Number: ${lineNum+1}'),
               ],
             ),

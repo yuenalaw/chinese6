@@ -13,33 +13,49 @@ class KeywordCarousel extends StatelessWidget {
 
   @override 
   Widget build(BuildContext context) {
-    return SizedBox( 
-      height: 200,
-      child: ListView.builder( 
-        scrollDirection: Axis.horizontal,
-        itemCount: keywordsImg.length,
-        itemBuilder: (context, index) {
-          var keywordImg = keywordsImg[index];
-          return SizedBox( 
-            width: 160,
-            child: SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 200),
-                child: Column( 
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[ 
-                    Image.network(keywordImg.img),
-                    Text(keywordImg.keyword),
-                  ]
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox( 
+        height: 200,
+        child: ListView.builder( 
+          scrollDirection: Axis.horizontal,
+          itemCount: keywordsImg.length,
+          itemBuilder: (context, index) {
+            var keywordImg = keywordsImg[index];
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox( 
+                width: 160,
+                child: SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 200),
+                    child: Column( 
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[ 
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: Image.network(
+                              keywordImg.img,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Text(keywordImg.keyword),
+                      ]
+                    ),
+                  ),
                 ),
               ),
-            ),
-          );
-        }
-      )
+            );
+          }
+        )
+      ),
     );
   }
 }
+
 
 
 class VideoInformation extends ConsumerWidget {

@@ -13,19 +13,11 @@ class MakeReviewScreen extends ConsumerWidget {
   final String sentence;
   final List<Entry> entries;
   final double start;
-  bool _isInitialized = false;
 
-  MakeReviewScreen({Key? key, required this.videoId, required this.lineNum, required this.sentence, required this.entries, required this.start}) : super(key: key);
+  const MakeReviewScreen({Key? key, required this.videoId, required this.lineNum, required this.sentence, required this.entries, required this.start}) : super(key: key);
 
   @override 
   Widget build(BuildContext context, WidgetRef ref) {
-
-    if (!_isInitialized) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(selectedEntryProvider.notifier).state = entries[0];
-        _isInitialized = true;
-       });
-    }
 
     return Scaffold( 
       appBar: AppBar( 
