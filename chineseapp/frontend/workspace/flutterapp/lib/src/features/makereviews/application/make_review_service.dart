@@ -18,15 +18,18 @@ class MakeReviewService {
   }
 
   Future<void> _addNewReview({required ReviewQuery reviewQuery}) async {
-    await ref.read(reviewRepositoryProvider).makeReview(review: reviewQuery);
+    //await ref.read(reviewRepositoryProvider).makeReview(review: reviewQuery);
+    return;
   }
 
   Future<void> _updateNote({required UpdateNote updateNote}) async {
-    await ref.read(reviewRepositoryProvider).updateNote(note: updateNote);
+    //await ref.read(reviewRepositoryProvider).updateNote(note: updateNote);
+    return;
   }
 
   Future<void> _updateImage({required UpdateImage updateImage}) async {
-    await ref.read(reviewRepositoryProvider).updateImage(image: updateImage);
+    // await ref.read(reviewRepositoryProvider).updateImage(image: updateImage);
+    return;
   }
 
   Future<ReviewedUserWordSentence> fetchUserWordSentence({required String word, required String videoId, required String lineNum}) async {
@@ -46,10 +49,12 @@ class MakeReviewService {
   Future<ReviewedUserWordSentence> updateReview({required ReviewedUserWordSentence prevReviewDetails, required UpdateNote updateNote, required UpdateImage updateImage}) async {
     if (prevReviewDetails.note != updateNote.note) {
       prevReviewDetails = prevReviewDetails.copyWith(note: updateNote.note);
+      print("updating note... $updateNote");
       await _updateNote(updateNote: updateNote);
     }
     if (prevReviewDetails.imagePath != updateImage.imagePath) {
       prevReviewDetails = prevReviewDetails.copyWith(imagePath: updateImage.imagePath);
+      print("updating image... ${updateImage.imagePath}");
       await _updateImage(updateImage: updateImage);
     }
     return prevReviewDetails;

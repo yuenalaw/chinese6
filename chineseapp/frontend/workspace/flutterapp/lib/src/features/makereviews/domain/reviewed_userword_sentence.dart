@@ -11,7 +11,7 @@ class ReviewedUserWordSentence extends UserWordSentence {
     String? sentence,
     String? videoId,
     int? wordId,
-  }) : isReview = imagePath != null || note != null,
+  }) : isReview = (imagePath != "" || imagePath != null) || (note != "" || note != null),
        super(
           id: id,
           imagePath: imagePath,

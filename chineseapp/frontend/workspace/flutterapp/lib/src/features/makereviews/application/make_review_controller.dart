@@ -32,6 +32,7 @@ class MakeReviewController extends StateNotifier<AsyncValue<ReviewedUserWordSent
     state = await AsyncValue.guard(
       () => makeReviewService.updateReview(prevReviewDetails: prevReview, updateNote: updatedNote, updateImage: updatedImage)
     );
+    print("state after updating: $state");
   }
 
   Future<void> createNewReview({required ReviewedUserWordSentence prevReview, required String note, required String imagePath}) async {
@@ -54,3 +55,12 @@ final makeReviewProvider =
       reviewParams: reviewParams,
     );
   });
+
+/* watches the controller, not its state */
+final makeReviewControllerProvider = Provider.family<MakeReviewController, ReviewParams>((ref, reviewParams) {
+  return MakeReviewController(
+    makeReviewService: ref.watch(makeReviewServiceProvider),
+    reviewParams: reviewParams,
+  );
+});
+

@@ -7,14 +7,14 @@ class UpdateReview {
   final int lastRepetitions;
   final double prevEaseFactor;
   final int prevWordInterval;
-  final int quality;
+  int quality;
 
   UpdateReview({
     required this.wordId,
     required this.lastRepetitions,
     required this.prevEaseFactor,
     required this.prevWordInterval,
-    required this.quality,
+    this.quality = 1,
   });
 
   Map<String, dynamic> toJson() {

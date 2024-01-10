@@ -6,13 +6,14 @@ import 'package:flutterapp/src/features/makereviews/presentation/review_button_w
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 FlutterTts flutterTts = FlutterTts();
 
 class ReviewCard extends ConsumerStatefulWidget {
   final ReviewParams reviewParams;
 
-  const ReviewCard({Key? key, required this.reviewParams}) : super(key: key);
+  const ReviewCard({Key? key, required this.reviewParams }) : super(key: key);
 
   @override 
   ReviewCardState createState() => ReviewCardState();
@@ -21,7 +22,18 @@ class ReviewCard extends ConsumerStatefulWidget {
 class ReviewCardState extends ConsumerState<ReviewCard> {
   final ImagePicker _picker = ImagePicker();
   XFile? _image;
+  XFile? _localImage;
   String _personalNote = '';
+  bool updateImgAndNote = false;
+
+  @override 
+  void didUpdateWidget(covariant ReviewCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.reviewParams != oldWidget.reviewParams) {
+      print("review params changed!");
+      updateImgAndNote = true;
+    }
+  }
 
   @override 
   Widget build(BuildContext context) {
@@ -29,6 +41,11 @@ class ReviewCardState extends ConsumerState<ReviewCard> {
       padding: const EdgeInsets.all(8.0),
       child: ref.watch(makeReviewProvider(widget.reviewParams)).when(
         data: (userWordSentence) {
+          if (updateImgAndNote) {
+            _image = userWordSentence.imagePath != "" && File(userWordSentence.imagePath!).existsSync() ? XFile(userWordSentence.imagePath!) : null;
+            _personalNote = userWordSentence.note ?? "";
+            updateImgAndNote = false;
+          }
           return SingleChildScrollView(
             child: Column(
               children: [
@@ -87,8 +104,8 @@ class ReviewCardState extends ConsumerState<ReviewCard> {
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            (_image != null || File(_image!.path).existsSync()) ? Image.file(File(_image!.path))
-                            : ((userWordSentence.imagePath != "" && userWordSentence.imagePath != null) || File(userWordSentence.imagePath!).existsSync())
+                            (_image != null && File(_image!.path).existsSync()) ? Image.file(File(_image!.path))
+                            : ((userWordSentence.imagePath != "" && userWordSentence.imagePath != null) && File(userWordSentence.imagePath!).existsSync())
                             ? Image.file(File(userWordSentence.imagePath!))
                             : Container(),
                             IconButton(
@@ -96,11 +113,19 @@ class ReviewCardState extends ConsumerState<ReviewCard> {
                               onPressed: () async {
                                 // Handle image capture
                                 XFile? image = await _picker.pickImage(source: ImageSource.camera);
-                                if (image != null) {
-                                  setState(() {
-                                    _image = image;
-                                  });
+                                if (image == null){
+                                  return;
                                 }
+                                
+                                final Directory directory = await getApplicationDocumentsDirectory();
+                                final String duplicateFilePath = directory.path;
+                                final fileName = widget.reviewParams.entry.word;
+                                final File localImage = await File(image.path).copy('$duplicateFilePath/$fileName.png');
+
+                                setState(() {
+                                  _image = XFile(image.path);
+                                  _localImage = XFile(localImage.path);
+                                });
                               },
                             ),
                           ],
@@ -138,7 +163,7 @@ class ReviewCardState extends ConsumerState<ReviewCard> {
                 const SizedBox(height: 10.0), // Spacing from the above container
                 Align(
                   alignment: FractionalOffset.bottomCenter,
-                  child: ReviewButton(isReview: userWordSentence.isReview),
+                  child: ReviewButton(userWordSentence: userWordSentence, reviewParams: widget.reviewParams, note: _personalNote, imgPath: (_localImage?.path ?? "")),
                 ),
               ],
             ),
