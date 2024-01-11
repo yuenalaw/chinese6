@@ -8,3 +8,9 @@ const Map<String, Color> wordUposMap = {
   'ADP': Color(0xffff8c94), //in
   'default': Color.fromARGB(255, 255, 255, 255),
 };
+
+const Map<String, Color> customColourMap = {
+  'CORRECT_ANS': Color(0xffa8e6ce),
+  'WRONG_ANS': Color(0xffff8c94),
+  'BUTTONS': Color(0xffe0bbe4),
+};

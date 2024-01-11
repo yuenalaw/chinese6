@@ -6,11 +6,9 @@ import 'package:flutterapp/src/features/spacedrepetition/domain/cards_today.dart
 import 'package:flutterapp/src/features/spacedrepetition/domain/context.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/exercise.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/obtain_context.dart';
-import 'package:flutterapp/src/features/spacedrepetition/domain/review.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/review_card.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/update_review.dart';
 import 'dart:math';
-import 'package:flutterapp/src/features/spacedrepetition/domain/word.dart';
 
 class SRSService {
   SRSService(this.ref);
@@ -82,45 +80,65 @@ class SRSService {
     int randomCharsToAdd = min(wordSet.length - availableCharacters.length, 20 - availableCharacters.length);
     
     while (availableCharacters.length < 20 && randomCharsToAdd > 0) {
-      availableCharacters.add((wordSet.toList()..shuffle()).first);
-      randomCharsToAdd--;
+      var potentialCharacter = (wordSet.toList()..shuffle()).first;
+      if (!availableCharacters.contains(potentialCharacter)) {
+        availableCharacters.add(potentialCharacter);
+        randomCharsToAdd--;
+      }
     }
 
     availableCharacters.shuffle();
-
-    String questionChars = availableCharacters.join();
     
     return Exercise( 
       testedWord: reviewCard.word,
       exerciseType: 1,
       correctAnswer: reviewCard.sentence, // re-create sentence
-      question: questionChars, // play the audio of sentence
+      availableAnswers: availableCharacters,
+      question: "Re-create the sentence",
+      reviewCard: reviewCard,
     );
   }
 
-  Exercise exerciseWordToPicture(ReviewCard reviewCard) {
+  Exercise exerciseWordToPicture(ReviewCard reviewCard, Set<ReviewCard> othersToReview) {
+    int minCount = min(othersToReview.length, 5);
+    List<String> availableAnswers = othersToReview.take(minCount).map((card) => card.imagePath!).toList();
+    // Add the reviewCard.word.word to the list
+    if (!availableAnswers.contains(reviewCard.imagePath)) {
+      availableAnswers.add(reviewCard.imagePath!);
+    }
     return Exercise( 
       testedWord: reviewCard.word,
       exerciseType: 2,
       correctAnswer: reviewCard.imagePath!, // get picture
-      question: reviewCard.word.word, // the actual word string
+      availableAnswers: availableAnswers,
+      question: "Match the word", // the actual word string
+      reviewCard: reviewCard,
     );
   }
 
-  Exercise exercisePictureToWord(ReviewCard reviewCard) {
+  Exercise exercisePictureToWord(ReviewCard reviewCard, Set<ReviewCard> othersToReview) {
+    int minCount = min(othersToReview.length, 5);
+    List<String> availableAnswers = othersToReview.take(minCount).map((card) => card.word.word).toList();
+
+    // Add the reviewCard.word.word to the list
+    if (!availableAnswers.contains(reviewCard.word.word)) {
+      availableAnswers.add(reviewCard.word.word);
+    }
     return Exercise( 
       testedWord: reviewCard.word,
       exerciseType: 3,
       correctAnswer: reviewCard.word.word, // the actual word string
-      question: reviewCard.imagePath!, // the picture
+      availableAnswers: availableAnswers,
+      question: "Match the image", // the picture
+      reviewCard: reviewCard,
     );
   }
 
-  List<Exercise> createExercises(List<ReviewCard> reviewCardsForLesson, Set<String> wordSet){
+  List<Exercise> createExercises(List<ReviewCard> reviewCardsForLesson, Set<String> wordSet, Set<ReviewCard> othersToReview){
     List<Exercise> exercises = reviewCardsForLesson.expand((reviewCard) => [
       exerciseCreateSentence(reviewCard, wordSet),
-      exerciseWordToPicture(reviewCard),
-      exercisePictureToWord(reviewCard),
+      exerciseWordToPicture(reviewCard, Set.from(othersToReview)),
+      exercisePictureToWord(reviewCard, Set.from(othersToReview)),
     ]).toList();
 
     exercises.shuffle();
@@ -137,6 +155,7 @@ class SRSService {
   Future<List<List<Exercise>>> getNewGame() async {
     final cardsToday = await _getCardsToday();
     final wordSet = cardsToday.reviewCards.expand((card) => card.sentence.split('')).toSet();
+    final reviewCardsSet = cardsToday.reviewCards.toSet();
 
     List<List<ReviewCard>> lessons = [];
     for (var i=0; i < cardsToday.reviewCards.length; i += 5) {
@@ -145,7 +164,7 @@ class SRSService {
 
     List<List<Exercise>> lessonsExercises = [];
     for (List<ReviewCard> lesson in lessons) {
-      lessonsExercises.add(createExercises(lesson, wordSet));
+      lessonsExercises.add(createExercises(lesson, wordSet, reviewCardsSet));
     }
 
     return lessonsExercises;

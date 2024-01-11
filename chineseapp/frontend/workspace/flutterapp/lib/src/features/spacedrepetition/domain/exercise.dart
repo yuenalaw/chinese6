@@ -14,12 +14,15 @@
   */
 
 import 'package:flutterapp/src/features/spacedrepetition/domain/word.dart';
+import 'package:flutterapp/src/features/spacedrepetition/domain/review_card.dart';
 
 class Exercise {
   final Word testedWord;
   final int exerciseType;
   final String correctAnswer;
   final String question;
+  final ReviewCard reviewCard;
+  final List<String> availableAnswers;
   bool firstTimeCorrect;
   bool repeatTimesCorrect;
   bool isFirstAttempt;
@@ -29,6 +32,8 @@ class Exercise {
     required this.exerciseType,
     required this.correctAnswer,
     required this.question,
+    required this.reviewCard,
+    required this.availableAnswers,
     this.firstTimeCorrect = false,
     this.repeatTimesCorrect = false,
     this.isFirstAttempt = true,

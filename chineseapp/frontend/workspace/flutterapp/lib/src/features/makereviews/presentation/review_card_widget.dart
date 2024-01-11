@@ -30,7 +30,6 @@ class ReviewCardState extends ConsumerState<ReviewCard> {
   void didUpdateWidget(covariant ReviewCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.reviewParams != oldWidget.reviewParams) {
-      print("review params changed!");
       updateImgAndNote = true;
     }
   }

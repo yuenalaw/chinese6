@@ -32,7 +32,6 @@ class MakeReviewController extends StateNotifier<AsyncValue<ReviewedUserWordSent
     state = await AsyncValue.guard(
       () => makeReviewService.updateReview(prevReviewDetails: prevReview, updateNote: updatedNote, updateImage: updatedImage)
     );
-    print("state after updating: $state");
   }
 
   Future<void> createNewReview({required ReviewedUserWordSentence prevReview, required String note, required String imagePath}) async {

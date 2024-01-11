@@ -49,12 +49,10 @@ class MakeReviewService {
   Future<ReviewedUserWordSentence> updateReview({required ReviewedUserWordSentence prevReviewDetails, required UpdateNote updateNote, required UpdateImage updateImage}) async {
     if (prevReviewDetails.note != updateNote.note) {
       prevReviewDetails = prevReviewDetails.copyWith(note: updateNote.note);
-      print("updating note... $updateNote");
       await _updateNote(updateNote: updateNote);
     }
     if (prevReviewDetails.imagePath != updateImage.imagePath) {
       prevReviewDetails = prevReviewDetails.copyWith(imagePath: updateImage.imagePath);
-      print("updating image... ${updateImage.imagePath}");
       await _updateImage(updateImage: updateImage);
     }
     return prevReviewDetails;
