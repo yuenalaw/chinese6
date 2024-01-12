@@ -8,6 +8,7 @@ import 'package:flutterapp/src/features/spacedrepetition/domain/exercise.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/obtain_context.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/review_card.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/update_review.dart';
+import 'package:collection/collection.dart';
 import 'dart:math';
 
 class SRSService {
@@ -26,8 +27,8 @@ class SRSService {
     return Context.fromJson(fakeContext);
   }
 
-  Future<void> _updateReview({required UpdateReview updateReview}) async {
-    //await ref.read(srsRepositoryProvider).updateReview(updateReviewObj: updateReview);
+  Future<void> _updateReviews({required List<UpdateReview> updateReviews}) async {
+    //await ref.read(srsRepositoryProvider).batchUpdateReviews(updateReviewList: updateReviews);
     return;
   }
 
@@ -41,10 +42,23 @@ class SRSService {
     return context;
   }
 
-  Future<void> updateReview({required UpdateReview updateReview, required List<Exercise> exercises}) async {
-    int newQuality = calculateAwardPoints(exercises);
-    updateReview.quality = newQuality;
-    await _updateReview(updateReview: updateReview);
+  Future<void> batchUpdateReviews({required List<Exercise> exercises}) async {
+    List<UpdateReview> batchUpdates = [];
+    // split the whole list of exercises into specific groups (based per review)
+    var groupedExercises = groupBy<Exercise, ReviewCard>(exercises, (exercise) => exercise.reviewCard);
+    groupedExercises.forEach((reviewCard, exerciseList) {
+      int newQuality = calculateAwardPoints(exerciseList);
+      UpdateReview updateReview = UpdateReview( 
+        wordId: reviewCard.word.id, 
+        lastRepetitions: reviewCard.review.repetitions, 
+        prevEaseFactor: reviewCard.review.easeFactor,
+        prevWordInterval: reviewCard.review.wordInterval, 
+        quality: newQuality,
+      );
+      batchUpdates.add(updateReview);
+    });
+
+    await _updateReviews(updateReviews: batchUpdates);
   }
 
   /*
@@ -57,16 +71,16 @@ class SRSService {
   */
 
   int calculateAwardPoints(List<Exercise> exercises) {
-    int correctFirstTry = exercises.where((e) => e.firstTimeCorrect).length;
-    int correctRepeatTry = exercises.where((e) => !e.firstTimeCorrect && e.repeatTimesCorrect).length;
-    
-    if (correctFirstTry == 3) {
+
+    // if length of exercises = 3, means no repeats, aka all correct 
+
+    if (exercises.length == 3) {
       return 5;
-    } else if (correctFirstTry == 2) {
+    } else if (exercises.length <= 4) {
       return 4;
-    } else if (correctFirstTry == 1) {
+    } else if (exercises.length <= 5) {
       return 3;
-    } else if (correctFirstTry == 0 && correctRepeatTry > 2){
+    } else if (exercises.length <= 6){
       return 2;
     } else {
       return 1;
@@ -93,7 +107,7 @@ class SRSService {
       testedWord: reviewCard.word,
       exerciseType: 1,
       correctAnswer: reviewCard.sentence, // re-create sentence
-      availableAnswers: availableCharacters,
+      availableAnswers: List.unmodifiable(availableCharacters),
       question: "Re-create the sentence",
       reviewCard: reviewCard,
     );
@@ -110,7 +124,7 @@ class SRSService {
       testedWord: reviewCard.word,
       exerciseType: 2,
       correctAnswer: reviewCard.imagePath!, // get picture
-      availableAnswers: availableAnswers,
+      availableAnswers: List.unmodifiable(availableAnswers),
       question: "Match the word", // the actual word string
       reviewCard: reviewCard,
     );
@@ -128,7 +142,7 @@ class SRSService {
       testedWord: reviewCard.word,
       exerciseType: 3,
       correctAnswer: reviewCard.word.word, // the actual word string
-      availableAnswers: availableAnswers,
+      availableAnswers: List.unmodifiable(availableAnswers),
       question: "Match the image", // the picture
       reviewCard: reviewCard,
     );

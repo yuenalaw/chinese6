@@ -23,9 +23,6 @@ class Exercise {
   final String question;
   final ReviewCard reviewCard;
   final List<String> availableAnswers;
-  bool firstTimeCorrect;
-  bool repeatTimesCorrect;
-  bool isFirstAttempt;
 
   Exercise({
     required this.testedWord,
@@ -34,20 +31,5 @@ class Exercise {
     required this.question,
     required this.reviewCard,
     required this.availableAnswers,
-    this.firstTimeCorrect = false,
-    this.repeatTimesCorrect = false,
-    this.isFirstAttempt = true,
   });
-
-  void updateFirstTimeCorrect(bool value) {
-    firstTimeCorrect = value;
-  }
-
-  void updateRepeatTimesCorrect(bool value) {
-    repeatTimesCorrect = value;
-  }
-
-  void updateIsFirstAttempt() {
-    isFirstAttempt = false;
-  } 
 }

@@ -36,6 +36,15 @@ class SRSRepository {
     );
   }
 
+  Future<String> batchUpdateReviews({required List<UpdateReview> updateReviewList}) async {
+    List<Map<String, dynamic>> jsonList = updateReviewList.map((updateReview) => updateReview.toJson()).toList();
+    return _postDataBatch(
+      uri: api.batchUpdateReviews(),
+      builder: (data) => json.encode(data),
+      body: jsonList,
+    );
+  }
+
   Future<T> _getData<T>({
     required Uri uri,
     required T Function(dynamic data) builder,
@@ -81,6 +90,40 @@ class SRSRepository {
           'Accept-Encoding': 'gzip, deflate, br',
         },
         body: body,
+      ).timeout(const Duration(seconds: 10));
+      switch (response.statusCode) {
+        case 200:
+          String responseBody = utf8.decode(response.bodyBytes);
+          Map<String, dynamic> data = json.decode(responseBody);
+          return builder(data);
+        case 201:
+          String responseBody = utf8.decode(response.bodyBytes);
+          Map<String, dynamic> data = json.decode(responseBody);
+          return builder(data);
+        default:
+          throw Exception('Failed to create resource: ${response.statusCode}');
+      }
+    } on SocketException catch(_) {
+      throw NoInternetConnectionException();
+    }
+  }
+
+    Future<T> _postDataBatch<T>({
+    required Uri uri,
+    required T Function(dynamic data) builder,
+    required List<dynamic> body,
+  }) async {
+    try {
+      final response = await client.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Cache-Control': 'no-cache',
+          'Accept': '*/*',
+          'Connection': 'keep-alive',
+          'Accept-Encoding': 'gzip, deflate, br',
+        },
+        body: json.encode(body),
       ).timeout(const Duration(seconds: 10));
       switch (response.statusCode) {
         case 200:

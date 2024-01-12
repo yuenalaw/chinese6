@@ -78,6 +78,17 @@ def update_review():
         print("Error:", str(e))
         return {'message': 'Failed to update review'}, 500
 
+@db_bp.route('/batchupdatereviews', methods=['POST'])
+def update_reviews():
+    request_data = request.get_json()
+    print(f"request data is {request_data}")
+    try:
+        model_service.update_reviews_batch(request_data)
+        return {'message': 'Successfully updated reviews!'}, 200
+    except Exception as e:
+        print("Error:", str(e))
+        return {'message': 'Failed to update reviews'}, 500
+
 @db_bp.route('/addword', methods=['POST'])
 def add_word():
     # Parse JSON data from the request

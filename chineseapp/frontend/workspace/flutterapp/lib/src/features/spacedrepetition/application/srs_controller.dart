@@ -1,11 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/spacedrepetition/application/srs_service.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/cards_today.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/context.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/exercise.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/obtain_context.dart';
-import 'package:flutterapp/src/features/spacedrepetition/domain/update_review.dart';
-import 'package:tuple/tuple.dart';
 
 class SRSCardsTodayController extends StateNotifier<AsyncValue<CardsToday>> {
   SRSCardsTodayController({ required this.srsService }) : super(const AsyncValue.loading()) {
@@ -54,22 +53,29 @@ class SRSContextController extends StateNotifier<AsyncValue<Context>> {
   }
 }
 
-class SRSReviewUpdateController extends StateNotifier<AsyncValue<void>> {
+class SRSReviewUpdateController extends ChangeNotifier {
   
-  final UpdateReview updateReviewObj;
   final List<Exercise> exercises;
+  int currentExerciseIndex = 0;
 
-  SRSReviewUpdateController({ required this.srsService, required this.updateReviewObj, required this.exercises }) : super(const AsyncValue.loading()) {
-    updateReview();
-  }
+  SRSReviewUpdateController({ required this.srsService, required this.exercises });
 
   final SRSService srsService;
 
-  Future<void> updateReview() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => srsService.updateReview(updateReview: updateReviewObj, exercises: exercises)
-    );
+  void checkExercises() {
+    if (currentExerciseIndex >= exercises.length) {
+      batchUpdateReviews();
+    }
+  }
+
+  void nextExercise() {
+    currentExerciseIndex += 1;
+    checkExercises();
+    notifyListeners();
+  }
+
+  Future<void> batchUpdateReviews() async {
+    await srsService.batchUpdateReviews(exercises: exercises);
   }
 }
 
@@ -96,12 +102,9 @@ final srsContextProvider =
   });
 
 final srsReviewUpdateProvider =
-  StateNotifierProvider.family<SRSReviewUpdateController, AsyncValue<void>, Tuple2<UpdateReview, List<Exercise>>>((ref, tuple) {
-    UpdateReview updateReviewObj = tuple.item1;
-    List<Exercise> exercises = tuple.item2;
+  ChangeNotifierProvider.family<SRSReviewUpdateController, List<Exercise>>((ref, exercises) {
     return SRSReviewUpdateController(
       srsService: ref.watch(srsServiceProvider),
-      updateReviewObj: updateReviewObj,
       exercises: exercises,
     );
-  }); 
+  });

@@ -7,9 +7,10 @@ class ResultWidget extends StatelessWidget {
   final Exercise exercise;
   final bool isCorrect;
   final bool isSentence; 
-  final void Function() onCompleted;
+  final void Function(Exercise exercise, bool isCorrect) onCompleted;
+  final void Function() resetWidget;
 
-  ResultWidget({ required this.exercise, required this.isCorrect, required this.isSentence, required this.onCompleted});
+  ResultWidget({ required this.exercise, required this.isCorrect, required this.isSentence, required this.onCompleted, required this.resetWidget});
 
   @override 
   Widget build(BuildContext context) {
@@ -36,7 +37,10 @@ class ResultWidget extends StatelessWidget {
           Padding( 
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton( 
-              onPressed: onCompleted,
+              onPressed: () {
+                resetWidget();
+                onCompleted(exercise, isCorrect);
+              },
               child: const Text('Next'),
             )
           )

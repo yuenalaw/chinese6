@@ -6,7 +6,7 @@ import 'package:flutterapp/src/features/spacedrepetition/presentation/result_wid
 
 class SentenceBuilderWidget extends StatefulWidget {
   final Exercise exercise;
-  final void Function() onCompleted;
+  final void Function(Exercise exercise, bool isCorrect) onCompleted;
   
   const SentenceBuilderWidget({Key? key, required this.exercise, required this.onCompleted}) : super(key: key);
 
@@ -23,7 +23,14 @@ class SentenceBuilderState extends State<SentenceBuilderWidget> {
   @override 
   void initState() {
     super.initState();
-    availableWords = widget.exercise.availableAnswers;
+    availableWords = List.from(widget.exercise.availableAnswers);
+  }
+
+  void reset() {
+    setState(() {
+      sentence = [];
+      availableWords = List.from(widget.exercise.availableAnswers);
+    });
   }
 
   void _showBottomSheet(BuildContext context) {
@@ -34,7 +41,7 @@ class SentenceBuilderState extends State<SentenceBuilderWidget> {
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(16.0),
-          child: ResultWidget(exercise: widget.exercise, isCorrect: widget.exercise.correctAnswer == sentence.join(''), isSentence: true, onCompleted: widget.onCompleted),
+          child: ResultWidget(exercise: widget.exercise, isCorrect: widget.exercise.correctAnswer == sentence.join(''), isSentence: true, onCompleted: widget.onCompleted, resetWidget: reset),
         );
       },
     );
@@ -54,7 +61,7 @@ class SentenceBuilderState extends State<SentenceBuilderWidget> {
                 await flutterTts.setLanguage("zh-CN");
                 await flutterTts.speak(widget.exercise.correctAnswer);
               }, 
-              icon: Icon(Icons.volume_up, size: 50.0), // Adjust the size as needed
+              icon: const Icon(Icons.volume_up, size: 50.0), // Adjust the size as needed
             ),
           ),
           Expanded( 
@@ -94,18 +101,18 @@ class SentenceBuilderState extends State<SentenceBuilderWidget> {
             }).toList(),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              color: customColourMap['BUTTONS'], // Add this line
-              child: ElevatedButton(
-                onPressed: () => _showBottomSheet(context),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: customColourMap['BUTTONS'],
-                ),
-                child: const Text('Check'),
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                color: customColourMap['BUTTONS'], // Add this line
+                child: sentence.isNotEmpty ? ElevatedButton(
+                  onPressed: () => _showBottomSheet(context),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: customColourMap['BUTTONS'],
+                  ),
+                  child: const Text('Check'),
+                ) : Container(),
               ),
-            ),
-          )
+            )
         ]
       )
     );

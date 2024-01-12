@@ -90,6 +90,24 @@ final mockUpdateReviewJson =
   "quality": 1
 };
 
+final mockUpdateReviewListJson = 
+[
+  {
+    "word_id": 1,
+    "last_repetitions": 0,
+    "prev_ease_factor": 2.5,
+    "prev_word_interval": 1,
+    "quality": 1
+  },
+  {
+    "word_id": 2,
+    "last_repetitions": 0,
+    "prev_ease_factor": 2.5,
+    "prev_word_interval": 1,
+    "quality": 2
+  }
+];
+
 final updateReview = UpdateReview(
   wordId: 1,
   lastRepetitions: 1,
@@ -97,6 +115,23 @@ final updateReview = UpdateReview(
   prevWordInterval: 1,
   quality: 1,
 );
+
+final updateReviewList = [
+  UpdateReview(
+    wordId: 1,
+    lastRepetitions: 0,
+    prevEaseFactor: 2.5,
+    prevWordInterval: 1,
+    quality: 1,
+  ),
+  UpdateReview(
+    wordId: 2,
+    lastRepetitions: 0,
+    prevEaseFactor: 2.5,
+    prevWordInterval: 1,
+    quality: 2,
+  ),
+];
 
 const mockGetContextJson = encodedJsonContext;
 
@@ -170,6 +205,26 @@ void main() {
       api.updateReviewStats(), 
       headers: any(named: 'headers'),
       body: equals(jsonEncode(mockUpdateReviewJson)),
+      encoding: any(named: 'encoding')
+    )).called(1);
+  });
+
+  test('review repository with batch update reviews, success', () async {
+    final mockHttpClient = MockHttpClient();
+    final api = LanguageBackendAPI();
+    final srsRepository = SRSRepository(api: api, client: mockHttpClient);
+    when(() => mockHttpClient.post( 
+      api.batchUpdateReviews(), 
+      headers: any(named: 'headers'),
+      body: equals(jsonEncode(mockUpdateReviewListJson)),
+      encoding: any(named: 'encoding')
+    ))
+    .thenAnswer((_) async => http.Response('{"message": "Successfully updated reviews!"}', 200));
+    await srsRepository.batchUpdateReviews(updateReviewList: updateReviewList);
+    verify(() => mockHttpClient.post( 
+      api.batchUpdateReviews(),
+      headers: any(named: 'headers'),
+      body: equals(jsonEncode(mockUpdateReviewListJson)),
       encoding: any(named: 'encoding')
     )).called(1);
   });

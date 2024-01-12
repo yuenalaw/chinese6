@@ -56,6 +56,11 @@ class LanguageBackendAPI {
     parametersBuilder: () => {},
   );
 
+  Uri batchUpdateReviews() => _buildUri(
+    endpoint: "batchupdatereviews",
+    parametersBuilder: () => {},
+  );
+
   Uri getContext(String videoId, int lineChanged) => _buildUri(
     endpoint: "getcontext/$videoId/$lineChanged",
     parametersBuilder: () => {},

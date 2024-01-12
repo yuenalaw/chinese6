@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutterapp/src/features/spacedrepetition/application/srs_controller.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/exercise.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/image_to_text_widget.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/make_sentence_widget.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/text_to_image_widget.dart';
 import 'package:flutterapp/src/screens/home_screen.dart';
 
-class ExerciseScreen extends StatefulWidget {
+class ExerciseScreen extends ConsumerStatefulWidget {
 
   final List<Exercise> exercises;
 
@@ -16,20 +18,24 @@ class ExerciseScreen extends StatefulWidget {
 
 }
 
-class ExerciseScreenState extends State<ExerciseScreen> {
-  int currentExerciseIndex = 0;
+class ExerciseScreenState extends ConsumerState<ExerciseScreen> {
 
-  void nextExercise() {
+  void nextExercise(Exercise exercise, bool isCorrect) {
+    
+    // if it's wrong, must repeat
+    if (!isCorrect) {
+      widget.exercises.add(exercise);
+    }
     Navigator.pop(context);
-    setState(() {
-      currentExerciseIndex = currentExerciseIndex + 1;
-    });
+    ref.read(srsReviewUpdateProvider(widget.exercises).notifier).nextExercise();
   }
+
 
   @override 
   Widget build(BuildContext context) {
-    if (currentExerciseIndex < widget.exercises.length) {
-      Exercise currentExercise = widget.exercises[currentExerciseIndex];
+    final controller = ref.watch(srsReviewUpdateProvider(widget.exercises));
+    if (controller.currentExerciseIndex < widget.exercises.length) {
+      Exercise currentExercise = widget.exercises[controller.currentExerciseIndex];
       if (currentExercise.exerciseType == 1) {
         // create sentence exercise 
         return SentenceBuilderWidget(exercise: currentExercise, onCompleted: nextExercise);

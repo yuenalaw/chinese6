@@ -128,6 +128,21 @@ class ModelService:
             print(f"In model service; error occured updating user word review: {e}")
             raise
 
+    def update_reviews_batch(self, updates):
+        for update in updates:
+            word_id = update['word_id']
+            last_repetitions = update['last_repetitions']
+            last_ease_factor = update['prev_ease_factor']
+            word_interval = update['prev_word_interval']
+            quality = update['quality']
+
+            try:
+                self.update_user_word_review(word_id, last_repetitions, last_ease_factor, word_interval, quality)
+                print(f"Updated user word review!")
+            except Exception as e:
+                print(f"In model service; error occured updating user word review: {e}")
+                raise
+
     def get_sentence_context(self, video_id, line_changed):
         try:
             previous, next = self.model_repository.get_sentence_context(video_id, line_changed)

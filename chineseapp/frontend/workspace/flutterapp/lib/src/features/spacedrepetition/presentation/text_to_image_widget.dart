@@ -8,7 +8,7 @@ import 'package:flutterapp/src/features/spacedrepetition/presentation/result_wid
 
 class TextToImageWidget extends StatefulWidget {
   final Exercise exercise;
-  final void Function() onCompleted;
+  final void Function(Exercise exercise, bool isCorrect) onCompleted;
 
   const TextToImageWidget({Key? key, required this.exercise, required this.onCompleted}) : super(key: key);
 
@@ -20,6 +20,12 @@ class TextToImageState extends State<TextToImageWidget> {
   FlutterTts flutterTts = FlutterTts();
   String selectedImage = '';
 
+  void reset() {
+    setState(() {
+      selectedImage = '';
+    });
+  }
+
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -28,7 +34,7 @@ class TextToImageState extends State<TextToImageWidget> {
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(16.0),
-          child: ResultWidget(exercise: widget.exercise, isCorrect: widget.exercise.correctAnswer == selectedImage, isSentence: false, onCompleted: widget.onCompleted),
+          child: ResultWidget(exercise: widget.exercise, isCorrect: widget.exercise.correctAnswer == selectedImage, isSentence: false, onCompleted: widget.onCompleted, resetWidget: reset),
         );
       },
     );
