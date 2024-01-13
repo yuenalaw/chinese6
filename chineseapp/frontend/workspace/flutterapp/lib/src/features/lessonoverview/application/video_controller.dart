@@ -1,8 +1,12 @@
+import 'dart:async';
+
+import 'package:either_dart/either.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/application/video_service.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/disney_request.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/library.dart';
+import 'package:flutterapp/src/features/lessonoverview/domain/please_wait_vid_or_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_title.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
@@ -11,9 +15,17 @@ import 'package:flutterapp/src/features/lessonoverview/domain/youtube_request.da
 class AllReadyVideosController extends StateNotifier<AsyncValue<Library>> {
   AllReadyVideosController({ required this.videoService }) : super(const AsyncValue.loading()) {
     getAllReadyVideosFromLibrary();
+    startPeriodicCheck();
   }
 
   final VideoService videoService;
+
+  void startPeriodicCheck() {
+    Timer.periodic(const Duration(seconds:30), (Timer t) async { 
+      Library newLibrary = await videoService.checkLocalStorage();
+      state = AsyncValue.data(newLibrary);
+    });
+  }
 
   Future<void> getAllReadyVideosFromLibrary() async {
     state = const AsyncLoading();
@@ -23,7 +35,7 @@ class AllReadyVideosController extends StateNotifier<AsyncValue<Library>> {
   }
 }
 
-class VideoOverviewController extends StateNotifier<AsyncValue<Video>> with WidgetsBindingObserver {
+class VideoOverviewController extends StateNotifier<AsyncValue<Either<PleaseWaitVidOrSentence,Video>>> with WidgetsBindingObserver {
   String videoId;
 
   VideoOverviewController({ required this.videoService, required this.videoId }) 
@@ -36,12 +48,11 @@ class VideoOverviewController extends StateNotifier<AsyncValue<Video>> with Widg
   Future<void> getVideoDetails() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => videoService.getVideoDetails(videoId: videoId)
+      () => videoService.getVideo(videoId: videoId)
     );
   }
 
 }
-
 
 class VideoController extends StateNotifier<AsyncValue<void>> {
   VideoController({required this.videoService})
@@ -97,7 +108,7 @@ final allReadyVideosProvider =
   });
 
 final videoOverviewProvider = 
-  StateNotifierProvider.family<VideoOverviewController, AsyncValue<Video>, String>((ref, videoId) {
+  StateNotifierProvider.family<VideoOverviewController, AsyncValue<Either<PleaseWaitVidOrSentence, Video>>, String>((ref, videoId) {
     return VideoOverviewController(
       videoService: ref.watch(videoServiceProvider),
       videoId: videoId,

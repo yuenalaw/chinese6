@@ -118,7 +118,7 @@ class ReviewCardState extends ConsumerState<ReviewCard> {
                                 
                                 final Directory directory = await getApplicationDocumentsDirectory();
                                 final String duplicateFilePath = directory.path;
-                                final fileName = widget.reviewParams.entry.word;
+                                final fileName = '${widget.reviewParams.entry.word}_${widget.reviewParams.videoId}_${widget.reviewParams.lineNum}';
                                 final File localImage = await File(image.path).copy('$duplicateFilePath/$fileName.png');
 
                                 setState(() {

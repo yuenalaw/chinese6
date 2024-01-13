@@ -39,6 +39,9 @@ class KeywordCarousel extends StatelessWidget {
                             child: Image.network(
                               keywordImg.img,
                               fit: BoxFit.cover,
+                              errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                                return Image.asset('assets/Error404.gif');
+                              }
                             ),
                           ),
                         ),
@@ -65,84 +68,91 @@ class VideoInformation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(videoOverviewProvider(videoId)).when(
-      data: (video) {
-        return SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
-            child: Column(
-              children: <Widget>[
-                KeywordCarousel(keywordsImg: video.keywordsImg), // Add the carousel at the top
-                Expanded(
-                  child: ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    itemCount: video.lessons.length,
-                    itemBuilder: (context, index) {
-                      var lesson = video.lessons[index];
-                      List<Entry> entries = lesson.userSentence?.entries ?? lesson.segment.sentences.entries;
-                      var textSpans = <TextSpan>[];
-                      for (var entry in entries) {
-                        textSpans.add(
-                          TextSpan(
-                            text: ' ${entry.word} ',
-                            style: TextStyle(
-                              fontSize: 20, // Adjust this value as needed
-                              color: Colors.black,
-                              backgroundColor: wordUposMap.containsKey(entry.upos) ? wordUposMap[entry.upos] : wordUposMap['default'],
-                            ),
-                          ),
-                        );
-                      }
-                      return Container(
-                        margin: const EdgeInsets.all(8.0),
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 5,
-                              blurRadius: 7,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
-                          ),
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => MakeReviewScreen(videoId: videoId, lineNum: index, sentence: lesson.segment.segment, entries: entries, start: lesson.segment.start)));
-                          },
-                          child: Column(
-                            children: <Widget>[
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text('Start: ${lesson.segment.start}'),
-                                  Text('${index+1}/${video.lessons.length}'),
-                                ],
-                              ),
-                              RichText(
-                                text: TextSpan(
-                                  children: textSpans,
-                                  style: DefaultTextStyle.of(context).style,
+      data: (videoEither) {
+        return videoEither.fold( 
+          (pleaseWait) {
+            return Text(pleaseWait.message);
+          },
+          (video) {
+           return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
+                child: Column(
+                  children: <Widget>[
+                    KeywordCarousel(keywordsImg: video.keywordsImg), // Add the carousel at the top
+                    Expanded(
+                      child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        itemCount: video.lessons.length,
+                        itemBuilder: (context, index) {
+                          var lesson = video.lessons[index];
+                          List<Entry> entries = lesson.userSentence?.entries ?? lesson.segment.sentences.entries;
+                          var textSpans = <TextSpan>[];
+                          for (var entry in entries) {
+                            textSpans.add(
+                              TextSpan(
+                                text: ' ${entry.word} ',
+                                style: TextStyle(
+                                  fontSize: 20, // Adjust this value as needed
+                                  color: Colors.black,
+                                  backgroundColor: wordUposMap.containsKey(entry.upos) ? wordUposMap[entry.upos] : wordUposMap['default'],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                            );
+                          }
+                          return Container(
+                            margin: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 5,
+                                  blurRadius: 7,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black,
+                              ),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => MakeReviewScreen(videoId: videoId, lineNum: index, sentence: lesson.segment.segment, entries: entries, start: lesson.segment.start)));
+                              },
+                              child: Column(
+                                children: <Widget>[
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Text('Start: ${lesson.segment.start}'),
+                                      Text('${index+1}/${video.lessons.length}'),
+                                    ],
+                                  ),
+                                  RichText(
+                                    text: TextSpan(
+                                      children: textSpans,
+                                      style: DefaultTextStyle.of(context).style,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            ); 
+          }
         );
       },
       loading: () => const CircularProgressIndicator(),
