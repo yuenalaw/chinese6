@@ -150,6 +150,10 @@ class VideoService {
   }
 
   Future<void> addToPreparedVideosYT({required YouTubeRequest ytRequest}) async {
+    // if already in library, ignore)
+    if (_currentLib.videos.containsKey(ytRequest.videoId)) {
+      return Future.value();
+    }
     await addVideoIdToLocalStorage(ytRequest.videoId);
     // request backend
     await _createNewYoutubeLesson(ytRequest: ytRequest);
