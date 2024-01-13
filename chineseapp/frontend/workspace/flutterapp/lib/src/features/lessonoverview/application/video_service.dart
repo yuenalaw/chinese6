@@ -150,8 +150,10 @@ class VideoService {
   }
 
   Future<void> addToPreparedVideosYT({required YouTubeRequest ytRequest}) async {
-    // if already in library, ignore)
-    if (_currentLib.videos.containsKey(ytRequest.videoId)) {
+    // if already in library or local storage (i.e. processing), ignore)
+    final prefs = await SharedPreferences.getInstance();
+    List<String>? videoIds = prefs.getStringList('videoIds');
+    if (_currentLib.videos.containsKey(ytRequest.videoId) || videoIds != null && videoIds.contains(ytRequest.videoId)) {
       return Future.value();
     }
     await addVideoIdToLocalStorage(ytRequest.videoId);
