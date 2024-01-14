@@ -87,47 +87,38 @@ class TextToImageState extends State<TextToImageWidget> {
                           selectedImage = widget.exercise.availableAnswers[index];
                         });
                       },
-                    child: File(widget.exercise.availableAnswers[index]).existsSync() 
-                      ? GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedImage = widget.exercise.availableAnswers[index];
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: selectedImage == widget.exercise.availableAnswers[index] ? Colors.blue : Colors.transparent,
-                                width: 2.0, // Adjust border width
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0), // Adjust padding
-                              child: Image.file(File(widget.exercise.availableAnswers[index])),
-                            ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: selectedImage == widget.exercise.availableAnswers[index] ? Colors.blue : Colors.transparent,
+                            width: 2.0, // Adjust border width
                           ),
-                        ) 
-                      : Image.asset('assets/Error404.gif'),
-                    )
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0), // Adjust padding
+                          child: File(widget.exercise.availableAnswers[index]).existsSync() 
+                            ? Image.file(File(widget.exercise.availableAnswers[index]))
+                            : Image.asset('assets/Error404.gif'),
+                        ),
+                      ),
+                    ),
                   );
-                })
+                }),
               ),
             ),
             Padding( 
               padding: const EdgeInsets.all(16.0),
-              child: selectedImage != ''
-              ? ElevatedButton( 
+              child: ElevatedButton( 
                 onPressed: () => _showBottomSheet(context),
                 style: ElevatedButton.styleFrom( 
                   foregroundColor: customColourMap['BUTTONS'],
                 ),
                 child: const Text('Check'),
-              ) : Container(),
+              ),
             )
           ]
         ),
       )
     );
   }
-
 }

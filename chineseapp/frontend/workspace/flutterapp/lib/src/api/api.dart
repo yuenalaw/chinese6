@@ -76,6 +76,11 @@ class LanguageBackendAPI {
     parametersBuilder: () => {},
   );
 
+  Uri addNewStudyDay() => _buildUri(
+    endpoint: "addstudydate",
+    parametersBuilder: () => {},
+  );
+
   Uri updateTitle() => _buildUri(
     endpoint: "updatetitle",
     parametersBuilder: () => {},

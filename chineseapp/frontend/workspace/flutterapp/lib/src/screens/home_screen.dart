@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/available_videos_widget.dart';
+import 'package:flutterapp/src/features/useroverview/presentation/streak_widget.dart';
 import 'package:flutterapp/src/screens/game_path_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -17,17 +18,36 @@ class HomeScreen extends ConsumerWidget {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => GamePathScreen()),
-                  );
-                },
-                child: Image.asset('assets/quakkityintro.gif'), // Replace with your actual GIF path
+              child: StreakWidget(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Material(
+                elevation: 5.0, // Add shadow
+                borderRadius: BorderRadius.circular(30.0), // Round corners
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => GamePathScreen()),
+                    );
+                  },
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0), // Add padding
+                        child: Image.asset('assets/quakkityintro.gif'), // Replace with your actual GIF path
+                      )
+                    ],
+                  ),
+                ),
               ),
             ),
-            AvailableVideos(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: AvailableVideos(),
+            ),
           ],
         ),
       ),

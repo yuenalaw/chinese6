@@ -31,16 +31,24 @@ class AvailableVideosState extends ConsumerState<AvailableVideos> {
     return Column(
       children: [
         const CountdownWidget(),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              isViewAll = !isViewAll;
+            });
+          },
+          child: Text(isViewAll ? 'Close All' : 'View All'),
+        ),
         Container(
-          height: MediaQuery.of(context).size.height * 0.9, // Adjust this value as needed
+          height: MediaQuery.of(context).size.height * 0.3, // Adjust this value as needed
           child: ref.watch(allReadyVideosProvider).when(
             data: (library) {
               int itemCount = isViewAll ? library.videos.length : min(3, library.videos.length);
               return GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
+                  crossAxisCount: 2, 
                   childAspectRatio: MediaQuery.of(context).size.width /
-                      (MediaQuery.of(context).size.height / 2),
+                      (MediaQuery.of(context).size.height / 2.0), 
                 ),
                 itemCount: itemCount,
                 itemBuilder: (context, index) {
@@ -52,28 +60,36 @@ class AvailableVideosState extends ConsumerState<AvailableVideos> {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => LessonOverviewScreen(videoId: video.id)));
                       },
                       child: Card(
-                        color: Colors.blue[100],
+                        elevation: 8.0,
+                        color: Colors.green[100],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center, // Align items to the start
+                          crossAxisAlignment: CrossAxisAlignment.center, // Stretch items horizontally
                           children: <Widget>[
-                            Text(
-                              video.title,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[900],
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                textAlign: TextAlign.center,
+                                video.title,
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green[900],
+                                ),
                               ),
                             ),
-                            Text(
-                              video.source,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.blue[700],
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(
+                                textAlign: TextAlign.center,
+                                video.source,
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  color: Colors.green[700],
+                                ),
                               ),
                             ),
                           ],
@@ -83,23 +99,13 @@ class AvailableVideosState extends ConsumerState<AvailableVideos> {
                   );
                 },
               );
+
             },
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => Center(child: Text('Error: $err')),
           ),
         ),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              isViewAll = !isViewAll;
-            });
-          },
-          child: Text(isViewAll ? 'Close All' : 'View All'),
-        ),
       ],
     );
-
-
-
   }
 }

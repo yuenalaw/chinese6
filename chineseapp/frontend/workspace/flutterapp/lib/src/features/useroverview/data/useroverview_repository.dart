@@ -20,6 +20,11 @@ class UserOverviewRepository {
     builder: (data) => Streak.fromJson(data),
   );
 
+  Future<String> addNewStudyDay() => _getData( 
+    uri: api.addNewStudyDay(),
+    builder: (data) => data,
+  );
+
   Future<T> _getData<T>({
     required Uri uri,
     required T Function(dynamic data) builder,

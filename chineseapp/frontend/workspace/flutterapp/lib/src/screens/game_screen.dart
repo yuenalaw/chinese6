@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutterapp/src/features/spacedrepetition/application/exercises_completed_controller.dart';
 import 'package:flutterapp/src/features/spacedrepetition/application/srs_controller.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/exercise.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/image_to_text_widget.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/make_sentence_widget.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/text_to_image_widget.dart';
-import 'package:flutterapp/src/screens/home_screen.dart';
+import 'package:flutterapp/src/features/useroverview/application/streak_controller.dart';
+import 'package:flutterapp/src/screens/game_path_screen.dart';
 
 class ExerciseScreen extends ConsumerStatefulWidget {
 
   final List<Exercise> exercises;
+  final int lesson;
 
-  const ExerciseScreen({Key? key, required this.exercises}) : super(key: key);
+  const ExerciseScreen({Key? key, required this.exercises, required this.lesson}) : super(key: key);
 
   @override 
   ExerciseScreenState createState() => ExerciseScreenState();
@@ -47,12 +50,16 @@ class ExerciseScreenState extends ConsumerState<ExerciseScreen> {
         return ImageToTextWidget(exercise: currentExercise, onCompleted: nextExercise);
       }
     } else {
-      // refresh home screen and go back there
       Future.microtask(() {
+        // update streak
+        final streakController = ref.read(streakControllerProvider.notifier);
+        streakController.setNewStudyDate();
+        ref.read(completedLessonProvider.notifier).completedLesson(widget.lesson);
+
         Navigator.pop(context);
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => GamePathScreen()),
           (Route<dynamic> route) => false,
         );
       });

@@ -130,6 +130,14 @@ class VideoService {
   Future<Library> getVideos() async {
     final library = await _fetchVideos();
     _currentLib = library;
+    final prefs = await SharedPreferences.getInstance();
+    List<String>? videoIds = prefs.getStringList('videoIds');
+    if (videoIds == null) return _currentLib;
+    for (String videoId in library.videos.keys) {
+      if (videoIds.contains(videoId)){
+        await removeVideoIdFromLocalStorage(videoId);
+      }
+    }
     return _currentLib;
   }
 
