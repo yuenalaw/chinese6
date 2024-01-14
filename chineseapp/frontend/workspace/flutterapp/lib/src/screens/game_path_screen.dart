@@ -32,27 +32,19 @@ class GamePathScreen extends ConsumerWidget {
                         ),
                       );
                     },
-                    child: Stack( 
-                      alignment: Alignment.center,
-                      children: [
-                        Material( 
-                          elevation: 5.0,
-                          borderRadius: BorderRadius.circular(30.0),
-                          child: const Icon(
+                    child: Material( 
+                      elevation: 5.0,
+                      borderRadius: BorderRadius.circular(30.0),
+                      child: isCompleted
+                        ? const Icon( 
+                            Icons.check_circle,
+                            size: 50.0,
+                            color: Colors.green,
+                          )
+                        : const Icon(
                             Icons.pets, 
                             size: 50.0,
                           ),
-                        ),
-                        if (isCompleted)
-                          Material( 
-                            borderRadius: BorderRadius.circular(30.0),
-                            child: const Icon( 
-                            Icons.check_circle,
-                            size: 60.0,
-                            color: Colors.green,
-                          )
-                        )
-                      ],
                     ),
                   ),
                 ),
