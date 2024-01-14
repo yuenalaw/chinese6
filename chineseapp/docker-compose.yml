@@ -72,7 +72,5 @@ networks:
   backnet:
 
 volumes:
-  modelvolume:
   stanzavolume:
-  tokenizer_cache_volume:
   mysql-local:

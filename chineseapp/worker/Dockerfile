@@ -9,6 +9,7 @@ WORKDIR ${PROJECT_ROOT}
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH /usr/src/app:$PYTHONPATH
 
 # install dependencies
 RUN pip install --upgrade pip
