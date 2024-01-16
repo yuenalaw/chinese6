@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/available_videos_widget.dart';
 import 'package:flutterapp/src/features/useroverview/presentation/streak_widget.dart';
+import 'package:flutterapp/src/features/youtubeintegration/presentation/search_bar.dart';
 import 'package:flutterapp/src/screens/game_path_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -16,8 +17,9 @@ class HomeScreen extends ConsumerWidget {
       body: SingleChildScrollView( 
         child: Column (
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            const SearchBarWidget(),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
               child: StreakWidget(),
             ),
             Padding(
@@ -44,8 +46,8 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
               child: AvailableVideos(),
             ),
           ],
