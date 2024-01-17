@@ -11,7 +11,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Chinese Learning App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
+        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
+        // colorScheme: ColorScheme(
+
+        // ),
         useMaterial3: true,
       ),
       home: const HomeScreen(),

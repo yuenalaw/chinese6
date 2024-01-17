@@ -36,20 +36,20 @@ class AllReadyVideosController extends StateNotifier<AsyncValue<Library>> {
 }
 
 class VideoOverviewController extends StateNotifier<AsyncValue<Either<PleaseWaitVidOrSentence,Video>>> with WidgetsBindingObserver {
-  String videoId;
 
-  VideoOverviewController({ required this.videoService, required this.videoId }) 
-    : super(const AsyncValue.loading()) {
-      getVideoDetails();  
-  }
+  VideoOverviewController({ required this.videoService }) 
+    : super(const AsyncValue.loading());
   
   final VideoService videoService;
 
-  Future<void> getVideoDetails() async {
+  Future<void> getVideoDetails(String videoId) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => videoService.getVideo(videoId: videoId)
-    );
+    // state = await AsyncValue.guard(
+    //   () => videoService.getVideo(videoId: videoId)
+    // );
+
+    videoService.getVideo(videoId: videoId).then((value) => state = AsyncValue.data(value));
+
   }
 
 }
@@ -108,9 +108,7 @@ final allReadyVideosProvider =
   });
 
 final videoOverviewProvider = 
-  StateNotifierProvider.family<VideoOverviewController, AsyncValue<Either<PleaseWaitVidOrSentence, Video>>, String>((ref, videoId) {
+  StateNotifierProvider<VideoOverviewController, AsyncValue<Either<PleaseWaitVidOrSentence, Video>>>((ref) {
     return VideoOverviewController(
-      videoService: ref.watch(videoServiceProvider),
-      videoId: videoId,
-    );
+      videoService: ref.watch(videoServiceProvider));
   });

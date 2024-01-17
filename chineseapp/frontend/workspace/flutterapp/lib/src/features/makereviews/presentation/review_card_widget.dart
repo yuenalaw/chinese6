@@ -57,7 +57,8 @@ class ReviewCardState extends ConsumerState<ReviewCard> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children:[
-                              Text(widget.reviewParams.entry.pinyin, style: const TextStyle(fontSize: 20)), // Larger Pinyin
+                              Text(widget.reviewParams.entry.pinyin, style: const TextStyle(fontSize: 20)),
+ // Larger Pinyin
                               const Text('Translation', style: TextStyle(fontSize: 16)), // Smaller Translation heading
                               ...widget.reviewParams.entry.getTranslationAsListOfLists().map((t) => Text(t.join(', '))),
                               const Text('Similar Sounds', style: TextStyle(fontSize: 16)), // Smaller Similar Sounds heading

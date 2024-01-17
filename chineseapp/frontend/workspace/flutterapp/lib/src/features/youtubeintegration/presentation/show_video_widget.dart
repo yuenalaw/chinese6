@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/constants/colours.dart';
+import 'package:flutterapp/src/features/youtubeintegration/application/youtube_controller.dart';
 import 'package:flutterapp/src/features/youtubeintegration/domain/queried_video.dart';
 
-class ShowVideoWidget extends StatefulWidget {
+class ShowVideoWidget extends ConsumerStatefulWidget{
   final QueriedVideo video;
 
   const ShowVideoWidget({
@@ -14,13 +16,18 @@ class ShowVideoWidget extends StatefulWidget {
   ShowVideoWidgetState createState() => ShowVideoWidgetState();
 }
 
-class ShowVideoWidgetState extends State<ShowVideoWidget> {
+class ShowVideoWidgetState extends ConsumerState<ShowVideoWidget> {
   bool isVisible = true;
+
 
   @override
   Widget build(BuildContext context) {
+
+    final yt = ref.read(youtubeControllerProvider.notifier);
+
     return Visibility( 
       visible: isVisible,
+      maintainSize: false,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Stack(
@@ -47,7 +54,7 @@ class ShowVideoWidgetState extends State<ShowVideoWidget> {
                       borderRadius: BorderRadius.circular(8.0),
                       child: (widget.video.thumbnail != null) 
                       ? Image.network(widget.video.thumbnail!, width: 100, height: 100)
-                      : Image.asset('asset/Error404.gif', width: 100, height: 100),
+                      : Image.asset('assets/Error404.gif', width: 100, height: 100),
                     ),
                   ),
                   Expanded(
@@ -106,6 +113,7 @@ class ShowVideoWidgetState extends State<ShowVideoWidget> {
                     icon: const Icon(Icons.close),
                     iconSize: 20.0,
                     onPressed: () {
+                      yt.clear();
                       setState(() {
                         isVisible = false;
                       });

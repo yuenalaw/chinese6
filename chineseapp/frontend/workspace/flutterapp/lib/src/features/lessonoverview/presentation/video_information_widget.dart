@@ -67,7 +67,7 @@ class VideoInformation extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(videoOverviewProvider(videoId)).when(
+    return ref.watch(videoOverviewProvider).when(
       data: (videoEither) {
         return videoEither.fold( 
           (pleaseWait) {
