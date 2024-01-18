@@ -18,7 +18,7 @@ def process_video():
         print(f"trying to enqueue with video... {request_data['video_id']}")
         transcript_orig = YouTubeTranscriptApi.get_transcript(request_data['video_id'], languages=['zh-Hans', 'zh-Hant', 'zh-TW'])
         sig = celery.signature("execute_transcript_tasks")
-        task = sig.delay(request_data['video_id'], transcript_orig, request_data['source'], request_data['forced'])
+        task = sig.delay(request_data['video_id'], transcript_orig, request_data['source'], request_data['forced'], request_data['title'], request_data['channel'], request_data['thumbnail'])
         callbackid = task.id        
         print(f"callback is {callbackid}") # send this to the client for them to check below method
         return {'message': 'Video task has been added to the queue', 'callback': callbackid}, 202
@@ -31,7 +31,7 @@ def add_full_transcript():
     request_data = request.get_json()
     try:
         sig = celery.signature("execute_transcript_tasks_non_youtube")
-        task = sig.delay(request_data['id'], request_data['transcript'], request_data['source'], request_data['forced'])
+        task = sig.delay(request_data['id'], request_data['transcript'], request_data['source'], request_data['forced'], request_data['title'], request_data['channel'])
         callbackid = task.id        
         print(f"Callback is {callbackid}") # send this to the client for them to check below method
         return {'message': 'Full transcript task has been added to the queue', 'callback': callbackid}, 202

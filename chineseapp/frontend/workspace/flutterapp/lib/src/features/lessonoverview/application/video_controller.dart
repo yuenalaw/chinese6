@@ -44,12 +44,7 @@ class VideoOverviewController extends StateNotifier<AsyncValue<Either<PleaseWait
 
   Future<void> getVideoDetails(String videoId) async {
     state = const AsyncLoading();
-    // state = await AsyncValue.guard(
-    //   () => videoService.getVideo(videoId: videoId)
-    // );
-
     videoService.getVideo(videoId: videoId).then((value) => state = AsyncValue.data(value));
-
   }
 
 }

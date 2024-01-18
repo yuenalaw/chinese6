@@ -51,6 +51,8 @@ class Video {
     final List<Lesson> lessons;
     final String source;
     final String title;
+    final String channel;
+    final String thumbnail;
     final List<KeywordImg> keywordsImg;
 
     Video({
@@ -58,10 +60,13 @@ class Video {
       required this.lessons,
       required this.source,
       required this.title,
+      required this.channel,
+      required this.thumbnail,
       required this.keywordsImg,
     });
 
     factory Video.fromJson(Map<String, dynamic> json) {
+      print('JSON: $json');
       var lessonObjsJson = json['video']['lessons'] as List;
       List<Lesson> lessons = lessonObjsJson.map((lessonJson) => Lesson.fromJson(lessonJson)).toList();
 
@@ -71,12 +76,16 @@ class Video {
       String source = json['video']['source'];
       String title = json['video']['title'];
       String videoId = json['video']['video_id'];
+      String thumbnail = json['video']['thumbnail'];
+      String channel = json['video']['channel'];
 
       return Video(
         videoId: videoId,
         lessons: lessons,
         source: source,
         title: title,
+        channel: channel,
+        thumbnail: thumbnail,
         keywordsImg: keywordsImg,
       );
     }

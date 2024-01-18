@@ -4,6 +4,7 @@ import 'package:flutterapp/src/features/lessonoverview/data/video_repository.dar
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/updated_sentence_returned.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/please_wait_vid_or_sentence.dart';
+import '../../constants/headers.dart';
 import './video_lesson_encoded_json.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/lesson.dart';
@@ -76,6 +77,8 @@ final expectedVideoFromJson = Video(
   videoId: "-acfusFM4d8",
   source: "YouTube",
   title: "-acfusFM4d8",
+  channel: "channel",
+  thumbnail: "thumbnail",
   keywordsImg: [
     KeywordImg(
       img: "imageurl",
@@ -180,7 +183,7 @@ void main() {
     const videoId = "-acfusFM4d8";
     final videoRepository = 
       VideoRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.video(videoId))).thenAnswer(
+    when(() => mockHttpClient.get(api.video(videoId), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(encodedVideoJson), 200)));
     final video = await videoRepository.getVideo(videoId: videoId);
     expect(video, isA<Right<PleaseWaitVidOrSentence, Video>>());
@@ -192,7 +195,7 @@ void main() {
     const videoId = "-acfusFM4d8";
     final videoRepository = 
       VideoRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.video(videoId))).thenAnswer(
+    when(() => mockHttpClient.get(api.video(videoId), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(encodedVideoJson), 404)));
     final video = await videoRepository.getVideo(videoId: videoId);
     expect(video, isA<Left<PleaseWaitVidOrSentence, Video>>());
@@ -224,7 +227,7 @@ void main() {
     final api = LanguageBackendAPI();
     final videoRepository = 
       VideoRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", 2))).thenAnswer(
+    when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", 2), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockUpdatedSentenceJson)), 200)));
     final updatedSentenceReturned = await videoRepository.getUpdatedSentence(videoId: "-acfusFM4d8", lineChanged: 2);
     expect(updatedSentenceReturned, isA<Right<PleaseWaitVidOrSentence, UpdatedSentenceReturned>>());
@@ -236,7 +239,7 @@ void main() {
     final api = LanguageBackendAPI();
     final videoRepository = 
       VideoRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", 2))).thenAnswer(
+    when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", 2), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockUpdatedSentenceJson)), 404)));
     final updatedSentenceReturned = await videoRepository.getUpdatedSentence(videoId: "-acfusFM4d8", lineChanged: 2);
     expect(updatedSentenceReturned, isA<Left<PleaseWaitVidOrSentence, UpdatedSentenceReturned>>());

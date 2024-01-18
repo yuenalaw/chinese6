@@ -25,7 +25,7 @@ class LessonOverviewScreenState extends ConsumerState<LessonOverviewScreen > {
       body: SingleChildScrollView( 
         child: Column (
           children: <Widget>[
-            VideoInformation(videoId: '')
+            VideoInformation(videoId: widget.videoId)
           ],
         ),
       ),

@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'dart:convert';
 import 'package:flutterapp/src/features/lessonoverview/domain/library.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_title.dart';
+import '../../constants/headers.dart';
 import 'mock_library_encoded_json.dart';
 
 class MockHttpClient extends Mock implements http.Client {} 
@@ -29,7 +30,7 @@ void main() {
     final api = LanguageBackendAPI();
     final existingVideosRepository = 
       ExistingVideosRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getLibrary())).thenAnswer(
+    when(() => mockHttpClient.get(api.getLibrary(), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(expectedLibraryFromJson)), 200)));
     final library = await existingVideosRepository.getLibrary();
 
@@ -43,7 +44,7 @@ void main() {
     final api = LanguageBackendAPI();
     final existingVideosRepository = 
       ExistingVideosRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getLibrary())).thenAnswer(
+    when(() => mockHttpClient.get(api.getLibrary(), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockLibraryJson)), 404)));
     expect(() async => await existingVideosRepository.getLibrary(), throwsException);
   });

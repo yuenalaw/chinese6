@@ -17,13 +17,17 @@ class Library {
 class VideoSimple {
   final String id;
   final String title;
+  final String channel;
   final String source;
   final String transcriptPath;
+  final String thumbnail;
 
   VideoSimple({
     required this.id,
     required this.title,
+    required this.channel,
     required this.source,
+    required this.thumbnail,
     this.transcriptPath = "",
   });
 
@@ -32,6 +36,8 @@ class VideoSimple {
       id: json["id"],
       title: json["title"],
       source: json["source"],
+      channel: json["channel"],
+      thumbnail: json["thumbnail"],
       transcriptPath: json["transcript_path"] ?? "",
     );
   }
@@ -40,12 +46,16 @@ class VideoSimple {
       String? id,
       String? source,
       String? title,
+      String? channel,
+      String? thumbnail,
       String? transcriptPath,
     }) {
       return VideoSimple(
         id: id ?? this.id,
         source: source ?? this.source,
         title: title ?? this.title,
+        channel: channel ?? this.channel,
+        thumbnail: thumbnail ?? this.thumbnail,
         transcriptPath: transcriptPath ?? this.transcriptPath,
       );
     }

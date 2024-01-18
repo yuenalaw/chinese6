@@ -92,8 +92,8 @@ class VideoService {
   }
 
   Future<Either<PleaseWaitVidOrSentence, Video>> _getSpecificVideo({required String videoId}) async {
-    // final video = await ref.read(videoRepositoryProvider).getVideo(videoId: videoId);
-    // return video;
+    //final video = await ref.read(videoRepositoryProvider).getVideo(videoId: videoId);
+    //return video;
 
     return Right(Video.fromJson(fakeVideo));
   }
@@ -147,7 +147,7 @@ class VideoService {
 
   Future<Library> addVideoToLibrary(Video video) async {
     // turn video to VideoSimple
-    final videoSimple = VideoSimple(id: video.videoId, title: video.title, source: video.source);
+    final videoSimple = VideoSimple(id: video.videoId, title: video.title, channel: video.channel, thumbnail: video.thumbnail, source: video.source);
     _currentLib.addVideo(videoSimple);
     await removeVideoIdFromLocalStorage(video.videoId);
     return _currentLib;

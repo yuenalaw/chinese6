@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'package:flutterapp/src/features/useroverview/data/useroverview_repository.dart';
 import 'package:flutterapp/src/features/useroverview/domain/streak.dart';
 
+import '../../constants/headers.dart';
+
 class MockHttpClient extends Mock implements http.Client {} 
 
 const mockStreakJson = 
@@ -20,7 +22,7 @@ void main() {
     final api = LanguageBackendAPI();
     final userOverviewRepository = 
       UserOverviewRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getStreak())).thenAnswer(
+    when(() => mockHttpClient.get(api.getStreak(), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockStreakJson)), 200)));
     final streak = await userOverviewRepository.getStreak();
 
@@ -33,7 +35,7 @@ void main() {
     final api = LanguageBackendAPI();
     final userOverviewRepository = 
       UserOverviewRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getStreak())).thenAnswer(
+    when(() => mockHttpClient.get(api.getStreak(), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockStreakJson)), 404)));
     expect(() async => await userOverviewRepository.getStreak(), throwsException);
   });

@@ -7,14 +7,14 @@ class ModelService:
     def video_exists(self, vid_id):
         return self.model_repository.video_details_exists(vid_id)
 
-    def create_video_lesson(self, id, processed_transcript, keyword_to_images, source, forced):
+    def create_video_lesson(self, id, processed_transcript, keyword_to_images, source, forced, title, channel, thumbnail):
         try:
             if forced == "False" and self.video_exists(id):
                     return {"message": "video already exists"}, 200
             
             processed_transcript = json.loads(processed_transcript)
             keyword_to_images = json.loads(keyword_to_images)
-            self.model_repository.add_video_lesson_to_db(id, processed_transcript, keyword_to_images, source)
+            self.model_repository.add_video_lesson_to_db(id, processed_transcript, keyword_to_images, source, title, channel, thumbnail)
             print(f"Successfully added video to db!")
             return True
         except Exception as e:

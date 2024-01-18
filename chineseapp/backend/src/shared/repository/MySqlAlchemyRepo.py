@@ -309,7 +309,7 @@ class ModelRepository:
             
             reformat_keywords_imgs = json.loads(video_details.lesson_keyword_imgs)
 
-            return {"video_id": video_id, "source": video_details.source, "title": video_details.title, "keywords_img": reformat_keywords_imgs, "lessons": lesson_data}
+            return {"video_id": video_id, "source": video_details.source, "title": video_details.title, "channel": video_details.channel, "thumbnail": video_details.thumbnail, "keywords_img": reformat_keywords_imgs, "lessons": lesson_data}
         except Exception as e:
             print(f"An error occurred while getting lesson data: {e}")
             raise

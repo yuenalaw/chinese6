@@ -3,13 +3,13 @@ class LanguageBackendAPI {
 
   // CHANGE DEPENDING ON EMULATOR
 
-  // static const String _apiHost = "localhost";
-  // static const int _apiPort = 5000;
-  // static const String _apiPath = "/";
-
-  static const String _apiHost = "10.0.2.2";
+  static const String _apiHost = "localhost";
   static const int _apiPort = 5000;
   static const String _apiPath = "/";
+
+  // static const String _apiHost = "10.0.2.2";
+  // static const int _apiPort = 5000;
+  // static const String _apiPath = "/";
   
   Uri video(String videoId) => _buildUri(
     endpoint: "getlesson/$videoId",
@@ -111,12 +111,14 @@ class LanguageBackendAPI {
     required Map<String, dynamic> Function() parametersBuilder,
   }) {
     Map<String, dynamic> parameters = parametersBuilder();
-    return Uri(
+    Uri uri = Uri(
       scheme: "http",
       host: _apiHost,
       port: _apiPort,
       path: "$_apiPath$endpoint",
       queryParameters: parameters.isNotEmpty ? parameters : null
     );
+    print("URI: $uri");
+    return uri;
   }
 }

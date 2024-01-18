@@ -10,6 +10,7 @@ import 'package:flutterapp/src/features/spacedrepetition/domain/review.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/word.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/context.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/update_review.dart';
+import '../../constants/headers.dart';
 import 'mock_context_encoded_json.dart';
 
 
@@ -141,7 +142,7 @@ void main() {
     final api = LanguageBackendAPI();
     final srsRepository = 
       SRSRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getCardsToday())).thenAnswer(
+    when(() => mockHttpClient.get(api.getCardsToday(), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockGetCardsTodayJson)), 200)));
     final cardsToday = await srsRepository.getCardsToday();
 
@@ -158,7 +159,7 @@ void main() {
     final api = LanguageBackendAPI();
     final srsRepository = 
       SRSRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getCardsToday())).thenAnswer(
+    when(() => mockHttpClient.get(api.getCardsToday(), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockGetCardsTodayJson)), 404)));
     expect(() async => await srsRepository.getCardsToday(), throwsException);
   });
@@ -168,7 +169,7 @@ void main() {
     final api = LanguageBackendAPI();
     final srsRepository = 
       SRSRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getContext("-acfusFM4d8", 1))).thenAnswer(
+    when(() => mockHttpClient.get(api.getContext("-acfusFM4d8", 1), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockGetContextJson)), 200)));
     final context = await srsRepository.getContext(videoId: "-acfusFM4d8", lineChanged: 1);
 
@@ -183,7 +184,7 @@ void main() {
     final api = LanguageBackendAPI();
     final srsRepository = 
       SRSRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getContext("-acfusFM4d8", 1))).thenAnswer(
+    when(() => mockHttpClient.get(api.getContext("-acfusFM4d8", 1), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockGetContextJson)), 404)));
     expect(() async => await srsRepository.getContext(videoId: "-acfusFM4d8", lineChanged: 1), throwsException);
   });

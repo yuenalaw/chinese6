@@ -60,7 +60,9 @@ const encodedVideoJsonResponse = """
         ],
         "video_id": "-acfusFM4d8",
         "source": "YouTube",
-        "title": "-acfusFM4d8"
+        "title": "-acfusFM4d8",
+        "channel": "channel",
+        "thumbnail": "thumbnail"
     }
 }
 """;

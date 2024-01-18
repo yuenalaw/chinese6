@@ -8,6 +8,8 @@ import 'package:flutterapp/src/features/makereviews/data/review_repository.dart'
 import 'package:flutterapp/src/features/makereviews/domain/review_query.dart';
 import 'dart:convert';
 
+import '../../constants/headers.dart';
+
 class MockHttpClient extends Mock implements http.Client {} 
 
 const wordJson = """
@@ -106,7 +108,7 @@ void main() {
     final api = LanguageBackendAPI();
     final reviewRepository = 
       ReviewRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.word("特别"))).thenAnswer(
+    when(() => mockHttpClient.get(api.word("特别"), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(wordJson), 200)));
     final word = await reviewRepository.getWord(word:"特别");
 
@@ -119,7 +121,7 @@ void main() {
     final api = LanguageBackendAPI();
     final reviewRepository = 
       ReviewRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.word(""))).thenAnswer(
+    when(() => mockHttpClient.get(api.word(""), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(wordJson), 404)));
     final word = await reviewRepository.getWord(word:"");
 
@@ -131,7 +133,7 @@ void main() {
     final api = LanguageBackendAPI();
     final reviewRepository = 
       ReviewRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.userWordSentence("特别", "-acfusFM4d8", "1"))).thenAnswer(
+    when(() => mockHttpClient.get(api.userWordSentence("特别", "-acfusFM4d8", "1"), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(userWordSentenceJson), 200)));
     final userWordSentence = await reviewRepository.getUserWordSentence(word: "特别", videoId: "-acfusFM4d8", lineChanged: "1");
 
@@ -149,7 +151,7 @@ void main() {
     final api = LanguageBackendAPI();
     final reviewRepository = 
       ReviewRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.userWordSentence("","",""))).thenAnswer(
+    when(() => mockHttpClient.get(api.userWordSentence("","",""), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(userWordSentenceJson), 404)));
     final userWordSentence = await reviewRepository.getUserWordSentence(word:"", videoId: "", lineChanged:"");
 
