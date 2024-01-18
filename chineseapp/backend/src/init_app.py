@@ -71,6 +71,4 @@ from werkzeug.serving import WSGIRequestHandler
 if __name__ == "__main__":
     app = create_app(celery=app_module.celery)
 
-    #delete this
-    WSGIRequestHandler.protocol_version = "HTTP/1.1"
     app.run()
