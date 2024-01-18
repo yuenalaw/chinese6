@@ -14,7 +14,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           username: ${{ secrets.SSH_USERNAME }}
           script: |
-            mkdir test
+            mkdir -p test
             cd test
             if [ -d "chinese6/.git" ]; then
               cd chinese6
