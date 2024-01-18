@@ -283,8 +283,8 @@ class ModelRepository:
     
     def get_library(self):
         try:
-            library = VideoDetails.query.all()
-            library = [video.to_dict() for video in VideoDetails.query.all()]
+            videos = VideoDetails.query.all()
+            library = [video.to_dict() for video in videos]
             return library
         except Exception as e:
             print(f"An error occurred while getting library: {e}")

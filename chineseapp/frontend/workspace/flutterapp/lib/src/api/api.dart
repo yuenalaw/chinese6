@@ -3,7 +3,8 @@ class LanguageBackendAPI {
 
   // CHANGE DEPENDING ON EMULATOR
 
-  static const String _apiHost = "localhost";
+  // static const String _apiHost = "localhost";
+  static const String _apiHost = "138.251.123.204";
   static const int _apiPort = 5000;
   static const String _apiPath = "/";
 

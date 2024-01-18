@@ -12,23 +12,23 @@ class MakeReviewService {
   final Ref ref;
 
   Future<UserWordSentence> _fetchUserWordSentence({required String word, required String videoId, required String lineNum}) async {
-    // final userWordSentence = await ref.read(reviewRepositoryProvider).getUserWordSentence(word: word, videoId: videoId, lineChanged: lineNum);
-    // return userWordSentence;
-    return UserWordSentence.fromJson(userWordSentenceFake);
+    final userWordSentence = await ref.read(reviewRepositoryProvider).getUserWordSentence(word: word, videoId: videoId, lineChanged: lineNum);
+    return userWordSentence;
+    //return UserWordSentence.fromJson(userWordSentenceFake);
   }
 
   Future<void> _addNewReview({required ReviewQuery reviewQuery}) async {
-    //await ref.read(reviewRepositoryProvider).makeReview(review: reviewQuery);
+    await ref.read(reviewRepositoryProvider).makeReview(review: reviewQuery);
     return;
   }
 
   Future<void> _updateNote({required UpdateNote updateNote}) async {
-    //await ref.read(reviewRepositoryProvider).updateNote(note: updateNote);
+    await ref.read(reviewRepositoryProvider).updateNote(note: updateNote);
     return;
   }
 
   Future<void> _updateImage({required UpdateImage updateImage}) async {
-    // await ref.read(reviewRepositoryProvider).updateImage(image: updateImage);
+    await ref.read(reviewRepositoryProvider).updateImage(image: updateImage);
     return;
   }
 

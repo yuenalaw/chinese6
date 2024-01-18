@@ -66,7 +66,6 @@ class Video {
     });
 
     factory Video.fromJson(Map<String, dynamic> json) {
-      print('JSON: $json');
       var lessonObjsJson = json['video']['lessons'] as List;
       List<Lesson> lessons = lessonObjsJson.map((lessonJson) => Lesson.fromJson(lessonJson)).toList();
 

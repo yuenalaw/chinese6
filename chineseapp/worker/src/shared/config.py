@@ -16,7 +16,6 @@ class Config(object):
             },
         },
     }
-
     UNSPLASH_ACCESS_KEY = 'lTQLiSm7hGnE0zbWmKf3PwtmUVScT1dCsm3r52m3lvk'
     TEXTRAZOR_API_KEY = 'e3837d94ce6d5140bf4753119a47e6695b2dd32170c46540ae4005bc'
 
