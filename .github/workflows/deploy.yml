@@ -19,14 +19,9 @@ jobs:
             if [ -d "chinese6/.git" ]; then
               cd chinese6
               git pull
-              cd chineseapp
-              docker-compose up --build -d
-              cd ../..
+              cd ..
             else
               git clone git@github.com:yuenalaw/chinese6.git
               cd chinese6/chineseapp
-              docker-compose up --build -d
-              docker-compose up --build -d
-              cd ../..
             fi
             echo 'Deployment successful to digital ocean'
