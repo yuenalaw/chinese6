@@ -119,7 +119,6 @@ class LanguageBackendAPI {
       path: "$_apiPath$endpoint",
       queryParameters: parameters.isNotEmpty ? parameters : null
     );
-    print("URI: $uri");
     return uri;
   }
 }

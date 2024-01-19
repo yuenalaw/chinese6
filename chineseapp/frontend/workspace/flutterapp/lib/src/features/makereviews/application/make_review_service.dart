@@ -12,9 +12,9 @@ class MakeReviewService {
   final Ref ref;
 
   Future<UserWordSentence> _fetchUserWordSentence({required String word, required String videoId, required String lineNum}) async {
-    final userWordSentence = await ref.read(reviewRepositoryProvider).getUserWordSentence(word: word, videoId: videoId, lineChanged: lineNum);
-    return userWordSentence;
-    //return UserWordSentence.fromJson(userWordSentenceFake);
+    //final userWordSentence = await ref.read(reviewRepositoryProvider).getUserWordSentence(word: word, videoId: videoId, lineChanged: lineNum);
+    //return userWordSentence;
+    return UserWordSentence.fromJson(userWordSentenceFake);
   }
 
   Future<void> _addNewReview({required ReviewQuery reviewQuery}) async {

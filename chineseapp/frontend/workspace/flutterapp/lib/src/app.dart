@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/src/screens/home_screen.dart';
 
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key:key);
 
@@ -11,6 +10,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Chinese Learning App',
       theme: ThemeData(
+        fontFamily: 'Poppins',
         // colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
         // colorScheme: ColorScheme(
 

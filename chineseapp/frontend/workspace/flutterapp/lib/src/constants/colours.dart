@@ -14,6 +14,8 @@ const Map<String, Color> customColourMap = {
   'WRONG_ANS': Color(0xffff8c94),
   'BUTTONS': Color(0xffe0bbe4),
   'BLUE': Color(0xffc6dbda),
+  'BABYBLUE': Color(0xffbac8f7),
   'PINK': Color(0xfffee1e8),
+  'HOTPINK': Color(0xffffb3de),
   'RED': Color(0xffff9aa2),
 };
