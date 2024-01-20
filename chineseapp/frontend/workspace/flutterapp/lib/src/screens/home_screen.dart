@@ -1,58 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapp/src/features/lessonoverview/presentation/available_videos_widget.dart';
-import 'package:flutterapp/src/features/useroverview/presentation/streak_widget.dart';
-import 'package:flutterapp/src/features/youtubeintegration/presentation/search_bar.dart';
-import 'package:flutterapp/src/screens/game_path_screen.dart';
+import 'package:flutterapp/src/features/lessonoverview/presentation/libraries_display.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
-  @override 
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold( 
-      appBar: AppBar( 
-        title: const Text('Home page'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
       ),
-      body: SingleChildScrollView( 
-        child: Column (
-          children: <Widget>[
-            const SearchBarWidget(),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: StreakWidget(),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Material(
-                elevation: 5.0, // Add shadow
-                borderRadius: BorderRadius.circular(30.0), // Round corners
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => GamePathScreen()),
-                    );
-                  },
-                  child: Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0), // Add padding
-                        child: Image.asset('assets/quakkityintro.gif'), // Replace with your actual GIF path
-                      )
-                    ],
-                  ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 0.0),
+                child: AnimatedTextKit( 
+                  animatedTexts: [ 
+                    TyperAnimatedText("What shall we study today?",
+                    textStyle: const TextStyle( 
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                    ))
+                  ],
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: AvailableVideos(),
+          ),
+          const Expanded(
+            flex: 2,
+            child: Padding( 
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: LibraryDisplay(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
+
