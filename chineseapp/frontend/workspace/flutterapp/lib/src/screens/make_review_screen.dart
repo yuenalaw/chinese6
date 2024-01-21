@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/sentence_card_widget.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_params.dart';
-import 'package:flutterapp/src/features/makereviews/presentation/review_card_widget.dart';
+import 'package:flutterapp/src/features/makereviews/presentation/review_staggered_card_widget.dart';
 
 final selectedEntryProvider = StateProvider<Entry?>((ref) => null);
 
@@ -34,7 +34,7 @@ class MakeReviewScreen extends ConsumerWidget {
                 final selectedEntry = ref.watch(selectedEntryProvider);
                 // Check if selectedEntry is not null before using it
                 if (selectedEntry != null) {
-                  return ReviewCard(reviewParams: ReviewParams(
+                  return ReviewCardStaggered(reviewParams: ReviewParams(
                     word: selectedEntry.word,
                     videoId: videoId,
                     lineNum: (lineNum+1).toString(),
