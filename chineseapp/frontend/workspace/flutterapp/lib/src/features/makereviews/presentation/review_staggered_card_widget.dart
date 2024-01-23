@@ -39,7 +39,7 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
   @override 
   Widget build(BuildContext context) {
     return Padding( 
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
       child: ref.watch(makeReviewProvider(widget.reviewParams)).when(
         data: (userWordSentence) {
           if (updateImgAndNote) {
@@ -70,12 +70,12 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
               ),
               StaggeredGridTile.count( 
                 crossAxisCellCount: 1,
-                mainAxisCellCount: 3,
+                mainAxisCellCount: 4,
                 child: getBoxContent(3, userWordSentence),
               ),
               StaggeredGridTile.count(
                 crossAxisCellCount: 3, 
-                mainAxisCellCount: 3, 
+                mainAxisCellCount: 4, 
                 child: getBoxContent(4, userWordSentence))
             ],
           );
@@ -146,15 +146,14 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
                   ),
                   Text(
                     widget.reviewParams.entry.pinyin, 
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w200, color: Colors.grey), // Smaller font size for pinyin
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.grey[800]), // Smaller font size for pinyin
                   ),
                 ],
               ),
               Text(
                 widget.reviewParams.entry.word,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold), // Larger font size for word
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.black), // Larger font size for word
               ),
-              const SizedBox(height: 5.0),
             ],
           ),
         );
@@ -169,17 +168,20 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
               padding: const EdgeInsets.all(8.0),
               child: Column( 
                 children: [
-                  const Align(
+                  Align(
                     alignment: Alignment.topLeft,
                     child: Text(
                       'Personal note', 
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w100, color: Colors.grey), // make the text light and smaller
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.grey[800]), // make the text light and smaller
                     ),
                   ),
                   const SizedBox(height: 10), // adjust the value as needed
                   Align(
                     alignment: Alignment.center,
-                    child: Text(_personalNote),
+                    child: Text(
+                      _personalNote,
+                      style: const TextStyle(color: Colors.black),
+                    ),
                   ),
                 ],
               ),
@@ -197,7 +199,7 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
               alignment: WrapAlignment.center,
               spacing: 4.0, // gap between adjacent chips
               runSpacing: 4.0, // gap between lines
-              children: widget.reviewParams.entry.similarSounds!.map((s) => Chip(label: Text(s, style: const TextStyle(fontSize: 12)))).toList(),
+              children: widget.reviewParams.entry.similarSounds!.map((s) => Chip(label: Text(s, style: const TextStyle(fontSize: 12, color: Colors.black)))).toList(),
             ),
           ),
         );
@@ -215,18 +217,23 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
                 spacing: 4.0,
                 runSpacing: 4.0,
                 children: [
-                  const Align(
+                  Align(
                     alignment: Alignment.topLeft,
                     child: Text(
                       'Translation', 
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w100, color: Colors.grey), // make the text light and smaller
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.grey[800]), // make the text light and smaller
                     ),
                   ),
                   const SizedBox(height: 10), // adjust the value as needed
                   ...widget.reviewParams.entry.getTranslationAsListOfLists().map((t) => 
                     Align(
                       alignment: Alignment.center,
-                      child: Text(t.join(', ')),
+                      child: Text(
+                        t.join(', '), 
+                        style: const TextStyle( 
+                          color: Colors.black
+                        ),
+                      ),
                     ),
                   ),
                 ],

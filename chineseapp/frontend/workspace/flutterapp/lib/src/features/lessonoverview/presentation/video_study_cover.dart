@@ -54,14 +54,16 @@ class VideoStudyCard extends ConsumerWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 8.0), // Add space between the title and channel name
                     Text(
                       channelName,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w200
+                        fontWeight: FontWeight.w200,
+                        color: Colors.white,
                       ),
                     ),
                   ],

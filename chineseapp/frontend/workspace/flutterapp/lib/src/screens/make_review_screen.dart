@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
-import 'package:flutterapp/src/features/lessonoverview/presentation/sentence_card_widget.dart';
+import 'package:flutterapp/src/features/lessonoverview/presentation/pressable_sentence_card_widget.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_params.dart';
 import 'package:flutterapp/src/features/makereviews/presentation/review_staggered_card_widget.dart';
 
@@ -21,12 +21,12 @@ class MakeReviewScreen extends ConsumerWidget {
 
     return Scaffold( 
       appBar: AppBar( 
-        title: const Text('Lesson Overview'),
+        title: const Text('Make Review'),
       ),
       body: SingleChildScrollView( 
         child: Column (
           children: <Widget>[
-            SentenceCard(entries: entries, sentence: sentence, start: start, lineNum: lineNum, onEntrySelected: (entry) {
+            PressableSentenceWidget(entries: entries, sentence: sentence, start: start, indexLineNum: lineNum, totalLines: entries.length, onEntrySelected: (entry) {
               ref.read(selectedEntryProvider.notifier).state = entry;
             }),
             Consumer(

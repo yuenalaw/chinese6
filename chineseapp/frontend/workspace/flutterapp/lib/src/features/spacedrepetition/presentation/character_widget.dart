@@ -34,6 +34,7 @@ class CharacterWidget extends StatelessWidget {
               character,
               style: const TextStyle(
                 fontFamily: 'Poppins',
+                color: Colors.black,
                 fontWeight: FontWeight.w600,
                 fontSize: 24.0,
               ),
