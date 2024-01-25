@@ -24,107 +24,74 @@ class TranscriptSentenceWidget extends StatelessWidget {
   @override 
   Widget build(BuildContext context) {
     return Padding( 
-        padding: const EdgeInsets.symmetric(horizontal: 45.0),
-        child: Container(
-          decoration: BoxDecoration( 
-            color: indexLineNum % 2 == 0 ? customColourMap['HOTPINK'] : Colors.black,
-            borderRadius: BorderRadius.circular(25.0),
-          ),
+      padding: const EdgeInsets.symmetric(horizontal: 45.0),
+      child: Container(
+        decoration: BoxDecoration( 
+          color: indexLineNum % 2 == 0 ? customColourMap['HOTPINK'] : Colors.black,
+          borderRadius: BorderRadius.circular(25.0),
+        ),
+      child: Expanded( 
         child: Padding( 
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          child: Row( 
-            crossAxisAlignment: CrossAxisAlignment.center, 
-            children: <Widget>[
-              Stack( 
-                alignment: Alignment.center,
-                children: <Widget>[ 
-                  Container( 
-                    width: 50,
-                    height: 50,
-                    decoration: const BoxDecoration( 
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    )
+          padding: const EdgeInsets.all(16.0),
+          child: Column( 
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[ 
+              DefaultTextStyle( 
+                style: TextStyle( 
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w800,
+                  color: indexLineNum % 2 == 0 ? Colors.black : customColourMap['HOTPINK'],
+                ),
+                child: Text(
+                  "$indexLineNum/$totalLines",
+                ),
+              ),
+              const SizedBox(height: 10.0),
+              Wrap( 
+                spacing: 4.0,
+                runSpacing: 4.0,
+                children: entries.map((entry) => Container( 
+                  padding: const EdgeInsets.all(4.0),
+                  decoration: BoxDecoration( 
+                    color: wordUposMap.containsKey(entry.upos) ? wordUposMap[entry.upos] : wordUposMap['default'],
+                    borderRadius: BorderRadius.circular(5.0),
                   ),
-                  SizedBox( 
-                    width: 40,
-                    height: 40,
-                    child: FloatingActionButton( 
-                      heroTag: "$sentence$indexLineNum",
-                      onPressed: () async {
-                        await flutterTts.setLanguage("zh-CN");
-                        await flutterTts.speak(sentence);
-                      },
-                      backgroundColor: Colors.white,
-                      elevation: 0.0,
-                      child: Icon(Icons.play_arrow, color: indexLineNum % 2 == 0 ? Colors.black : customColourMap['HOTPINK'], size: 30.0),
+                  child: DefaultTextStyle( 
+                    style: const TextStyle( 
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0,
+                      color: Colors.black,
+                    ),
+                    child: Text(
+                    entry.word,
                     ),
                   )
-                ],
+                )).toList(),
               ),
-              const SizedBox(width: 10.0),
-              Expanded( 
-                child: Column( 
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[ 
-                    DefaultTextStyle( 
-                      style: TextStyle( 
+              const SizedBox(height: 10.0),
+              Row( 
+                children: <Widget>[ 
+                  Icon(
+                    Icons.access_time,
+                    color: indexLineNum % 2 == 0 ? Colors.black : customColourMap['HOTPINK'],
+                  ),
+                  const SizedBox(width: 5.0),
+                  DefaultTextStyle( 
+                    style: TextStyle( 
                         fontSize: 16.0,
-                        fontWeight: FontWeight.w800,
                         color: indexLineNum % 2 == 0 ? Colors.black : customColourMap['HOTPINK'],
-                      ),
-                      child: Text(
-                        "$indexLineNum/$totalLines",
-                      ),
                     ),
-                    const SizedBox(height: 5.0),
-                    Wrap( 
-                      spacing: 4.0,
-                      runSpacing: 4.0,
-                      children: entries.map((entry) => Container( 
-                        padding: const EdgeInsets.all(4.0),
-                        decoration: BoxDecoration( 
-                          color: wordUposMap.containsKey(entry.upos) ? wordUposMap[entry.upos] : wordUposMap['default'],
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: DefaultTextStyle( 
-                          style: const TextStyle( 
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.0,
-                            color: Colors.black,
-                          ),
-                          child: Text(
-                          entry.word,
-                          ),
-                        )
-                      )).toList(),
+                    child: Text(
+                      start.toStringAsFixed(2),
                     ),
-                    const SizedBox(height: 5.0),
-                    Row( 
-                      children: <Widget>[ 
-                        Icon(
-                          Icons.access_time,
-                          color: indexLineNum % 2 == 0 ? Colors.black : customColourMap['HOTPINK'],
-                        ),
-                        const SizedBox(width: 5.0),
-                        DefaultTextStyle( 
-                          style: TextStyle( 
-                              fontSize: 16.0,
-                              color: indexLineNum % 2 == 0 ? Colors.black : customColourMap['HOTPINK'],
-                          ),
-                          child: Text(
-                            start.toStringAsFixed(2),
-                          ),
-                        ),
-                      ]
-                    )
-                  ]
-                )
+                  ),
+                ]
               )
             ]
           )
         )
       )
+    )
     );
   }
 }

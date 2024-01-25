@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/application/video_controller.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/library.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/countdown_widget.dart';
+import 'package:flutterapp/src/features/lessonoverview/presentation/transcript_page_view_widget.dart';
 import 'package:flutterapp/src/screens/lesson_overview_screen.dart';
 import 'dart:math';
 
@@ -57,7 +58,7 @@ class AvailableVideosState extends ConsumerState<AvailableVideos> {
                     padding: const EdgeInsets.all(8.0),
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => LessonOverviewScreen(videoId: video.id)));
+                        //Navigator.push(context, MaterialPageRoute(builder: (context) => TranscriptPageView(videoId: video.id)));
                       },
                       child: Card(
                         elevation: 8.0,

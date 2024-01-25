@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapp/src/screens/lesson_overview_screen.dart';
+import 'package:flutterapp/src/screens/youtube_player_transcript.dart';
 
 class VideoStudyCard extends ConsumerWidget {
   final String imageUrl;
@@ -20,7 +20,8 @@ class VideoStudyCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector( 
       onTap: () async {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => LessonOverviewScreen(videoId: videoId)));
+        //Navigator.push(context, MaterialPageRoute(builder: (context) => LessonOverviewScreen(videoId: videoId)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => YoutubePlayerTranscriptScreen(videoId: videoId)));
       },
       child: Card(
         elevation: 0,
