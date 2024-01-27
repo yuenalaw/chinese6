@@ -17,5 +17,9 @@ const Map<String, Color> customColourMap = {
   'BABYBLUE': Color(0xffbac8f7),
   'PINK': Color(0xfffee1e8),
   'HOTPINK': Color(0xffffb3de),
+  'DARKPINK': Color(0xff572649),
+  'MAGENTA': Color(0xffb33b72),
+  'LIGHTPURPLE': Color(0xffcf91b5),
+  'BG': Color(0xff242526),
   'RED': Color(0xffff9aa2),
 };

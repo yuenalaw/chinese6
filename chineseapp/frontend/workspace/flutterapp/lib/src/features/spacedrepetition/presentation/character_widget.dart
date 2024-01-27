@@ -12,7 +12,7 @@ class CharacterWidget extends StatelessWidget {
       widthFactor: 0.2, // Limit the width to 20% of the screen width
       child: Container(
         decoration: BoxDecoration(
-          color: customColourMap['HOTPINK'], // Background color
+          color: Theme.of(context).colorScheme.secondary, // Background color
           borderRadius: BorderRadius.circular(20.0), // Rounded corners
           border: Border.all( 
             color: Colors.black,

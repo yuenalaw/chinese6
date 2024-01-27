@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:flutterapp/src/constants/colours.dart';
 import 'package:flutterapp/src/features/makereviews/application/make_review_controller.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_params.dart';
 import 'package:flutterapp/src/features/makereviews/domain/user_word_sentence.dart';
@@ -92,7 +91,7 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
         return Container( 
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: customColourMap['PINK']
+            color: Theme.of(context).colorScheme.secondary,
           ),
           child: Stack(
             alignment: Alignment.center,
@@ -128,7 +127,7 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: customColourMap['PINK']
+            color: Theme.of(context).colorScheme.secondary
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center, // This centers the children vertically.
@@ -161,7 +160,7 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
         return Container( 
           decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: customColourMap['HOTPINK']
+          color: Theme.of(context).colorScheme.primary,
           ),
           child: Center(
             child: Padding( 
@@ -191,7 +190,7 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
       case 3:
         return Container(
           decoration: BoxDecoration(
-            color: customColourMap['HOTPINK'],
+            color: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.circular(10), // adjust the value as needed
           ),
           child: Center(
@@ -206,7 +205,7 @@ class ReviewCardStaggeredState extends ConsumerState<ReviewCardStaggered> {
       case 4:
         return Container( 
           decoration: BoxDecoration( 
-            color: customColourMap['PINK'],
+            color: Theme.of(context).colorScheme.secondary,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center( 

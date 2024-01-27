@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/pressable_sentence_card_widget.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_params.dart';
-import 'package:flutterapp/src/features/makereviews/presentation/review_staggered_card_widget.dart';
+import 'package:flutterapp/src/features/makereviews/presentation/looping_stroke_order_animator_widget.dart';
+// import 'package:flutterapp/src/features/makereviews/presentation/review_staggered_card_widget.dart';
 
 final selectedEntryProvider = StateProvider<Entry?>((ref) => null);
 
@@ -34,13 +35,29 @@ class MakeReviewScreen extends ConsumerWidget {
                 final selectedEntry = ref.watch(selectedEntryProvider);
                 // Check if selectedEntry is not null before using it
                 if (selectedEntry != null) {
-                  return ReviewCardStaggered(reviewParams: ReviewParams(
-                    word: selectedEntry.word,
-                    videoId: videoId,
-                    lineNum: (lineNum+1).toString(),
-                    entry: selectedEntry,
-                    sentence: sentence,
-                  ));
+                  // return ReviewCardStaggered(reviewParams: ReviewParams(
+                  //   word: selectedEntry.word,
+                  //   videoId: videoId,
+                  //   lineNum: (lineNum+1).toString(),
+                  //   entry: selectedEntry,
+                  //   sentence: sentence,
+                  // ));
+                  List<String> characters = selectedEntry.word.split('');
+                  // return LoopingStrokeOrderAnimator(character: characters[0]);
+
+                  return Container( 
+                    height: 800.0,
+                    child: ListView.builder( 
+                      scrollDirection: Axis.horizontal,
+                      itemCount: characters.length,
+                      itemBuilder: (context, index) {
+                        return Container( 
+                          padding: const EdgeInsets.all(2.0),
+                          child: LoopingStrokeOrderAnimator(character: characters[index]),
+                        );
+                      }
+                    )
+                  );
                 } else {
                   // Return an empty Container or another widget if selectedEntry is null
                   return Container();

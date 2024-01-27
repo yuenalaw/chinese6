@@ -70,7 +70,7 @@ class _YoutubePlayerTranscriptScreenState
                           Column(
                             children: <Widget>[
                               Card(
-                                color: Colors.black,
+                                color: Colors.transparent,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15.0),
                                 ),

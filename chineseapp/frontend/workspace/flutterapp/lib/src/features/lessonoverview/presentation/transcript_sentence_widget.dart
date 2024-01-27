@@ -27,7 +27,7 @@ class TranscriptSentenceWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 45.0),
       child: Container(
         decoration: BoxDecoration( 
-          color: indexLineNum % 2 == 0 ? customColourMap['HOTPINK'] : Colors.black,
+          color: indexLineNum % 2 == 0 ? Theme.of(context).colorScheme.primary : Colors.black,
           borderRadius: BorderRadius.circular(25.0),
         ),
       child: Expanded( 
@@ -40,7 +40,7 @@ class TranscriptSentenceWidget extends StatelessWidget {
                 style: TextStyle( 
                   fontSize: 16.0,
                   fontWeight: FontWeight.w800,
-                  color: indexLineNum % 2 == 0 ? Colors.black : customColourMap['HOTPINK'],
+                  color: indexLineNum % 2 == 0 ? Colors.black : Theme.of(context).colorScheme.primary,
                 ),
                 child: Text(
                   "$indexLineNum/$totalLines",
@@ -73,13 +73,13 @@ class TranscriptSentenceWidget extends StatelessWidget {
                 children: <Widget>[ 
                   Icon(
                     Icons.access_time,
-                    color: indexLineNum % 2 == 0 ? Colors.black : customColourMap['HOTPINK'],
+                    color: indexLineNum % 2 == 0 ? Colors.black : Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 5.0),
                   DefaultTextStyle( 
                     style: TextStyle( 
                         fontSize: 16.0,
-                        color: indexLineNum % 2 == 0 ? Colors.black : customColourMap['HOTPINK'],
+                        color: indexLineNum % 2 == 0 ? Colors.black : Theme.of(context).colorScheme.primary
                     ),
                     child: Text(
                       start.toStringAsFixed(2),

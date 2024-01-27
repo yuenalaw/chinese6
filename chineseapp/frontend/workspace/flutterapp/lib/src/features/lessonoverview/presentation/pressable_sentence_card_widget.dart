@@ -29,7 +29,7 @@ class PressableSentenceWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 45.0),
         child: Container(
           decoration: BoxDecoration( 
-            color: customColourMap['HOTPINK'],
+            color: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.circular(25.0),
           ),
         child: Padding( 
@@ -59,7 +59,7 @@ class PressableSentenceWidget extends StatelessWidget {
                       },
                       backgroundColor: Colors.white,
                       elevation: 0.0,
-                      child: Icon(Icons.play_arrow, color: customColourMap['HOTPINK'], size: 30.0),
+                      child: Icon(Icons.play_arrow, color: Theme.of(context).colorScheme.onPrimary, size: 30.0),
                     ),
                   )
                 ],
@@ -73,7 +73,7 @@ class PressableSentenceWidget extends StatelessWidget {
                       style: TextStyle( 
                         fontSize: 16.0,
                         fontWeight: FontWeight.w800,
-                        color: customColourMap['HOTPINK'],
+                        color: Theme.of(context).colorScheme.onPrimary,
                       ),
                       child: Text(
                         "$indexLineNum: $totalLines",
@@ -111,13 +111,13 @@ class PressableSentenceWidget extends StatelessWidget {
                       children: <Widget>[ 
                         Icon(
                           Icons.access_time,
-                          color: customColourMap['HOTPINK'],
+                          color: Theme.of(context).colorScheme.onPrimary,
                         ),
                         const SizedBox(width: 5.0),
                         DefaultTextStyle( 
                           style: TextStyle( 
                               fontSize: 16.0,
-                              color: customColourMap['HOTPINK'],
+                              color: Theme.of(context).colorScheme.onPrimary,
                           ),
                           child: Text(
                             start.toStringAsFixed(2),

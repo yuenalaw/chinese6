@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/src/constants/colours.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/gradient_text_widget.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/keywords_widget.dart';
@@ -21,15 +20,15 @@ class LessonOverviewScreenState extends State<LessonOverviewScreen > {
   Widget build(BuildContext context) {
     return SizedBox.expand( 
       child: DraggableScrollableSheet( 
-        initialChildSize: 0.4,
-        minChildSize: 0.4,
+        initialChildSize: 0.2,
+        minChildSize: 0.2,
         maxChildSize: 0.8,
         builder: (BuildContext context, ScrollController scrollController) {
           return Container(
             decoration: BoxDecoration( 
-              color: customColourMap['HOTPINK'], 
+              color: Theme.of(context).colorScheme.primary, 
               border: Border.all(color: Colors.white, width: 5),
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(25.0), topRight: Radius.circular(25.0)),
             ),
             child: Column( 
               children: <Widget>[
@@ -44,7 +43,7 @@ class LessonOverviewScreenState extends State<LessonOverviewScreen > {
                       children: <Widget>[ 
                         if (index == 0) ... [ 
                           KeywordCarousel(keywordsImg: widget.video.keywordsImg), // Add the carousel at the top
-                          const SizedBox(height: 30.0),
+                          const SizedBox(height: 15.0),
                           Padding(
                             padding: const EdgeInsets.only(left: 45.0),
                             child: Container( 
@@ -54,8 +53,7 @@ class LessonOverviewScreenState extends State<LessonOverviewScreen > {
                                 alignment: Alignment.centerLeft,
                                 child: GradientText(
                                   text: widget.video.title, 
-                                  gradient: LinearGradient(colors: [Colors.pink.shade200, Colors.pink.shade500]),
-                                ),
+                                  gradient: LinearGradient(colors: [Colors.lightBlue.shade300, Colors.lightBlue.shade600]),                                ),
                               )
                             ), 
                           ),
@@ -65,18 +63,18 @@ class LessonOverviewScreenState extends State<LessonOverviewScreen > {
                               alignment: Alignment.centerLeft,
                               child: Text( 
                                 widget.video.channel,
-                                style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade600),
+                                style: TextStyle(fontWeight: FontWeight.w800, color: Colors.grey[800], fontSize: 16.0),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 30.0),
+                          const SizedBox(height: 15.0),
                           Padding(
                             padding: const EdgeInsets.only(left: 45.0),
                             child: Container( 
                               alignment: Alignment.centerLeft,
                               child: const Text( 
                                 'Transcription',
-                                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20.0),
+                                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20.0),
                               )
                             ),
                           ),

@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  stroke_order_animator: ^3.0.0
+  story_view: ^0.16.0
   flutter_staggered_grid_view: ^0.7.0
   youtube_player_flutter: ^8.1.2
   animated_text_kit: ^4.2.1
@@ -46,10 +48,16 @@ dependencies:
   json_annotation: ^4.8.1
   path_provider: ^2.1.0
   either_dart: 1.0.0
+  provider: ^6.0.5
+  svg_path_parser: ^1.0.0
+  fluttertoast: ^8.0.8
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+
+dependency_overrides:
+  http: ^1.1.2
 
 dev_dependencies:
   flutter_test:

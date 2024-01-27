@@ -83,7 +83,7 @@ class ShowVideoWidgetState extends ConsumerState<ShowVideoWidget> {
                                 Container(
                                   padding: const EdgeInsets.all(8.0),
                                   decoration: BoxDecoration(
-                                    color: customColourMap['PINK'],
+                                    color: Theme.of(context).colorScheme.secondary,
                                     borderRadius: BorderRadius.circular(15),
                                   ),
                                   child: Text(widget.video.vidId ?? "", style: const TextStyle(color: Colors.white), overflow: TextOverflow.ellipsis),
@@ -99,7 +99,7 @@ class ShowVideoWidgetState extends ConsumerState<ShowVideoWidget> {
               ),
             ),
             Positioned(
-              left: 0,  // Change this
+              left: 0,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
