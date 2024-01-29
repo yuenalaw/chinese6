@@ -30,7 +30,6 @@ class TranscriptSentenceWidget extends StatelessWidget {
           color: indexLineNum % 2 == 0 ? Theme.of(context).colorScheme.primary : Colors.black,
           borderRadius: BorderRadius.circular(25.0),
         ),
-      child: Expanded( 
         child: Padding( 
           padding: const EdgeInsets.all(16.0),
           child: Column( 
@@ -91,7 +90,6 @@ class TranscriptSentenceWidget extends StatelessWidget {
           )
         )
       )
-    )
     );
   }
 }

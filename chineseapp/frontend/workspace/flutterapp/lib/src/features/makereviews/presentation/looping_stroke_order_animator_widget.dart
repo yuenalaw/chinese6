@@ -61,10 +61,10 @@ class _LoopingStrokeOrderAnimatorState extends State<LoopingStrokeOrderAnimator>
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height,
+      height: 250,
       child: SingleChildScrollView( 
         child: SizedBox( 
-          width: 500,
+          width: 350,
           child: Column( 
             children: [ 
               const SizedBox(height: 50),
@@ -86,7 +86,8 @@ class _LoopingStrokeOrderAnimatorState extends State<LoopingStrokeOrderAnimator>
         }
         if (snapshot.hasData) {
           return Container( 
-            height: MediaQuery.of(context).size.height,
+            height: 350,
+            width: 350,
             child: Column(
               children: [
                 _buildStrokeOrderAnimation(snapshot.data!),
@@ -106,7 +107,7 @@ class _LoopingStrokeOrderAnimatorState extends State<LoopingStrokeOrderAnimator>
 
   Widget _buildStrokeOrderAnimation(StrokeOrderAnimationController controller) {
     return SizedBox.square(
-      dimension: 350,
+      dimension: 250,
       child: ChangeNotifierProvider<StrokeOrderAnimationController>.value(
         value: controller,
         child: Consumer<StrokeOrderAnimationController>(

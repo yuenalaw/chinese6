@@ -32,13 +32,18 @@ class _TranscriptPageViewState extends State<TranscriptPageView> {
               videoId: widget.videoId, lineNum: index, sentence: lesson.segment.segment, 
               entries: entries, start: lesson.segment.start)));
           },
-          child: TranscriptSentenceWidget( 
-            entries: entries,
-            sentence: lesson.segment.sentences.sentence,
-            start: lesson.segment.start,
-            indexLineNum: index,
-            totalLines: widget.lessons.length,
-          ),
+          child: Column( 
+            children: <Widget>[ 
+              const SizedBox(height: 20),
+              TranscriptSentenceWidget( 
+              entries: entries,
+              sentence: lesson.segment.sentences.sentence,
+              start: lesson.segment.start,
+              indexLineNum: index,
+              totalLines: widget.lessons.length,
+            ),
+            ]
+          )
         );
       },
     );

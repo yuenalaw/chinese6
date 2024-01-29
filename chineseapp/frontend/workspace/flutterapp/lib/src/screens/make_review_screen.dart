@@ -4,7 +4,7 @@ import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/pressable_sentence_card_widget.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_params.dart';
 import 'package:flutterapp/src/features/makereviews/presentation/looping_stroke_order_animator_widget.dart';
-// import 'package:flutterapp/src/features/makereviews/presentation/review_staggered_card_widget.dart';
+import 'package:flutterapp/src/features/makereviews/presentation/make_review_steps_widget.dart';
 
 final selectedEntryProvider = StateProvider<Entry?>((ref) => null);
 
@@ -15,10 +15,13 @@ class MakeReviewScreen extends ConsumerWidget {
   final List<Entry> entries;
   final double start;
 
+
   const MakeReviewScreen({Key? key, required this.videoId, required this.lineNum, required this.sentence, required this.entries, required this.start}) : super(key: key);
 
+  
   @override 
   Widget build(BuildContext context, WidgetRef ref) {
+    DraggableScrollableController draggableScrollableController = DraggableScrollableController();
 
     return Scaffold( 
       appBar: AppBar( 
@@ -35,29 +38,94 @@ class MakeReviewScreen extends ConsumerWidget {
                 final selectedEntry = ref.watch(selectedEntryProvider);
                 // Check if selectedEntry is not null before using it
                 if (selectedEntry != null) {
-                  // return ReviewCardStaggered(reviewParams: ReviewParams(
-                  //   word: selectedEntry.word,
-                  //   videoId: videoId,
-                  //   lineNum: (lineNum+1).toString(),
-                  //   entry: selectedEntry,
-                  //   sentence: sentence,
-                  // ));
-                  List<String> characters = selectedEntry.word.split('');
-                  // return LoopingStrokeOrderAnimator(character: characters[0]);
+                  final reviewParams = ReviewParams(
+                    word: selectedEntry.word,
+                    videoId: videoId,
+                    lineNum: (lineNum+1).toString(),
+                    entry: selectedEntry,
+                    sentence: sentence,
+                  );
 
-                  return Container( 
-                    height: 800.0,
+                  List<String> characters = selectedEntry.word.split('');
+
+                  final strokeCharacter = Container(
                     child: ListView.builder( 
                       scrollDirection: Axis.horizontal,
                       itemCount: characters.length,
                       itemBuilder: (context, index) {
                         return Container( 
-                          padding: const EdgeInsets.all(2.0),
+                          padding: const EdgeInsets.all(16.0),
                           child: LoopingStrokeOrderAnimator(character: characters[index]),
                         );
                       }
                     )
                   );
+
+                  final paddedTimeline = Padding( 
+                      padding: EdgeInsets.all(48.0),
+                      child: ReviewStepsList(reviewParams: reviewParams) 
+                    );
+                  
+                  return Container( 
+                    height: MediaQuery.of(context).size.height,
+                    child: FractionallySizedBox( 
+                      heightFactor: 0.8,
+                      child: Stack( 
+                          children: <Widget>[ 
+                            strokeCharacter,
+                            DraggableScrollableSheet(
+                              controller: draggableScrollableController,
+                              initialChildSize: 0.4,
+                              minChildSize: 0.4,
+                              maxChildSize: 1,
+                              builder: (BuildContext context, ScrollController scrollController) {
+                                return Stack( 
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration( 
+                                        color: Theme.of(context).colorScheme.background,
+                                        border: Border.all(color: Colors.white, width: 3.0),
+                                        borderRadius: const BorderRadius.only( 
+                                          topLeft: Radius.circular(24.0),
+                                          topRight: Radius.circular(24.0),
+                                        ),
+                                      ),
+                                      child: SingleChildScrollView( 
+                                        controller: scrollController,
+                                        child: paddedTimeline,
+                                      )
+                                    ),
+                                    Positioned( 
+                                      right: 16.0, 
+                                      top: 16.0,
+                                      child: Stack( 
+                                        alignment: Alignment.center, 
+                                        children: <Widget>[ 
+                                          Container( 
+                                            width: 36.0,
+                                            height: 36.0,
+                                            decoration: BoxDecoration( 
+                                              color: Theme.of(context).colorScheme.onSurface,
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                          IconButton( 
+                                            icon: Icon(Icons.close, color: Colors.white),
+                                            onPressed: () {
+                                              draggableScrollableController.reset();
+                                            }
+                                          )
+                                        ]
+                                      )
+                                    )
+                                  ],
+                                );
+                              }
+                            ),
+                          ]
+                        )
+                      ),
+                    );
                 } else {
                   // Return an empty Container or another widget if selectedEntry is null
                   return Container();
