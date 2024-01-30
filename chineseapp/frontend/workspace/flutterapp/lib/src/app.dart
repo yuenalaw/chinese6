@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
           onSecondary: Colors.black,
           background: customColourMap['BG']!,
           onBackground: Colors.white,
-          surface: customColourMap['LIGHTPURPLE']!,
+          surface: customColourMap['BABYBLUE']!,
           onSurface: Colors.black,
           error: customColourMap['RED']!,
           onError: Colors.black,

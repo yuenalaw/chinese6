@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_params.dart';
 import 'package:flutterapp/src/features/makereviews/domain/task.dart';
@@ -34,19 +36,87 @@ class _ReviewStepsListState extends State<ReviewStepsList> {
   }
 
   Future<void> handleSpeech() async {
-    await flutterTts.setLanguage("zh-hans");
+    await flutterTts.setLanguage("zh-CN");
     await flutterTts.speak(widget.reviewParams.entry.pinyin);
   }
 
   void handleTaskTap(int index) async {
     setState(() {
-      tasks[index].isDone = true;
       tasks[index].isExpanded = !tasks[index].isExpanded;
       if (index == 0) {
         handleSpeech();
-        tasks[index].expandedValue = Text(widget.reviewParams.entry.pinyin);
+        
+        final listenWidget = Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(widget.reviewParams.entry.pinyin),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.volume_up), // Volume icon
+                  onPressed: handleSpeech, // handleSpeech method is called when the button is pressed
+                ),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 4.0, // gap between adjacent chips
+                  runSpacing: 4.0, // gap between lines
+                  children: widget.reviewParams.entry.similarSounds!.map((s) => 
+                  Chip(
+                    label: Text(
+                      s, 
+                      style: const TextStyle(
+                        fontSize: 12,
+                         color: Colors.black
+                      )
+                    ), 
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                  )).toList(),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        tasks[index].expandedValue = listenWidget;
+
+        tasks[index].isDone = true;
       } else if (index == 1) {
-        tasks[index].expandedValue = Text(widget.reviewParams.entry.getTranslationAsListOfLists().map((list) => list.join('')).join('\n'));
+        final translationWidget = Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: widget.reviewParams.entry.getTranslationAsListOfLists().map((t) => 
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: const LineSplitter().convert(t.join(', ')).map((line) =>
+                        Text(
+                          line,
+                          style: const TextStyle( 
+                            color: Colors.black,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      ).toList(),
+                    ),
+                  ),
+                ),
+              ).toList(),
+            ),
+          ),
+        );
+        tasks[index].expandedValue = translationWidget;
+        tasks[index].isDone = true;
       } else if (index == 2) {
         tasks[index].expandedValue = Text('Choose image');
       } else if (index == 3) {
@@ -87,7 +157,10 @@ class _ReviewStepsListState extends State<ReviewStepsList> {
             child: 
               Padding( 
                 padding: const EdgeInsets.all(24.0),
-                child: Card( 
+                child: Card(
+                  shape: RoundedRectangleBorder( 
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
                   color: Theme.of(context).colorScheme.primary,
                   child: Container( 
                     width: double.infinity,
@@ -103,22 +176,25 @@ class _ReviewStepsListState extends State<ReviewStepsList> {
                           ExpansionPanel( 
                             headerBuilder: (BuildContext context, bool isExpanded) {
                               return ListTile( 
-                                title: Text(tasks[index].headerValue),
+                                title: Text(
+                                  tasks[index].headerValue,
+                                  style: const TextStyle( 
+                                    color: Colors.black,
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.w500,
+                                  )
+                                
+                                ),
                               );  
                             },
-                            body: tasks[index].isExpanded ? Column( 
-                              children: <Widget>[ 
-                                tasks[index].expandedValue,
-                                Checkbox( 
-                                  value: tasks[index].isDone,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      tasks[index].isDone = value!;
-                                    });
-                                  }
-                                )
-                              ],
-                            ) : Container(),
+                            body: Padding( 
+                              padding: const EdgeInsets.all(8.0),
+                              child: tasks[index].isExpanded ? Column( 
+                                children: <Widget>[ 
+                                  tasks[index].expandedValue,
+                                ],
+                              ) : Container(),
+                            ),
                             isExpanded: tasks[index].isExpanded,
                           )
                         ],
@@ -133,7 +209,7 @@ class _ReviewStepsListState extends State<ReviewStepsList> {
             return const DotIndicator(
               size: 20.0,
               color: Color(0xff7349FE),
-              child: Icon(Icons.check, color: Colors.white),
+              child: Icon(Icons.check, color: Colors.white, size: 12.0),
             );
           } else {
             return const OutlinedDotIndicator(

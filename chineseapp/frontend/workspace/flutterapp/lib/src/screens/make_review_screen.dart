@@ -49,13 +49,16 @@ class MakeReviewScreen extends ConsumerWidget {
 
                   List<String> characters = selectedEntry.word.split('');
 
-                  final strokeCharacter = Container(
+                  final strokeCharacter = RawScrollbar( 
+                    thumbColor: Theme.of(context).colorScheme.primary,
+                    radius: Radius.circular(8.0),
+                    thickness: 5,
                     child: ListView.builder( 
                       scrollDirection: Axis.horizontal,
                       itemCount: characters.length,
                       itemBuilder: (context, index) {
                         return Container( 
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: LoopingStrokeOrderAnimator(character: characters[index]),
                         );
                       }
@@ -63,7 +66,7 @@ class MakeReviewScreen extends ConsumerWidget {
                   );
 
                   final paddedTimeline = Padding( 
-                      padding: EdgeInsets.all(48.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 32.0),
                       child: ReviewStepsList(reviewParams: reviewParams) 
                     );
                   
