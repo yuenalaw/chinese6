@@ -62,7 +62,7 @@ class _LoopingStrokeOrderAnimatorState extends State<LoopingStrokeOrderAnimator>
   Widget build(BuildContext context) {
     return Container(
       height: 250,
-      child: SingleChildScrollView( 
+      //child: SingleChildScrollView( 
         child: SizedBox( 
           width: 350,
           child: Column( 
@@ -72,7 +72,7 @@ class _LoopingStrokeOrderAnimatorState extends State<LoopingStrokeOrderAnimator>
             ]
           )
         ) 
-      )
+      //)
     );
   }
 

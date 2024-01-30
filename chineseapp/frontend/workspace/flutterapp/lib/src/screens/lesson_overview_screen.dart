@@ -18,8 +18,10 @@ class LessonOverviewScreenState extends State<LessonOverviewScreen > {
 
   @override
   Widget build(BuildContext context) {
+    DraggableScrollableController draggableScrollableController = DraggableScrollableController();
     return SizedBox.expand( 
       child: DraggableScrollableSheet( 
+        controller: draggableScrollableController,
         initialChildSize: 0.2,
         minChildSize: 0.2,
         maxChildSize: 0.8,
@@ -32,7 +34,12 @@ class LessonOverviewScreenState extends State<LessonOverviewScreen > {
             ),
             child: Column( 
               children: <Widget>[
-                const Icon(Icons.drag_handle),
+                IconButton( 
+                  icon: Icon(Icons.drag_handle, color: Colors.white),
+                  onPressed: () {
+                    draggableScrollableController.reset();
+                  }
+                ),
                 Expanded( 
                   child: ListView.builder( 
                   controller: scrollController,

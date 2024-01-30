@@ -28,6 +28,7 @@ class MakeReviewScreen extends ConsumerWidget {
         title: const Text('Make Review'),
       ),
       body: SingleChildScrollView( 
+        physics: NeverScrollableScrollPhysics(),
         child: Column (
           children: <Widget>[
             PressableSentenceWidget(entries: entries, sentence: sentence, start: start, indexLineNum: lineNum, totalLines: entries.length, onEntrySelected: (entry) {
