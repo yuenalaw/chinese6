@@ -148,7 +148,9 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
         tasks[index].isDone = true;
       } else if (index == 2) {
         tasks[index].expandedValue = Text('Choose image');
-        tasks[index].isDone = true;
+        if (_imageLink != '') {
+          tasks[index].isDone = true;
+        }
       } else if (index == 3) {
         setState(() {
           showNoteEditor = true;
