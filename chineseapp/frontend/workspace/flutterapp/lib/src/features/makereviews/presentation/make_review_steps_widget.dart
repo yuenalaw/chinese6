@@ -1,13 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutterapp/src/features/makereviews/application/make_review_controller.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_params.dart';
 import 'package:flutterapp/src/features/makereviews/domain/task.dart';
+import 'package:flutterapp/src/features/makereviews/domain/user_word_sentence.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/simple_review_card_widget.dart';
 import 'package:timelines/timelines.dart';
 
 
-class ReviewStepsList extends StatefulWidget {
+class ReviewStepsList extends ConsumerStatefulWidget {
   final ReviewParams reviewParams;
   const ReviewStepsList({Key? key, required this.reviewParams}) : super(key: key);
 
@@ -15,13 +18,18 @@ class ReviewStepsList extends StatefulWidget {
   _ReviewStepsListState createState() => _ReviewStepsListState();
 }
 
-class _ReviewStepsListState extends State<ReviewStepsList> {
+class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
+  final textController = TextEditingController();
   List<Task> tasks = [
     Task('Listen'),
     Task('Translate'),
     Task('Choose image'),
     Task('Add note'),
   ];
+
+  String _personalNote = '';
+  String _imageLink = '';
+  bool showNoteEditor = false;
 
   @override 
   void didUpdateWidget(covariant ReviewStepsList oldWidget) {
@@ -33,18 +41,21 @@ class _ReviewStepsListState extends State<ReviewStepsList> {
       Task('Choose image'),
       Task('Add note'), 
     ];
+
+    _personalNote = '';
+    _imageLink = '';
   }
 
-  Future<void> handleSpeech() async {
+  Future<void> handleSpeech(word) async {
     await flutterTts.setLanguage("zh-CN");
-    await flutterTts.speak(widget.reviewParams.entry.pinyin);
+    await flutterTts.speak(word);
   }
 
   void handleTaskTap(int index) async {
     setState(() {
       tasks[index].isExpanded = !tasks[index].isExpanded;
       if (index == 0) {
-        handleSpeech();
+        handleSpeech(widget.reviewParams.entry.pinyin);
         
         final listenWidget = Padding(
           padding: const EdgeInsets.all(8.0),
@@ -60,23 +71,41 @@ class _ReviewStepsListState extends State<ReviewStepsList> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.volume_up), // Volume icon
-                  onPressed: handleSpeech, // handleSpeech method is called when the button is pressed
+                  icon: const Icon(Icons.volume_up), // Volume icon
+                  onPressed: () async { await handleSpeech(widget.reviewParams.entry.pinyin); }, // handleSpeech method is called when the button is pressed
+                ),
+                const Align( 
+                  alignment: Alignment.centerRight,
+                  child: Padding( 
+                    padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    child: Text( 
+                      'Listen to the pronunciation of simila sounds',
+                      style: TextStyle( 
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                      )
+                    )
+                  )
                 ),
                 Wrap(
                   alignment: WrapAlignment.center,
-                  spacing: 4.0, // gap between adjacent chips
-                  runSpacing: 4.0, // gap between lines
+                  spacing: 4.0, 
+                  runSpacing: 4.0, 
                   children: widget.reviewParams.entry.similarSounds!.map((s) => 
-                  Chip(
-                    label: Text(
-                      s, 
-                      style: const TextStyle(
-                        fontSize: 12,
-                         color: Colors.black
-                      )
-                    ), 
-                    backgroundColor: Theme.of(context).colorScheme.surface,
+                  InkWell( 
+                    onTap: () async {
+                      await handleSpeech(s);
+                    },
+                    child: Chip(
+                      label: Text(
+                        s, 
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black
+                        )
+                      ), 
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                    ),
                   )).toList(),
                 ),
               ],
@@ -119,28 +148,125 @@ class _ReviewStepsListState extends State<ReviewStepsList> {
         tasks[index].isDone = true;
       } else if (index == 2) {
         tasks[index].expandedValue = Text('Choose image');
+        tasks[index].isDone = true;
       } else if (index == 3) {
-        tasks[index].expandedValue = TextField( 
-          controller: TextEditingController(),
-          decoration: const InputDecoration( 
-            labelText: 'Add note',
-          )
-        );
+        setState(() {
+          showNoteEditor = true;
+        });
       }
     });
   }
 
-  
+  Widget buildAddNote(int index) {
+    return Column( 
+      children: [
+        Padding( 
+          padding: const EdgeInsets.all(8.0),
+          child: Column( 
+            children: [ 
+              Text( 
+                _personalNote,
+                style: const TextStyle( 
+                  fontSize: 16.0,
+                )
+              ),
+              TextField( 
+                controller: textController,
+                decoration: const InputDecoration( 
+                  labelText: 'Add note',
+                ),
+                onChanged: (value) {
+                  if (value.length > 3) {
+                    tasks[index].isDone = true;
+                  } else {
+                    tasks[index].isDone = false;
+                  }
+                  setState(() {
+                    _personalNote = value;
+                  });
+                }
+              ),
+            ]
+          )
+        ),
+      ],
+    );
+  }
+
   @override 
   Widget build(BuildContext context) {
     return Container( 
-      height: MediaQuery.of(context).size.height,
-      child: timelineBuilder()
+      child: ref.watch(makeReviewProvider(widget.reviewParams)).when( 
+        data: (userWordSentence) {
+          if (userWordSentence.note != null && _personalNote == '') {
+            _personalNote = userWordSentence.note!;
+          }
+          if (userWordSentence.imagePath != null && _imageLink == '') {
+
+            _imageLink = userWordSentence.imagePath!;
+          }
+          if (_personalNote.length > 3 && showNoteEditor){
+            tasks[3].expandedValue = buildAddNote(3);
+          }
+
+          bool allTasksDone = tasks.every((task) => task.isDone);
+
+          return Container( 
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              children: <Widget> [
+                Padding( 
+                  padding: const EdgeInsets.all(16.0),
+                  child: ElevatedButton( 
+                    onPressed: allTasksDone ? () {
+                      if (userWordSentence.note != '' || userWordSentence.imagePath != '') {
+                        ref.read(makeReviewProvider(widget.reviewParams).notifier).updateExistingReview(
+                          prevReview: userWordSentence, 
+                          note: _personalNote, 
+                          imagePath: _imageLink
+                        );
+                      } else {
+                        ref.read(makeReviewProvider(widget.reviewParams).notifier).createNewReview(
+                          prevReview: userWordSentence, 
+                          note: _personalNote, 
+                          imagePath: _imageLink
+                        );
+                      }
+                    } : null,
+                    style: ButtonStyle( 
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>( 
+                        (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.disabled)) {
+                            return Colors.grey;
+                          }
+                          return Theme.of(context).colorScheme.shadow;
+                        }
+                      )
+                    ),
+                    child: Text( 
+                      userWordSentence.note != null || userWordSentence.imagePath != null ? 'Update!' : 'Create!',
+                      style: const TextStyle( 
+                        fontSize: 16.0,
+                      )
+                    )
+                  )
+                ),
+                Expanded( 
+                  child: timelineBuilder(userWordSentence)
+                ),
+                
+              ]
+            ),
+          );
+        },
+        loading: () => const CircularProgressIndicator(),
+        error: (err, stack) => Text('Error: $err'),
+      )
     );
   }
 
 
-  Widget timelineBuilder() {
+  Widget timelineBuilder(UserWordSentence userWordSentence) {
     return Timeline.tileBuilder( 
       theme: TimelineThemeData( 
         nodePosition: 0,
