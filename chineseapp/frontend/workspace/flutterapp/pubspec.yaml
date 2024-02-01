@@ -30,6 +30,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  stroke_order_animator: ^3.0.0
+  timelines: ^0.1.0
+  story_view: ^0.16.0
+  flutter_staggered_grid_view: ^0.7.0
+  youtube_player_flutter: ^8.1.2
+  animated_text_kit: ^4.2.1
   shared_preferences: ^2.2.2
   flutter_dotenv: ^5.1.0
   youtube_api_client: ^1.1.0
@@ -43,10 +49,16 @@ dependencies:
   json_annotation: ^4.8.1
   path_provider: ^2.1.0
   either_dart: 1.0.0
+  provider: ^6.0.5
+  svg_path_parser: ^1.0.0
+  fluttertoast: ^8.0.8
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+
+dependency_overrides:
+  http: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +89,15 @@ flutter:
     - assets/Error404.gif
     - assets/fire.gif
     - .env
+  
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: fonts/Poppins-Regular.ttf
+        - asset: fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: fonts/Poppins-Bold.ttf
+          weight: 700
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

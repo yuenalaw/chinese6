@@ -60,10 +60,10 @@ class VideoService {
   }
 
   Future<Library> _fetchVideos() async {
-    final library = await ref.read(existingVideosRepositoryProvider).getLibrary();
-    return library;
+    // final library = await ref.read(existingVideosRepositoryProvider).getLibrary();
+    // return library;
 
-    //return Library.fromJson(fakeLibrary);
+    return Library.fromJson(fakeLibrary);
   }
 
   Future<void> _updateVideoTitle({required UpdateTitle titleObj}) async {
@@ -92,10 +92,10 @@ class VideoService {
   }
 
   Future<Either<PleaseWaitVidOrSentence, Video>> _getSpecificVideo({required String videoId}) async {
-    final video = await ref.read(videoRepositoryProvider).getVideo(videoId: videoId);
-    return video;
+    // final video = await ref.read(videoRepositoryProvider).getVideo(videoId: videoId);
+    // return video;
 
-    //return Right(Video.fromJson(fakeVideo));
+    return Right(Video.fromJson(fakeVideo));
   }
 
   Future<UserSentence> _getUpdatedSentence({required String videoId, required int lineChanged}) async {

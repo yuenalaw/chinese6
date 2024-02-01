@@ -16,15 +16,15 @@ class SRSService {
   final Ref ref;
 
   Future<CardsToday> _getCardsToday() async {
-    final cardsToday = await ref.read(srsRepositoryProvider).getCardsToday();
-    return cardsToday;
-    //return CardsToday.fromJson(fakeCardsToday);
+    // final cardsToday = await ref.read(srsRepositoryProvider).getCardsToday();
+    // return cardsToday;
+    return CardsToday.fromJson(fakeCardsToday);
   }
 
   Future<Context> _getContext({required ObtainContext obtainContextObj}) async {
-    final context = await ref.read(srsRepositoryProvider).getContext(videoId: obtainContextObj.videoId, lineChanged: obtainContextObj.lineChanged);
-    return context;
-    //return Context.fromJson(fakeContext);
+    //final context = await ref.read(srsRepositoryProvider).getContext(videoId: obtainContextObj.videoId, lineChanged: obtainContextObj.lineChanged);
+    //return context;
+    return Context.fromJson(fakeContext);
   }
 
   Future<void> _updateReviews({required List<UpdateReview> updateReviews}) async {
