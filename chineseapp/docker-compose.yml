@@ -23,7 +23,7 @@ services:
   db:
     # image: arm64v8/mysql -- for macos
     image: mysql:8.0.20
-    restart: no
+    restart: "no"
     ports:
       - "3306:3306"
     expose:
@@ -41,7 +41,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile.hot
-    restart: no
+    restart: "no"
     ports:
       - "5001:5000"
     expose:
@@ -62,7 +62,7 @@ services:
     build:
       context: worker
       dockerfile: Dockerfile
-    restart: no
+    restart: "no"
     networks:
       - backnet
     command: celery -A src.init_celery worker -l info -E
