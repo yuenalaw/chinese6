@@ -6,6 +6,7 @@ import 'package:flutterapp/src/features/makereviews/application/make_review_cont
 import 'package:flutterapp/src/features/makereviews/domain/review_params.dart';
 import 'package:flutterapp/src/features/makereviews/domain/task.dart';
 import 'package:flutterapp/src/features/makereviews/domain/user_word_sentence.dart';
+import 'package:flutterapp/src/features/makereviews/presentation/image_popup_widget.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/simple_review_card_widget.dart';
 import 'package:timelines/timelines.dart';
 
@@ -30,6 +31,7 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
   String _personalNote = '';
   String _imageLink = '';
   bool showNoteEditor = false;
+  bool showImagePopup = false;
 
   @override 
   void didUpdateWidget(covariant ReviewStepsList oldWidget) {
@@ -49,6 +51,12 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
   Future<void> handleSpeech(word) async {
     await flutterTts.setLanguage("zh-CN");
     await flutterTts.speak(word);
+  }
+
+  void updateImage(String imageLink) {
+    setState(() {
+      _imageLink = imageLink;
+    });
   }
 
   void handleTaskTap(int index) async {
@@ -147,7 +155,10 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
         tasks[index].expandedValue = translationWidget;
         tasks[index].isDone = true;
       } else if (index == 2) {
-        tasks[index].expandedValue = Text('Choose image');
+        setState(() {
+          showImagePopup = true;
+        });
+        
         if (_imageLink != '') {
           tasks[index].isDone = true;
         }
@@ -195,6 +206,48 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
     );
   }
 
+  Widget buildAddImage(String query) {
+    return Builder(
+      builder: (BuildContext context) {
+        return Column( 
+          children: [
+            Padding( 
+              padding: const EdgeInsets.all(8.0),
+              child: Column( 
+                children: [ 
+                  _imageLink != '' ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.network(
+                        _imageLink, 
+                        fit: BoxFit.cover, 
+                        errorBuilder: (
+                          BuildContext context, Object exception, StackTrace? stackTrace) {
+                            return const SizedBox(height:0);
+                        }
+                      )
+                    )) : Container(),
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ImagePopUp(query: query, onImageSelected: updateImage);
+                        },
+                      );
+                    },
+                    child: Icon(Icons.add_a_photo), // replace with your desired widget
+                  ),
+                ]
+              )
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override 
   Widget build(BuildContext context) {
     return Container( 
@@ -209,6 +262,10 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
           }
           if (_personalNote.length > 3 && showNoteEditor){
             tasks[3].expandedValue = buildAddNote(3);
+          }
+
+          if (showImagePopup) {
+            tasks[2].expandedValue = buildAddImage(widget.reviewParams.entry.word);
           }
 
           bool allTasksDone = tasks.every((task) => task.isDone);

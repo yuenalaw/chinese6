@@ -60,10 +60,10 @@ class VideoService {
   }
 
   Future<Library> _fetchVideos() async {
-    final library = await ref.read(existingVideosRepositoryProvider).getLibrary();
-    return library;
+    //final library = await ref.read(existingVideosRepositoryProvider).getLibrary();
+    //return library;
 
-    // return Library.fromJson(fakeLibrary);
+    return Library.fromJson(fakeLibrary);
   }
 
   Future<void> _updateVideoTitle({required UpdateTitle titleObj}) async {
