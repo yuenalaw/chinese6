@@ -38,17 +38,21 @@ class MakeReviewService {
   }
 
   Future<List<SearchResult>> fetchImageSearchResults(String query) async {
-    var url = Uri.parse('https://www.googleapis.com/customsearch/v1');
-    var response = await http.get(url, headers: {
-      'cx': dotenv.env['CX_ID']!, // Replace with your Programmable Search Engine ID
-      'key': dotenv.env['KEY']!, // Replace with your API key
-      'q': query,
-      'searchType': 'image',
-      'num': '3' // Limit the results to the top 3 images
-    });
+    var encodedQuery = Uri.encodeComponent(query);
+    //var url = Uri.parse('https://www.googleapis.com/customsearch/v1');
+    var url = Uri.parse('https://cse.google.com/cse?cx=${dotenv.env['CX_ID']}&q=$encodedQuery&searchType=image&num=3');
+    try {
+      // var response = await http.get(url, headers: {
+      //   'cx': dotenv.env['CX_ID']!, // Replace with your Programmable Search Engine ID
+      //   'key': dotenv.env['KEY']!, // Replace with your API key
+      //   'q': encodedQuery,
+      //   'searchType': 'image',
+      //   'num': '3' // Limit the results to the top 3 images
+      // });
+      var response = await http.get(url);
 
-    if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
+      print('Data: $data');
       var items = data['items'] as List;
       final List<SearchResult> searchResults = [];
 
@@ -58,7 +62,9 @@ class MakeReviewService {
       }
       
       return searchResults;
-    } else {
+    
+    } catch (e) {
+      print('Caught error: $e');
       throw Exception('Failed to load search results (images)');
     }
   }

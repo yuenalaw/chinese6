@@ -218,7 +218,7 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
                   _imageLink != '' ? Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(15.0),
                       child: Image.network(
                         _imageLink, 
                         fit: BoxFit.cover, 
