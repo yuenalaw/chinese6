@@ -2,7 +2,7 @@ class LanguageBackendAPI {
   LanguageBackendAPI();
 
 
-  static const String _apiHost = "138.251.231.17"; 
+  static const String _apiHost = "10.0.2.2"; 
   static const int _apiPort = 5001;
   static const String _apiPath = "/";
   
