@@ -51,9 +51,9 @@ class ExistingVideosRepository {
         Map<String, dynamic> data = json.decode(responsebody);
         return builder(data);
         case 404:
-          throw Exception('Cards not found');
+          throw Exception('Library not found');
         default:
-          throw Exception('Error fetching cards');
+          throw Exception('Error fetching library');
       }
     } on SocketException catch(_) {
         throw NoInternetConnectionException();

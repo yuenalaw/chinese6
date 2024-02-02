@@ -1,16 +1,10 @@
 class LanguageBackendAPI {
   LanguageBackendAPI();
 
-  // CHANGE DEPENDING ON EMULATOR
 
-  // static const String _apiHost = "localhost";
-  static const String _apiHost = "161.35.38.173"; // digital ocean IP address
-  static const int _apiPort = 80;
+  static const String _apiHost = "138.251.231.17"; 
+  static const int _apiPort = 5001;
   static const String _apiPath = "/";
-
-  // static const String _apiHost = "10.0.2.2";
-  // static const int _apiPort = 5000;
-  // static const String _apiPath = "/";
   
   Uri video(String videoId) => _buildUri(
     endpoint: "getlesson/$videoId",
