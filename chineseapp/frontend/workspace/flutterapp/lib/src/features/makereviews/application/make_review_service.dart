@@ -1,16 +1,15 @@
 import 'dart:convert';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutterapp/src/features/makereviews/application/caching_search_engine.dart';
 import 'package:flutterapp/src/features/makereviews/data/review_repository.dart';
+import 'package:flutterapp/src/features/makereviews/domain/cse_results.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_query.dart';
 import 'package:flutterapp/src/features/makereviews/domain/reviewed_userword_sentence.dart';
-import 'package:flutterapp/src/features/makereviews/domain/search_result.dart';
 import 'package:flutterapp/src/features/makereviews/domain/update_image.dart';
 import 'package:flutterapp/src/features/makereviews/domain/update_note.dart';
 import 'package:flutterapp/src/features/makereviews/domain/user_word_sentence.dart';
 import 'package:flutterapp/src/features/makereviews/presentation/fake_data/user_word_sentence_fake.dart';
-import 'package:http/http.dart' as http;
 
 class MakeReviewService {
   MakeReviewService(this.ref);
@@ -35,38 +34,6 @@ class MakeReviewService {
   Future<void> _updateImage({required UpdateImage updateImage}) async {
     await ref.read(reviewRepositoryProvider).updateImage(image: updateImage);
     return;
-  }
-
-  Future<List<SearchResult>> fetchImageSearchResults(String query) async {
-    var encodedQuery = Uri.encodeComponent(query);
-    //var url = Uri.parse('https://www.googleapis.com/customsearch/v1');
-    var url = Uri.parse('https://cse.google.com/cse?cx=${dotenv.env['CX_ID']}&q=$encodedQuery&searchType=image&num=3');
-    try {
-      // var response = await http.get(url, headers: {
-      //   'cx': dotenv.env['CX_ID']!, // Replace with your Programmable Search Engine ID
-      //   'key': dotenv.env['KEY']!, // Replace with your API key
-      //   'q': encodedQuery,
-      //   'searchType': 'image',
-      //   'num': '3' // Limit the results to the top 3 images
-      // });
-      var response = await http.get(url);
-
-      var data = jsonDecode(response.body);
-      print('Data: $data');
-      var items = data['items'] as List;
-      final List<SearchResult> searchResults = [];
-
-      for (var item in items) {
-        print('Image URL: ${item['link']}');
-        searchResults.add(SearchResult(result: item));
-      }
-      
-      return searchResults;
-    
-    } catch (e) {
-      print('Caught error: $e');
-      throw Exception('Failed to load search results (images)');
-    }
   }
 
   Future<ReviewedUserWordSentence> fetchUserWordSentence({required String word, required String videoId, required String lineNum}) async {
