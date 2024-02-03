@@ -44,7 +44,6 @@ class _ImagePopUpState extends State<ImagePopUp> {
 
   @override
   Widget build(BuildContext context) {
-    print('items are $_items');
     return AlertDialog( 
       backgroundColor: Theme.of(context).colorScheme.surface,
       content: SizedBox( 

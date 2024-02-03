@@ -1,9 +1,6 @@
-import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapp/src/features/makereviews/application/caching_search_engine.dart';
 import 'package:flutterapp/src/features/makereviews/data/review_repository.dart';
-import 'package:flutterapp/src/features/makereviews/domain/cse_results.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_query.dart';
 import 'package:flutterapp/src/features/makereviews/domain/reviewed_userword_sentence.dart';
 import 'package:flutterapp/src/features/makereviews/domain/update_image.dart';
