@@ -49,7 +49,7 @@ class _ImagePopUpState extends State<ImagePopUp> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       content: SizedBox( 
         height: 300,
-        child: Row( 
+        child: Column( 
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [ 
             for (var item in _items) 
