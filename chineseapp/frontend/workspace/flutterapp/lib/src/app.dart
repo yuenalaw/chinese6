@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/src/constants/colours.dart';
-import 'package:flutterapp/src/screens/home_screen.dart';
+import 'package:flutterapp/src/screens/main_app.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key:key);
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: const MainApp(),
     );
   }
 }

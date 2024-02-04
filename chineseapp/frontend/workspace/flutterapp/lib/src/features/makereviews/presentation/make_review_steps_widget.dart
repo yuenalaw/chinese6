@@ -33,6 +33,12 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
   bool showNoteEditor = false;
   bool showImagePopup = false;
 
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
   @override 
   void didUpdateWidget(covariant ReviewStepsList oldWidget) {
     super.didUpdateWidget(oldWidget);
