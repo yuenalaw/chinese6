@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/src/constants/colours.dart';
+import 'package:flutterapp/src/screens/home_screen.dart';
 import 'package:flutterapp/src/screens/main_app.dart';
 
 class MyApp extends StatelessWidget {

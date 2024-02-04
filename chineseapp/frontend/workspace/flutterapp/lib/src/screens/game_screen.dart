@@ -7,14 +7,14 @@ import 'package:flutterapp/src/features/spacedrepetition/presentation/image_to_t
 import 'package:flutterapp/src/features/spacedrepetition/presentation/make_sentence_widget.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/text_to_image_widget.dart';
 import 'package:flutterapp/src/features/useroverview/application/streak_controller.dart';
-import 'package:flutterapp/src/screens/game_path_screen.dart';
+import 'package:flutterapp/src/screens/main_app.dart';
 
 class ExerciseScreen extends ConsumerStatefulWidget {
 
   final List<Exercise> exercises;
   final int lesson;
-
-  const ExerciseScreen({Key? key, required this.exercises, required this.lesson}) : super(key: key);
+  final ValueNotifier<bool> showNavBar;
+  const ExerciseScreen({Key? key, required this.exercises, required this.lesson, required this.showNavBar}) : super(key: key);
 
   @override 
   ExerciseScreenState createState() => ExerciseScreenState();
@@ -22,6 +22,8 @@ class ExerciseScreen extends ConsumerStatefulWidget {
 }
 
 class ExerciseScreenState extends ConsumerState<ExerciseScreen> {
+
+
 
   void nextExercise(Exercise exercise, bool isCorrect) {
     
@@ -34,8 +36,10 @@ class ExerciseScreenState extends ConsumerState<ExerciseScreen> {
   }
 
 
+
   @override 
   Widget build(BuildContext context) {
+    widget.showNavBar.value = false;
     final controller = ref.watch(srsReviewUpdateProvider(widget.exercises));
     if (controller.currentExerciseIndex < widget.exercises.length) {
       Exercise currentExercise = widget.exercises[controller.currentExerciseIndex];
@@ -57,9 +61,10 @@ class ExerciseScreenState extends ConsumerState<ExerciseScreen> {
         ref.read(completedLessonProvider.notifier).completedLesson(widget.lesson);
 
         Navigator.pop(context);
+        widget.showNavBar.value = true;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => GamePathScreen()),
+          MaterialPageRoute(builder: (context) => const MainApp()),
           (Route<dynamic> route) => false,
         );
       });

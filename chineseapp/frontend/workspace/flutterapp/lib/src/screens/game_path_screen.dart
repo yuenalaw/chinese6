@@ -5,7 +5,8 @@ import 'package:flutterapp/src/features/spacedrepetition/application/srs_control
 import 'package:flutterapp/src/screens/game_screen.dart';
 
 class GamePathScreen extends ConsumerWidget {
-  const GamePathScreen({Key? key}) : super(key: key);
+  final ValueNotifier<bool> showNavBar = ValueNotifier<bool>(false);
+  GamePathScreen({Key? key, required ValueNotifier<bool> showNavBar}) : super(key: key);
   
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +29,7 @@ class GamePathScreen extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ExerciseScreen(exercises: lessons[index], lesson: index),
+                          builder: (context) => ExerciseScreen(exercises: lessons[index], lesson: index, showNavBar: showNavBar),
                         ),
                       );
                     },

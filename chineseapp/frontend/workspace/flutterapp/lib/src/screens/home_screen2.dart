@@ -27,13 +27,13 @@ class HomeScreen2 extends ConsumerWidget {
               child: Material(
                 elevation: 5.0, // Add shadow
                 borderRadius: BorderRadius.circular(30.0), // Round corners
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => GamePathScreen()),
-                    );
-                  },
+                // child: InkWell(
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => GamePathScreen()),
+                //     );
+                //   },
                   child: Stack(
                     alignment: Alignment.bottomCenter,
                     children: [
@@ -45,7 +45,7 @@ class HomeScreen2 extends ConsumerWidget {
                   ),
                 ),
               ),
-            ),
+            //),
             const Padding(
               padding: EdgeInsets.all(16.0),
               child: AvailableVideos(),
