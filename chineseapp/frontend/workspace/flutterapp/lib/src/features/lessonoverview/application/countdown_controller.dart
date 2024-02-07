@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CountdownController extends StateNotifier<int> {
   CountdownController() : super(30){
-    startCountdown();
+    //startCountdown();
   }
 
   void startCountdown() {

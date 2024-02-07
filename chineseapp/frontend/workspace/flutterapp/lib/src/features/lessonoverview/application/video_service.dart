@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:either_dart/either.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/application/file_service.dart';
 import 'package:flutterapp/src/features/lessonoverview/data/existing_videos_repository.dart';
@@ -9,10 +8,8 @@ import 'package:flutterapp/src/features/lessonoverview/data/video_repository.dar
 import 'package:flutterapp/src/features/lessonoverview/domain/disney_request.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/lesson.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/library.dart';
-import 'package:flutterapp/src/features/lessonoverview/domain/please_wait_vid_or_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_title.dart';
-import 'package:flutterapp/src/features/lessonoverview/domain/user_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/youtube_request.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,24 +43,17 @@ class VideoService {
   Future<void> handleVideo(String videoId) async {
     try {
       var result = await getVideo(videoId: videoId);
-      return result.fold( 
-        (pleaseWait) {
-          return;
-        },
-        (video) async {
-          await addVideoToLibrary(video);
-        }
-      );
+      await addVideoToLibrary(result); 
     } catch (error) {
       return;
     }
   }
 
   Future<Library> _fetchVideos() async {
-    //final library = await ref.read(existingVideosRepositoryProvider).getLibrary();
-    //return library;
+    final library = await ref.read(existingVideosRepositoryProvider).getLibrary();
+    return library;
 
-    return Library.fromJson(fakeLibrary);
+    //Library.fromJson(fakeLibrary);
   }
 
   Future<void> _updateVideoTitle({required UpdateTitle titleObj}) async {
@@ -91,20 +81,20 @@ class VideoService {
     ref.read(videoRepositoryProvider).updateSentence(updateSentenceObj: updatedSentenceObj);
   }
 
-  Future<Either<PleaseWaitVidOrSentence, Video>> _getSpecificVideo({required String videoId}) async {
-    // final video = await ref.read(videoRepositoryProvider).getVideo(videoId: videoId);
-    // return video;
+  Future<Video> _getSpecificVideo({required String videoId}) async {
+    final video = await ref.read(videoRepositoryProvider).getVideo(videoId: videoId);
+    return video;
 
-    return Right(Video.fromJson(fakeVideo));
+    //Right(Video.fromJson(fakeVideo));
   }
 
-  Future<UserSentence> _getUpdatedSentence({required String videoId, required int lineChanged}) async {
-    final updatedSentence = await ref.read(videoRepositoryProvider).getUpdatedSentence(videoId: videoId, lineChanged: lineChanged);
-    return updatedSentence.fold(
-      (l) => Future.value(UserSentence(entries: [], sentence: "Loading...")), 
-      (r) => r.toUserSentence(),
-    );
-  }
+  // Future<UserSentence> _getUpdatedSentence({required String videoId, required int lineChanged}) async {
+  //   final updatedSentence = await ref.read(videoRepositoryProvider).getUpdatedSentence(videoId: videoId, lineChanged: lineChanged);
+  //   return updatedSentence.fold(
+  //     (l) => Future.value(UserSentence(entries: [], sentence: "Loading...")), 
+  //     (r) => r.toUserSentence(),
+  //   );
+  // }
 
   Future<void> removeVideoIdFromLocalStorage(String videoId) async {
     final prefs = await SharedPreferences.getInstance();
@@ -122,9 +112,9 @@ class VideoService {
     await prefs.setStringList('videoIds', videoIds);
   }
 
-  Future<Either<PleaseWaitVidOrSentence, Video>> getVideo({required String videoId}) async {
-    final waitOrVideo = await _getSpecificVideo(videoId: videoId);
-    return waitOrVideo;
+  Future<Video> getVideo({required String videoId}) async {
+    final video = await _getSpecificVideo(videoId: videoId);
+    return video;
   }
 
   Future<Library> getVideos() async {

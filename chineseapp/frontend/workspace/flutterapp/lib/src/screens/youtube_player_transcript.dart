@@ -56,56 +56,49 @@ class _YoutubePlayerTranscriptScreenState
         title: const Text('Transcript'),
       ),
       body: ref.watch(videoOverviewProvider).when(
-            data: (videoEither) {
-              return videoEither.fold(
-                (pleaseWait) {
-                  return Text(pleaseWait.message);
-                },
-                (video) {
-                  lessons = video.lessons;
-                  return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Stack(
-                        children: <Widget>[
-                          Column(
-                            children: <Widget>[
-                              Card(
-                                color: Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                ),
-                                elevation: 5,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: AspectRatio(
-                                    aspectRatio: 16 / 9,
-                                    child: YoutubeWatchWidget(
-                                        videoId: widget.videoId,
-                                        onTimeChanged: onTimeChanged),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              SizedBox(
-                                height: 200,
-                                child: TranscriptPageView(
-                                    videoId: widget.videoId,
-                                    lessons: lessons,
-                                    pageController: _pageController),
-                              ),
-                            ],
+        data: (video) {
+          lessons = video.lessons;
+          return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Stack(
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      Card(
+                        color: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        elevation: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: YoutubeWatchWidget(
+                                videoId: widget.videoId,
+                                onTimeChanged: onTimeChanged),
                           ),
-                          Expanded(
-                            child: LessonOverviewScreen(video: video),
-                          )
-                        ],
-                      ));
-                },
-              );
-            },
-            loading: () => const CircularProgressIndicator(),
-            error: (err, stack) => Text('Error: $err'),
-          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 200,
+                        child: TranscriptPageView(
+                            videoId: widget.videoId,
+                            lessons: lessons,
+                            pageController: _pageController),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: LessonOverviewScreen(video: video),
+                  )
+                ],
+              ));
+        },
+        loading: () => const CircularProgressIndicator(),
+        error: (err, stack) => Text('Error: $err'),
+      ),
     );
   }
 }

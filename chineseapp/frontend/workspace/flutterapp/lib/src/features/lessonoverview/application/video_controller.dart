@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:either_dart/either.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/application/video_service.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/disney_request.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/library.dart';
-import 'package:flutterapp/src/features/lessonoverview/domain/please_wait_vid_or_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_title.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
@@ -35,7 +33,7 @@ class AllReadyVideosController extends StateNotifier<AsyncValue<Library>> {
   }
 }
 
-class VideoOverviewController extends StateNotifier<AsyncValue<Either<PleaseWaitVidOrSentence,Video>>> with WidgetsBindingObserver {
+class VideoOverviewController extends StateNotifier<AsyncValue<Video>> {
 
   VideoOverviewController({ required this.videoService }) 
     : super(const AsyncValue.loading());
@@ -44,7 +42,9 @@ class VideoOverviewController extends StateNotifier<AsyncValue<Either<PleaseWait
 
   Future<void> getVideoDetails(String videoId) async {
     state = const AsyncLoading();
-    videoService.getVideo(videoId: videoId).then((value) => state = AsyncValue.data(value));
+    state = await AsyncValue.guard( 
+      () => videoService.getVideo(videoId: videoId)
+    );
   }
 
 }
@@ -103,7 +103,7 @@ final allReadyVideosProvider =
   });
 
 final videoOverviewProvider = 
-  StateNotifierProvider<VideoOverviewController, AsyncValue<Either<PleaseWaitVidOrSentence, Video>>>((ref) {
+  StateNotifierProvider<VideoOverviewController, AsyncValue<Video>>((ref) {
     return VideoOverviewController(
       videoService: ref.watch(videoServiceProvider));
   });

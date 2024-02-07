@@ -58,7 +58,7 @@ class LessonOverviewScreenState extends State<LessonOverviewScreen > {
                               width: MediaQuery.of(context).size.width * 0.5,
                               child: Align( 
                                 alignment: Alignment.centerLeft,
-                                child: GradientText(
+                                child:  GradientText(
                                   text: widget.video.title, 
                                   gradient: LinearGradient(colors: [Colors.lightBlue.shade300, Colors.lightBlue.shade600]),                                ),
                               )

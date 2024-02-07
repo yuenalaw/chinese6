@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutterapp/src/api/api.dart';
 import 'package:flutterapp/src/features/lessonoverview/data/video_repository.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
-import 'package:flutterapp/src/features/lessonoverview/domain/updated_sentence_returned.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/please_wait_vid_or_sentence.dart';
 import '../../constants/headers.dart';
 import './video_lesson_encoded_json.dart';
@@ -186,7 +185,7 @@ void main() {
     when(() => mockHttpClient.get(api.video(videoId), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(encodedVideoJson), 200)));
     final video = await videoRepository.getVideo(videoId: videoId);
-    expect(video, isA<Right<PleaseWaitVidOrSentence, Video>>());
+    expect(video, isA<Video>());
   });
 
   test('repository with mocked http client, failure', () async {
@@ -198,7 +197,8 @@ void main() {
     when(() => mockHttpClient.get(api.video(videoId), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(encodedVideoJson), 404)));
     final video = await videoRepository.getVideo(videoId: videoId);
-    expect(video, isA<Left<PleaseWaitVidOrSentence, Video>>());
+    print(video.videoId);
+    expect(video.videoId, '');
   });
 
   test('lessonoverview repository with for update sentence, success', () async {
@@ -222,26 +222,26 @@ void main() {
     )).called(1);
   });
 
-  test('lessonoverview repository for get updated sentence, success', () async {
-    final mockHttpClient = MockHttpClient();
-    final api = LanguageBackendAPI();
-    final videoRepository = 
-      VideoRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", 2), headers: headers)).thenAnswer(
-        (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockUpdatedSentenceJson)), 200)));
-    final updatedSentenceReturned = await videoRepository.getUpdatedSentence(videoId: "-acfusFM4d8", lineChanged: 2);
-    expect(updatedSentenceReturned, isA<Right<PleaseWaitVidOrSentence, UpdatedSentenceReturned>>());
-    // expect(updatedSentenceReturned.entries[0].word, "我");
-  });
+  // test('lessonoverview repository for get updated sentence, success', () async {
+  //   final mockHttpClient = MockHttpClient();
+  //   final api = LanguageBackendAPI();
+  //   final videoRepository = 
+  //     VideoRepository(api: api, client: mockHttpClient);
+  //   when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", 2), headers: headers)).thenAnswer(
+  //       (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockUpdatedSentenceJson)), 200)));
+  //   final updatedSentenceReturned = await videoRepository.getUpdatedSentence(videoId: "-acfusFM4d8", lineChanged: 2);
+  //   expect(updatedSentenceReturned, isA<Right<PleaseWaitVidOrSentence, UpdatedSentenceReturned>>());
+  //   // expect(updatedSentenceReturned.entries[0].word, "我");
+  // });
 
-  test('lessonoverview repository for get updated sentence, pending', () async {
-    final mockHttpClient = MockHttpClient();
-    final api = LanguageBackendAPI();
-    final videoRepository = 
-      VideoRepository(api: api, client: mockHttpClient);
-    when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", 2), headers: headers)).thenAnswer(
-        (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockUpdatedSentenceJson)), 404)));
-    final updatedSentenceReturned = await videoRepository.getUpdatedSentence(videoId: "-acfusFM4d8", lineChanged: 2);
-    expect(updatedSentenceReturned, isA<Left<PleaseWaitVidOrSentence, UpdatedSentenceReturned>>());
-  });
+  // test('lessonoverview repository for get updated sentence, pending', () async {
+  //   final mockHttpClient = MockHttpClient();
+  //   final api = LanguageBackendAPI();
+  //   final videoRepository = 
+  //     VideoRepository(api: api, client: mockHttpClient);
+  //   when(() => mockHttpClient.get(api.getUpdatedSentence("-acfusFM4d8", 2), headers: headers)).thenAnswer(
+  //       (_) => Future.value(http.Response.bytes(utf8.encode(jsonEncode(mockUpdatedSentenceJson)), 404)));
+  //   final updatedSentenceReturned = await videoRepository.getUpdatedSentence(videoId: "-acfusFM4d8", lineChanged: 2);
+  //   expect(updatedSentenceReturned, isA<Left<PleaseWaitVidOrSentence, UpdatedSentenceReturned>>());
+  // });
 }

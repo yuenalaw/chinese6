@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutterapp/src/api/api.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/data/api_exception.dart';
+import 'package:flutterapp/src/features/makereviews/domain/reviewed_userword_sentence.dart';
 import 'package:flutterapp/src/features/makereviews/domain/user_word_sentence.dart';
 import 'package:flutterapp/src/features/makereviews/domain/word.dart';
 import 'package:http/http.dart' as http;
@@ -22,7 +23,7 @@ class ReviewRepository {
     uri: api.userWordSentence(word, videoId, lineChanged),
     builder: (data) => UserWordSentence.fromJson(data),
   );
-
+  
   Future<Word> getWord({required String word}) => _getData(
     uri: api.word(word),
     builder: (data) => Word.fromJson(data),
@@ -104,7 +105,7 @@ class ReviewRepository {
           'Accept-Encoding': 'gzip, deflate, br',
         },
         body: body,
-      ).timeout(const Duration(seconds: 10));
+      );
       switch (response.statusCode) {
         case 200:
           String responseBody = utf8.decode(response.bodyBytes);

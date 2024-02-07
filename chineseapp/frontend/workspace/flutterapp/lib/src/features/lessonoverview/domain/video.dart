@@ -65,12 +65,27 @@ class Video {
       required this.keywordsImg,
     });
 
-    factory Video.fromJson(Map<String, dynamic> json) {
+    factory Video.fromJson(Map<String, dynamic>? json) {
+      if (json == null) {
+        return Video(
+          videoId: '',
+          lessons: [],
+          source: '',
+          title: '',
+          channel: '',
+          thumbnail: '',
+          keywordsImg: [],
+        );
+      }
       var lessonObjsJson = json['video']['lessons'] as List;
       List<Lesson> lessons = lessonObjsJson.map((lessonJson) => Lesson.fromJson(lessonJson)).toList();
 
       var keywordImgObjsJson = json['video']['keywords_img'] as List;
-      List<KeywordImg> keywordsImg = keywordImgObjsJson.map((keywordImgJson) => KeywordImg.fromJson(keywordImgJson)).toList();
+      List<KeywordImg> keywordsImg = keywordImgObjsJson
+        .where((keywordImgJson) => keywordImgJson['img'] != null && keywordImgJson['img'] != '')
+        .map((keywordImgJson) => KeywordImg.fromJson(keywordImgJson))
+        .toList();
+
 
       String source = json['video']['source'];
       String title = json['video']['title'];

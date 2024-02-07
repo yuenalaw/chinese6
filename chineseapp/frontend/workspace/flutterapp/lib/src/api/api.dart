@@ -17,7 +17,7 @@ class LanguageBackendAPI {
   );
 
   Uri userWordSentence(String word, String videoId, String lineChanged) => _buildUri(
-    endpoint: "getusersentence/$word/$videoId/$lineChanged",
+    endpoint: "getwordsentence/$word/$videoId/$lineChanged",
     parametersBuilder: () => {},
   );
 

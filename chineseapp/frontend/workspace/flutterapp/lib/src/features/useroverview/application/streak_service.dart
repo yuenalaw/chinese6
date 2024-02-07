@@ -9,9 +9,9 @@ class StreakService {
   final Ref ref;
 
   Future<Streak> _fetchStreak() async {
-    //final streak = await ref.read(userOverviewRepositoryProvider).getStreak();
-    //return streak;
-    return Streak.fromJson(fakeStreak);
+    final streak = await ref.read(userOverviewRepositoryProvider).getStreak();
+    return streak;
+    //return Streak.fromJson(fakeStreak);
   }
 
   Future<Streak> getStreak() async {

@@ -266,7 +266,7 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
 
             _imageLink = userWordSentence.imagePath!;
           }
-          if (_personalNote.length > 3 && showNoteEditor){
+          if (showNoteEditor){
             tasks[3].expandedValue = buildAddNote(3);
           }
 
@@ -284,7 +284,7 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
                   padding: const EdgeInsets.all(16.0),
                   child: ElevatedButton( 
                     onPressed: allTasksDone ? () {
-                      if (userWordSentence.note != '' || userWordSentence.imagePath != '') {
+                      if (userWordSentence.note != null && userWordSentence.imagePath != null) {
                         ref.read(makeReviewProvider(widget.reviewParams).notifier).updateExistingReview(
                           prevReview: userWordSentence, 
                           note: _personalNote, 

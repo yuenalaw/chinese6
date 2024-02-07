@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/pressable_sentence_card_widget.dart';
+import 'package:flutterapp/src/features/makereviews/application/make_review_controller.dart';
 import 'package:flutterapp/src/features/makereviews/domain/review_params.dart';
 import 'package:flutterapp/src/features/makereviews/presentation/looping_stroke_order_animator_widget.dart';
 import 'package:flutterapp/src/features/makereviews/presentation/make_review_steps_widget.dart';
@@ -65,7 +66,10 @@ class MakeReviewScreen extends ConsumerWidget {
                     )
                   );
 
-                  final paddedTimeline = Padding( 
+                  
+
+                  final paddedTimeline =
+                  Padding( 
                       padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 32.0),
                       child: ReviewStepsList(reviewParams: reviewParams) 
                     );
@@ -132,7 +136,9 @@ class MakeReviewScreen extends ConsumerWidget {
                     );
                 } else {
                   // Return an empty Container or another widget if selectedEntry is null
-                  return Container();
+                  return const Center( 
+                    child: Text('Select a word to review!'),
+                  );
                 }
               },
             ),
