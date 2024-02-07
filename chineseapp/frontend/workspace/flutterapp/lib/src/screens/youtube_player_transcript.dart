@@ -64,25 +64,16 @@ class _YoutubePlayerTranscriptScreenState
                 children: <Widget>[
                   Column(
                     children: <Widget>[
-                      Card(
-                        color: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        elevation: 5,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: AspectRatio(
-                            aspectRatio: 16 / 9,
-                            child: YoutubeWatchWidget(
-                                videoId: widget.videoId,
-                                onTimeChanged: onTimeChanged),
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: YoutubeWatchWidget(
+                              videoId: widget.videoId,
+                              onTimeChanged: onTimeChanged),
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 200,
+                      Expanded(
                         child: TranscriptPageView(
                             videoId: widget.videoId,
                             lessons: lessons,

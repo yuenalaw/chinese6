@@ -256,9 +256,11 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
 
   @override 
   Widget build(BuildContext context) {
+
     return Container( 
-      child: ref.watch(makeReviewProvider(widget.reviewParams)).when( 
+      child: ref.watch(makeReviewProvider(widget.reviewParams)).when(
         data: (userWordSentence) {
+
           if (userWordSentence.note != null && _personalNote == '') {
             _personalNote = userWordSentence.note!;
           }
@@ -266,6 +268,8 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
 
             _imageLink = userWordSentence.imagePath!;
           }
+          
+          
           if (showNoteEditor){
             tasks[3].expandedValue = buildAddNote(3);
           }
@@ -317,11 +321,13 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
                   )
                 ),
                 Expanded( 
+                  
                   child: timelineBuilder(userWordSentence)
                 ),
                 
               ]
             ),
+
           );
         },
         loading: () => const CircularProgressIndicator(),

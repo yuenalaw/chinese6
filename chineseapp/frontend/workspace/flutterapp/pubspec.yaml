@@ -31,6 +31,8 @@ dependencies:
   flutter:
     sdk: flutter
   stroke_order_animator: ^3.0.0
+  gtext: ^0.0.3
+  lpinyin: ^2.0.2
   anim_search_bar: ^2.0.3 
   googleapis: ^12.0.0
   timelines: ^0.1.0

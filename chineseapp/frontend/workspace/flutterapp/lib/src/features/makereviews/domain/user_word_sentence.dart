@@ -37,7 +37,15 @@ class UserWordSentence {
 
   factory UserWordSentence.fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return UserWordSentence();
+      return UserWordSentence(
+        id: null,
+        imagePath: null,
+        lineChanged: null,
+        note: null,
+        sentence: null,
+        videoId: null,
+        wordId: null,
+      );
     } else {
       return UserWordSentence(
         id: json['word_sentence']['user_word_sentence']['id'],

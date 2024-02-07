@@ -9,6 +9,7 @@ import 'package:flutterapp/src/features/makereviews/presentation/make_review_ste
 
 final selectedEntryProvider = StateProvider<Entry?>((ref) => null);
 
+
 class MakeReviewScreen extends ConsumerWidget {
   final String videoId;
   final int lineNum;
@@ -18,7 +19,6 @@ class MakeReviewScreen extends ConsumerWidget {
 
 
   const MakeReviewScreen({Key? key, required this.videoId, required this.lineNum, required this.sentence, required this.entries, required this.start}) : super(key: key);
-
   
   @override 
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,7 +52,7 @@ class MakeReviewScreen extends ConsumerWidget {
 
                   final strokeCharacter = RawScrollbar( 
                     thumbColor: Theme.of(context).colorScheme.primary,
-                    radius: Radius.circular(8.0),
+                    radius: const Radius.circular(8.0),
                     thickness: 5,
                     child: ListView.builder( 
                       scrollDirection: Axis.horizontal,
@@ -66,7 +66,7 @@ class MakeReviewScreen extends ConsumerWidget {
                     )
                   );
 
-                  
+                  ref.read(makeReviewControllerProvider(reviewParams)).obtainUserWordSentence();
 
                   final paddedTimeline =
                   Padding( 
@@ -76,64 +76,64 @@ class MakeReviewScreen extends ConsumerWidget {
                   
                   return Container( 
                     height: MediaQuery.of(context).size.height,
-                    child: FractionallySizedBox( 
-                      heightFactor: 0.8,
-                      child: Stack( 
-                          children: <Widget>[ 
-                            strokeCharacter,
-                            DraggableScrollableSheet(
-                              controller: draggableScrollableController,
-                              initialChildSize: 0.4,
-                              minChildSize: 0.4,
-                              maxChildSize: 1,
-                              builder: (BuildContext context, ScrollController scrollController) {
-                                return Stack( 
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration( 
-                                        color: Theme.of(context).colorScheme.background,
-                                        border: Border.all(color: Colors.white, width: 3.0),
-                                        borderRadius: const BorderRadius.only( 
-                                          topLeft: Radius.circular(24.0),
-                                          topRight: Radius.circular(24.0),
+                    child: Stack( 
+                      children: <Widget>[ 
+                        strokeCharacter,
+                        DraggableScrollableSheet(
+                          controller: draggableScrollableController,
+                          initialChildSize: 0.6,
+                          minChildSize: 0.3,
+                          maxChildSize: 1,
+                          builder: (BuildContext context, ScrollController scrollController) {
+                            return Stack( 
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration( 
+                                    color: Theme.of(context).colorScheme.background,
+                                    border: Border.all(color: Colors.white, width: 3.0),
+                                    borderRadius: const BorderRadius.only( 
+                                      topLeft: Radius.circular(24.0),
+                                      topRight: Radius.circular(24.0),
+                                    ),
+                                  ),
+                                  child: ListView( 
+                                    controller: scrollController,
+                                    children: [ 
+                                      paddedTimeline,
+                                      const SizedBox(height: 350),
+                                    ]
+                                  )
+                                ),
+                                Positioned( 
+                                  right: 16.0, 
+                                  top: 16.0,
+                                  child: Stack( 
+                                    alignment: Alignment.center, 
+                                    children: <Widget>[ 
+                                      Container( 
+                                        width: 36.0,
+                                        height: 36.0,
+                                        decoration: BoxDecoration( 
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          shape: BoxShape.circle,
                                         ),
                                       ),
-                                      child: SingleChildScrollView( 
-                                        controller: scrollController,
-                                        child: paddedTimeline,
+                                      IconButton( 
+                                        icon: Icon(Icons.close, color: Colors.white),
+                                        onPressed: () {
+                                          draggableScrollableController.reset();
+                                        }
                                       )
-                                    ),
-                                    Positioned( 
-                                      right: 16.0, 
-                                      top: 16.0,
-                                      child: Stack( 
-                                        alignment: Alignment.center, 
-                                        children: <Widget>[ 
-                                          Container( 
-                                            width: 36.0,
-                                            height: 36.0,
-                                            decoration: BoxDecoration( 
-                                              color: Theme.of(context).colorScheme.onSurface,
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                          IconButton( 
-                                            icon: Icon(Icons.close, color: Colors.white),
-                                            onPressed: () {
-                                              draggableScrollableController.reset();
-                                            }
-                                          )
-                                        ]
-                                      )
-                                    )
-                                  ],
-                                );
-                              }
-                            ),
-                          ]
-                        )
-                      ),
-                    );
+                                    ]
+                                  )
+                                )
+                              ],
+                            );
+                          }
+                        ),
+                      ]
+                    )
+                  );
                 } else {
                   // Return an empty Container or another widget if selectedEntry is null
                   return const Center( 

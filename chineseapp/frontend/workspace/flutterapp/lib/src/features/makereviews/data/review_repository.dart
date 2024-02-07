@@ -77,6 +77,9 @@ class ReviewRepository {
         case 200:
         String responsebody = utf8.decode(response.bodyBytes);
         Map<String, dynamic> data = json.decode(responsebody);
+        if (data['word_sentence'] == null) {
+          return builder(null);
+        }
         return builder(data);
         case 404:
           // means not reviewed before

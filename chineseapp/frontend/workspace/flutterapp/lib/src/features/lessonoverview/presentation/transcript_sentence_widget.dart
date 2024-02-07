@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutterapp/src/constants/colours.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
+import 'package:lpinyin/lpinyin.dart';
+import 'package:gtext/gtext.dart';
 
 FlutterTts flutterTts = FlutterTts();
 
@@ -42,14 +44,35 @@ class TranscriptSentenceWidget extends StatelessWidget {
                   color: indexLineNum % 2 == 0 ? Colors.black : Theme.of(context).colorScheme.primary,
                 ),
                 child: Text(
-                  "$indexLineNum/$totalLines",
+                  "${indexLineNum + 1}/$totalLines",
                 ),
               ),
-              const SizedBox(height: 10.0),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Flexible(
+                        child: Text(
+                          PinyinHelper.getPinyin(sentence, separator: " ", format: PinyinFormat.WITH_TONE_MARK),
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                            color: indexLineNum % 2 == 0 ? Colors.black : Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               Wrap( 
                 spacing: 4.0,
                 runSpacing: 4.0,
-                children: entries.map((entry) => Container( 
+                children: entries.map((entry) { 
+                  return Container( 
                   padding: const EdgeInsets.all(4.0),
                   decoration: BoxDecoration( 
                     color: wordUposMap.containsKey(entry.upos) ? wordUposMap[entry.upos] : wordUposMap['default'],
@@ -65,7 +88,27 @@ class TranscriptSentenceWidget extends StatelessWidget {
                     entry.word,
                     ),
                   )
-                )).toList(),
+                  );
+                }).toList(),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Flexible(
+                        child: GText(sentence, toLang: 'en',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: indexLineNum % 2 == 0 ? Colors.black : Colors.white,
+                        ),),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 10.0),
               Row( 

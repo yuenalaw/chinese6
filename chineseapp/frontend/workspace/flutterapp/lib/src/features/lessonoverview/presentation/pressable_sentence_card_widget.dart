@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutterapp/src/constants/colours.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/entry.dart';
+import 'package:gtext/gtext.dart';
+import 'package:lpinyin/lpinyin.dart';
 
 FlutterTts flutterTts = FlutterTts();
 
@@ -69,17 +71,27 @@ class PressableSentenceWidget extends StatelessWidget {
                 child: Column( 
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[ 
-                    DefaultTextStyle( 
-                      style: TextStyle( 
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w800,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                      child: Text(
-                        "$indexLineNum: $totalLines",
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Flexible(
+                              child: Text(
+                                PinyinHelper.getPinyin(sentence, separator: " ", format: PinyinFormat.WITH_TONE_MARK),
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 5.0),
                     Wrap( 
                       spacing: 4.0,
                       runSpacing: 4.0,
@@ -106,7 +118,25 @@ class PressableSentenceWidget extends StatelessWidget {
                         ),
                       )).toList(),
                       ),
-                    const SizedBox(height: 5.0),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Flexible(
+                              child: GText(sentence, toLang: 'en',
+                              style: const TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     Row( 
                       children: <Widget>[ 
                         Icon(
