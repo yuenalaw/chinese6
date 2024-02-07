@@ -118,7 +118,7 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
                           color: Colors.black
                         )
                       ), 
-                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
                   )).toList(),
                 ),

@@ -45,7 +45,7 @@ class _ImagePopUpState extends State<ImagePopUp> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog( 
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       content: SizedBox( 
         height: 300,
         child: Column( 
