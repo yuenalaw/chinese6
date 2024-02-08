@@ -17,8 +17,10 @@ class Word {
     return Word(
       id: json['id'],
       pinyin: json['pinyin'],
-      similarSounds: json['similarsounds'] != null ? List<String>.from(json['similarsounds']) : [],
-      translations: json['translation'] != null ? List<String>.from(json['translation']) : [],
+      similarSounds: json['similar_words'] != null ? List<String>.from(json['similar_words']) : [],
+      translations: json['translation'] != null 
+      ? (json['translation'] as List).expand((i) => (i as List).cast<String>()).toList() 
+      : [],
       word: json['word'],
     );
   }

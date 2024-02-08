@@ -9,19 +9,27 @@ class StreakWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final streakAsyncValue = ref.watch(streakControllerProvider);
     return streakAsyncValue.when(
-      data: (streak) => Padding(
-        padding: const EdgeInsets.all(1.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+      data: (streak) => Stack(
+          alignment: Alignment.center,
           children: <Widget>[
-            Image.asset('assets/fire.gif', height: 80, width: 80), // Replace this with your fire emoji/icon
-            Text(
-              '${streak.current}',
-              style: const TextStyle(fontSize:80.0, fontWeight: FontWeight.bold),
-            ),
+            Image.asset('assets/fire.gif', height: 150, width: 150),
+            Positioned( 
+              top: 10.0,
+              right: 20.0,
+              child: Container( 
+                padding: const EdgeInsets.all(12.0),
+                decoration: BoxDecoration( 
+                  color: Theme.of(context).colorScheme.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                    '${streak.current}',
+                    style: const TextStyle(fontSize:30.0, fontWeight: FontWeight.bold, color: Colors.white70),
+                  )
+              ),
+            )
           ],
         ),
-      ),
       loading: () => const CircularProgressIndicator(),
       error: (err, stack) => Text('Error: $err'),
     );

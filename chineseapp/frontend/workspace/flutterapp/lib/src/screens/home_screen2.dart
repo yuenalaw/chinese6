@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/available_videos_widget.dart';
 import 'package:flutterapp/src/features/useroverview/presentation/streak_widget.dart';
 import 'package:flutterapp/src/features/youtubeintegration/presentation/search_bar.dart';
-import 'package:flutterapp/src/screens/game_path_screen.dart';
+import 'package:flutterapp/src/features/spacedrepetition/presentation/lesson_games.dart';
 
 class HomeScreen2 extends ConsumerWidget {
   const HomeScreen2({Key? key}) : super(key: key);

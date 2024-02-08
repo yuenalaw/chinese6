@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapp/src/features/lessonoverview/presentation/libraries_display.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:anim_search_bar/anim_search_bar.dart';
+import 'package:flutterapp/src/features/spacedrepetition/presentation/lesson_games.dart';
+import 'package:flutterapp/src/features/useroverview/presentation/progress_widget.dart';
+import 'package:flutterapp/src/features/useroverview/presentation/streak_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,18 +12,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-  late final TextEditingController _searchController;
+  int totalLessons = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _searchController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void lessonCountToday(int count) {
+    if (count > totalLessons) {
+      setState(() {
+        totalLessons = count;
+      });
+    }
   }
 
   @override
@@ -32,53 +27,34 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
-        actions: <Widget>[ 
-          Consumer(builder: (context, watch, child) {
-            return Padding( 
-              padding: const EdgeInsets.only(right: 8.0),
-              child: AnimSearchBar(
-                width: 350, 
-                textController: _searchController, 
-                onSuffixTap: () {
-                  setState(() {
-                    _searchController.clear();
-                  });
-                }, 
-                rtl: true,
-                helpText: "Search for a new video",
-                onSubmitted: (value) {
-                  print("value is $value");
-                  return;
-                },
-              )
-            );
-          })
-        ]
       ),
-      body: Column(
+      body: ListView(
         children: <Widget>[
-          Expanded(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 0.0),
-                child: AnimatedTextKit( 
-                  animatedTexts: [ 
-                    TyperAnimatedText("What shall we study today?",
-                    textStyle: const TextStyle( 
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                    ))
-                  ],
-                ),
-              ),
-            ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: Stack( 
+              alignment: Alignment.center,
+              children: <Widget>[ 
+                StreakWidget(),
+                ProgressWidget(totalLessons: totalLessons),
+              ]
+            )
           ),
-          const Expanded(
-            flex: 2,
-            child: Padding( 
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: LibraryDisplay(),
+          Padding( 
+            padding: const EdgeInsets.only(left: 32),
+            child: AnimatedDefaultTextStyle(
+            style: TextStyle(
+              fontSize: 50,
+              fontWeight: FontWeight.w800,
+              color: Theme.of(context).colorScheme.primary,
             ),
+            duration: const Duration(milliseconds: 300),
+            child: const Text('Let\'s work it!'), 
+            )
+          ),
+          Padding( 
+            padding: EdgeInsets.all(8.0),
+            child: LessonGames(onLoadLessons: lessonCountToday),
           ),
         ],
       ),

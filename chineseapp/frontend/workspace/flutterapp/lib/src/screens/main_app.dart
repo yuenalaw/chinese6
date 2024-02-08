@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/src/screens/home_screen.dart';
-import 'package:flutterapp/src/screens/home_screen2.dart';
+import 'package:flutterapp/src/screens/videos_screen.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -56,7 +56,7 @@ class _MainAppState extends State<MainApp> {
         body: Stack(
           children: <Widget>[ 
           _buildOffstageNavigator(0, HomeScreen()),
-          _buildOffstageNavigator(1,HomeScreen2()),
+          _buildOffstageNavigator(1,VideoScreen()),
           ],
         ),
       )
@@ -68,7 +68,7 @@ class _MainAppState extends State<MainApp> {
       '/': (context) {
         return [
           HomeScreen(),
-          HomeScreen2(),
+          VideoScreen(),
         ].elementAt(index);
       },
     };

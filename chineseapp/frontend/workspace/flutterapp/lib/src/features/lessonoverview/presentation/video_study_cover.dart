@@ -20,7 +20,6 @@ class VideoStudyCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector( 
       onTap: () async {
-        //Navigator.push(context, MaterialPageRoute(builder: (context) => LessonOverviewScreen(videoId: videoId)));
         Navigator.push(context, MaterialPageRoute(builder: (context) => YoutubePlayerTranscriptScreen(videoId: videoId)));
       },
       child: Card(
