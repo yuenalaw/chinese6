@@ -26,7 +26,7 @@ class YouTubeService {
             vidId: vidId,
             title: result.snippet!.title,
             channel: result.snippet!.channelTitle,
-            thumbnail: result.snippet!.thumbnails![ThumbnailResolution.default_]?.url,
+            thumbnail: result.snippet!.thumbnails![ThumbnailResolution.high]?.url,
           );
         }
       }
