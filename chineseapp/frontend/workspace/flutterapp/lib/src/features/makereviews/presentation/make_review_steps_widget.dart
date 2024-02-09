@@ -93,7 +93,7 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
                   child: Padding( 
                     padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                     child: Text( 
-                      'Listen to the pronunciation of simila sounds',
+                      'Listen to the pronunciation of similar sounds',
                       style: TextStyle( 
                         fontSize: 14,
                         fontStyle: FontStyle.italic,

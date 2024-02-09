@@ -68,9 +68,13 @@ class _YoutubePlayerTranscriptScreenState
                         padding: const EdgeInsets.all(8.0),
                         child: AspectRatio(
                           aspectRatio: 16 / 9,
-                          child: YoutubeWatchWidget(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15), // adjust the value as needed
+                            child: YoutubeWatchWidget(
                               videoId: widget.videoId,
-                              onTimeChanged: onTimeChanged),
+                              onTimeChanged: onTimeChanged
+                            ),
+                          ),
                         ),
                       ),
                       Expanded(

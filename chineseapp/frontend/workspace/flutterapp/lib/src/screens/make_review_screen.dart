@@ -81,8 +81,8 @@ class MakeReviewScreen extends ConsumerWidget {
                         strokeCharacter,
                         DraggableScrollableSheet(
                           controller: draggableScrollableController,
-                          initialChildSize: 0.6,
-                          minChildSize: 0.3,
+                          initialChildSize: 0.55,
+                          minChildSize: 0.55,
                           maxChildSize: 1,
                           builder: (BuildContext context, ScrollController scrollController) {
                             return Stack( 

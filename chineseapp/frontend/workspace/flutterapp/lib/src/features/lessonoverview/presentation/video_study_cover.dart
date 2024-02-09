@@ -18,7 +18,7 @@ class VideoStudyCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return GestureDetector( 
+    return GestureDetector(
       onTap: () async {
         Navigator.push(context, MaterialPageRoute(builder: (context) => YoutubePlayerTranscriptScreen(videoId: videoId)));
       },
@@ -28,21 +28,24 @@ class VideoStudyCard extends ConsumerWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: <Widget>[
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(15),
-                topRight: Radius.circular(15),
+                bottomLeft: Radius.circular(15),
               ),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                  return Image.asset('assets/quakkityintro.gif', fit: BoxFit.cover);
-                },
-              ),
+              child: Container(
+                width: 100, 
+                height: 100, 
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                    return Image.asset('assets/quakkityintro.gif', fit: BoxFit.cover);
+                  },
+                ),
+              )
             ),
             Expanded(
               child: Padding(
@@ -53,6 +56,8 @@ class VideoStudyCard extends ConsumerWidget {
                   children: <Widget>[
                     Text(
                       title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
