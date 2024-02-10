@@ -91,8 +91,8 @@ class _YoutubePlayerTranscriptScreenState
                 ],
               ));
         },
-        loading: () => const CircularProgressIndicator(),
-        error: (err, stack) => Text('Error: $err'),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );
   }

@@ -12,7 +12,7 @@ import 'package:flutterapp/src/features/lessonoverview/domain/youtube_request.da
 class AllReadyVideosController extends StateNotifier<AsyncValue<Library>> {
   AllReadyVideosController({ required this.videoService }) : super(const AsyncValue.loading()) {
     getAllReadyVideosFromLibrary();
-    startPeriodicCheck();
+    //startPeriodicCheck();
   }
 
   final VideoService videoService;
@@ -70,9 +70,9 @@ class VideoController extends StateNotifier<AsyncValue<void>> {
     );
   }
 
-  Future<void> requestNewYouTubeVid({required String videoId, String forced="False"}) async {
+  Future<void> requestNewYouTubeVid({required String videoId, required String title, required String channel, required String thumbnail, String forced="False"}) async {
     state = const AsyncLoading();
-    final ytRequest = YouTubeRequest(videoId: videoId, source: "YouTube", forced: forced);
+    final ytRequest = YouTubeRequest(videoId: videoId, source: "YouTube", forced: forced, title: title, channel: channel, thumbnail: thumbnail);
     state = await AsyncValue.guard(
       () => videoService.addToPreparedVideosYT(ytRequest: ytRequest),
     );

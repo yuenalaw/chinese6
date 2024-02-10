@@ -4,7 +4,7 @@ import 'package:flutterapp/src/constants/colours.dart';
 import 'package:flutterapp/src/features/youtubeintegration/application/youtube_controller.dart';
 import 'package:flutterapp/src/features/youtubeintegration/domain/queried_video.dart';
 
-class ShowVideoWidget extends ConsumerStatefulWidget{
+class ShowVideoWidget extends ConsumerStatefulWidget {
   final QueriedVideo video;
 
   const ShowVideoWidget({
@@ -12,24 +12,20 @@ class ShowVideoWidget extends ConsumerStatefulWidget{
     required this.video,
   }) : super(key: key);
 
-  @override 
+  @override
   ShowVideoWidgetState createState() => ShowVideoWidgetState();
 }
 
 class ShowVideoWidgetState extends ConsumerState<ShowVideoWidget> {
   bool isVisible = true;
 
-
   @override
   Widget build(BuildContext context) {
-
     final yt = ref.read(youtubeControllerProvider.notifier);
 
-    return Visibility( 
+    return Visibility(
       visible: isVisible,
       maintainSize: false,
-      child: Padding(
-      padding: const EdgeInsets.all(8.0),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
@@ -47,42 +43,46 @@ class ShowVideoWidgetState extends ConsumerState<ShowVideoWidget> {
           ),
           child: Stack(
             children: [
-              Column(
-                children: [
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: (widget.video.thumbnail != null) 
-                        ? Image.network(widget.video.thumbnail!, fit: BoxFit.cover)
-                        : Image.asset('assets/Error404.gif', fit: BoxFit.cover),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: customColourMap['BLUE'],
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Text(widget.video.channel ?? "", style: const TextStyle(color: Colors.white), overflow: TextOverflow.ellipsis),
+              Expanded(
+                child: Column(
+                  children: [
+                    Flexible(
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: (widget.video.thumbnail != null)
+                              ? Image.network(widget.video.thumbnail!, fit: BoxFit.cover)
+                              : Image.asset('assets/Error404.gif', fit: BoxFit.cover),
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.secondary,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Text(widget.video.vidId ?? "", style: const TextStyle(color: Colors.white), overflow: TextOverflow.ellipsis),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: customColourMap['BLUE'],
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Text(widget.video.channel ?? "", style: const TextStyle(color: Colors.white), overflow: TextOverflow.ellipsis),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Text(widget.video.vidId ?? "", style: const TextStyle(color: Colors.white), overflow: TextOverflow.ellipsis),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
               ),
               Positioned(
                 top: 0,
@@ -113,7 +113,6 @@ class ShowVideoWidgetState extends ConsumerState<ShowVideoWidget> {
           ),
         ),
       ),
-    ),
     );
   }
 }
