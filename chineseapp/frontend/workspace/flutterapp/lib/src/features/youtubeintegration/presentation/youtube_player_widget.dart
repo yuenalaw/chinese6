@@ -20,7 +20,7 @@ class _YoutubeWatchWidgetState extends State<YoutubeWatchWidget> {
     _controller = YoutubePlayerController( 
       initialVideoId: widget.videoId,
       flags: const YoutubePlayerFlags( 
-        mute: true,
+        mute: false,
         autoPlay: false,
         disableDragSeek: false,
         loop: false,

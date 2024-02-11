@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/spacedrepetition/application/exercises_completed_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProgressWidget extends ConsumerStatefulWidget {
   final int totalLessons;
@@ -10,13 +13,55 @@ class ProgressWidget extends ConsumerStatefulWidget {
   ConsumerState<ProgressWidget> createState() => _ProgressWidgetState();
 }
 
-class _ProgressWidgetState extends ConsumerState<ProgressWidget> {
+class _ProgressWidgetState extends ConsumerState<ProgressWidget> with SingleTickerProviderStateMixin{
+
+  late final AnimationController _controller;
+  late int lessonsDone;
+  late int totalLessons;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this, // the SingleTickerProviderStateMixin
+      duration: const Duration(milliseconds: 500),
+    );
+    _loadProgress();
+  }
+
+  Future<void> _loadProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lessonStateData = jsonDecode(prefs.getString('lessonState') ?? '{}');
+
+    // Get today's date
+    final today = DateTime.now().toIso8601String().split('T')[0];
+
+    // Check if there's data for today
+    if (lessonStateData['date']?.split('T')[0] == today) {
+      // If there's data for today, use it to set lessonsDone and totalLessons
+      lessonsDone = lessonStateData['maxCompletedLesson'] ?? 0;
+      final totalLessons = lessonStateData['totalLessons'] ?? 0;
+
+      _controller.value = lessonsDone / (totalLessons > 0 ? totalLessons : 1);
+    } else {
+      // If there's no data for today, set lessonsDone and totalLessons to 0
+      lessonsDone = 0;
+      _controller.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final lessonsDone = ValueNotifier<int>(0);
-    lessonsDone.value = ref.watch(maxCompletedLessonProvider);
+    final lessonsDone = ref.watch(maxCompletedLessonProvider);
+    _controller.value = lessonsDone / widget.totalLessons;
     return AnimatedBuilder( 
-      animation: lessonsDone,
+      animation: _controller,
       builder: (context, _) {
         return Padding( 
           padding: const EdgeInsets.symmetric(vertical:24.0),
@@ -25,7 +70,7 @@ class _ProgressWidgetState extends ConsumerState<ProgressWidget> {
           width: 200,
           child: CircularProgressIndicator( 
             strokeWidth: 20,
-            value: lessonsDone.value <= 0 || widget.totalLessons <= 0 ? 0 : lessonsDone.value/ widget.totalLessons,
+            value: _controller.value,
             backgroundColor: Theme.of(context).colorScheme.secondary,
             valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
           ),

@@ -52,7 +52,7 @@ class TranscriptSentenceWidget extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       Flexible(
                         child: Text(
@@ -96,7 +96,7 @@ class TranscriptSentenceWidget extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       Flexible(
                         child: GText(sentence, toLang: 'en',

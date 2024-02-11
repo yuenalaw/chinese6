@@ -1,27 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:stroke_order_animator/stroke_order_animator.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-class StrokeOrderAnimatorWidget extends StatefulWidget {
+class TestStrokeWidget extends StatefulWidget {
   final String character;
-  const StrokeOrderAnimatorWidget({Key? key, required this.character}) : super(key: key);
+  final double animationSpeedFactor;
+  final Function(int) onCompleted;
+
+  const TestStrokeWidget({
+    Key? key,
+    required this.character,
+    this.animationSpeedFactor = 1.0,
+    required this.onCompleted,
+  }) : super(key: key);
 
   @override 
-  _StrokeOrderAnimatorWidgetState createState() => _StrokeOrderAnimatorWidgetState();
+  _TestStrokeWidgetState createState() => _TestStrokeWidgetState();
 }
 
-class _StrokeOrderAnimatorWidgetState extends State<StrokeOrderAnimatorWidget> with TickerProviderStateMixin {
+class _TestStrokeWidgetState extends State<TestStrokeWidget> with TickerProviderStateMixin {
   final _httpClient = http.Client();
   late Future<StrokeOrderAnimationController> _animationController;
 
-  @override 
+  @override
   void initState() {
     super.initState();
     _animationController = _loadStrokeOrder(widget.character);
   }
 
   @override 
+  void didUpdateWidget(covariant TestStrokeWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.character != oldWidget.character) {
+      _animationController = _loadStrokeOrder(widget.character);
+    }
+  }
+
+  @override
   void dispose() {
     _httpClient.close();
     super.dispose();
@@ -35,42 +51,42 @@ class _StrokeOrderAnimatorWidgetState extends State<StrokeOrderAnimatorWidget> w
         StrokeOrder(value),
         this,
         onQuizCompleteCallback: (summary) {
-          // Fluttertoast.showToast(
-          //   msg: 'Quiz finished. ${summary.nTotalMistakes} mistakes',
-          // );
-
+          widget.onCompleted(summary.nTotalMistakes);
           setState(() {});
         },
       );
-
+      controller.startQuiz();
       return controller;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox( 
-        width: 500,
-        child: Column( 
-          children: [ 
-            const SizedBox(height:50),
-            _buildStrokeOrderAnimationAndControls(),
-          ],
-        )
-      )
+    return Container(
+        child: SizedBox( 
+          width: 350,
+          child: Column( 
+            children: [ 
+              const SizedBox(height: 50),
+              _buildStrokeOrderAnimationAndControls(),
+            ]
+          )
+        ) 
     );
   }
 
-  FutureBuilder<StrokeOrderAnimationController> _buildStrokeOrderAnimationAndControls() {
+  FutureBuilder<StrokeOrderAnimationController>
+      _buildStrokeOrderAnimationAndControls() {
     return FutureBuilder(
       future: _animationController,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return const CircularProgressIndicator();
+          return CircularProgressIndicator();
         }
         if (snapshot.hasData) {
-          return Expanded(
+          return Container( 
+            height: 350,
+            width: 350,
             child: Column(
               children: [
                 _buildStrokeOrderAnimation(snapshot.data!),
@@ -90,7 +106,7 @@ class _StrokeOrderAnimatorWidgetState extends State<StrokeOrderAnimatorWidget> w
 
   Widget _buildStrokeOrderAnimation(StrokeOrderAnimationController controller) {
     return SizedBox.square(
-      dimension: 350,
+      dimension: 250,
       child: ChangeNotifierProvider<StrokeOrderAnimationController>.value(
         value: controller,
         child: Consumer<StrokeOrderAnimationController>(
@@ -108,25 +124,8 @@ class _StrokeOrderAnimatorWidgetState extends State<StrokeOrderAnimatorWidget> w
     return ChangeNotifierProvider.value(
       value: controller,
       builder: (context, child) => Consumer<StrokeOrderAnimationController>(
-        builder: (context, controller, child) => Flexible(
-          child: GridView(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              childAspectRatio: 3,
-              crossAxisCount: 2,
-              mainAxisSpacing: 10,
-            ),
-            primary: false,
+        builder: (context, controller, child) => Column(
             children: <Widget>[
-              MaterialButton(
-                onPressed: controller.isQuizzing
-                    ? null
-                    : (controller.isAnimating
-                        ? controller.stopAnimation
-                        : controller.startAnimation),
-                child: controller.isAnimating
-                    ? const Text('Stop animation')
-                    : const Text('Start animation'),
-              ),
               MaterialButton(
                 onPressed: controller.isQuizzing
                     ? controller.stopQuiz
@@ -139,18 +138,9 @@ class _StrokeOrderAnimatorWidgetState extends State<StrokeOrderAnimatorWidget> w
                 onPressed: controller.reset,
                 child: const Text('Reset'),
               ),
-              MaterialButton(
-                onPressed: () {
-                  controller.setHighlightRadical(!controller.highlightRadical);
-                },
-                child: controller.highlightRadical
-                    ? const Text('Unhighlight radical')
-                    : const Text('Highlight radical'),
-              ),
             ],
           ),
         ),
-      ),
     );
   }
 }
