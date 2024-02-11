@@ -26,6 +26,8 @@ class LessonGames extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final gameDataAsyncValue = ref.watch(srsGameTodayProvider);
 
+    ref.read(srsCardsTodayProvider.notifier).getCardsToday();
+
     return FutureBuilder<Map<int, bool>>( 
       future: _loadCompletedLessons(),
       builder: (context, snapshot) {
