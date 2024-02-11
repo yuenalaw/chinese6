@@ -12,14 +12,20 @@ class MockHttpClient extends Mock implements http.Client {}
 final mockPostYtRequest = YouTubeRequest(
   videoId: "-acfusFM4d8", 
   source:"YouTube", 
-  forced:"True"
+  forced:"True",
+  title: "Title",
+  channel: "channel",
+  thumbnail: ""
 );
 
 final mockPostYtRequestJson = 
 {
   "video_id":"-acfusFM4d8", 
   "source": "YouTube",
-  "forced":"True"
+  "forced":"True",
+  "title": "Title",
+  "channel": "channel",
+  "thumbnail": ""
 };
 
 final mockPostDisneyRequest = DisneyRequest(
