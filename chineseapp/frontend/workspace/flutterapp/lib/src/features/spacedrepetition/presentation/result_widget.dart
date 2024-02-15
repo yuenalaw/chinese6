@@ -73,29 +73,21 @@ class ResultWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-              Padding( 
-                padding: const EdgeInsets.all(16.0),
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.secondary, // This is the background color
-                    ),
-                    onPressed: () {
-                      resetWidget();
-                      onCompleted(exercise, isCorrect);
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Next', style: TextStyle(color: Colors.black)),
-                  ),
-                ),
-              ),
-              if (showWord) 
+                if (showWord) 
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Center(
                     child: Column(
                       children: [
+                        Text(
+                            PinyinHelper.getPinyin(exercise.reviewCard.word.word, separator: " ", format: PinyinFormat.WITH_TONE_MARK),
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                            ),
+                            textAlign: TextAlign.center, 
+                          ),
+                          const SizedBox(height: 16.0),
                         Text(
                           exercise.reviewCard.word.word,
                           style: const TextStyle(
@@ -119,6 +111,24 @@ class ResultWidget extends StatelessWidget {
                     ),
                   ),
                 ),
+              Padding( 
+                padding: const EdgeInsets.all(16.0),
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.secondary, // This is the background color
+                    ),
+                    onPressed: () {
+                      resetWidget();
+                      onCompleted(exercise, isCorrect);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Next', style: TextStyle(color: Colors.black)),
+                  ),
+                ),
+              ),
+              
             ]
           )
         )
