@@ -35,5 +35,5 @@ class _CachingNetworkImageState extends State<CachingNetworkImage> {
   }
 
   @override
-  Widget build(BuildContext context) => _image == null ? Center(child: CircularProgressIndicator()) : _image;
+  Widget build(BuildContext context) => _image ?? Center(child: CircularProgressIndicator());
 }
