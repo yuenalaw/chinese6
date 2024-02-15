@@ -24,23 +24,7 @@ class StreakService {
   }
 
   Future<void> updateStudyDay() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // retrieve the saved date and time
-    String? lastDateString = prefs.getString('lastDate');
-    DateTime? lastDate;
-    if (lastDateString != null) {
-      lastDate = DateTime.parse(lastDateString);
-    }
-    
-    // To save the current date and time
-    DateTime now = DateTime.now();
-    prefs.setString('lastDate', now.toIso8601String());
-
-    // To check if the last saved date is not today
-    if (lastDate != null && !isSameDay(lastDate, DateTime.now())) {
-      await ref.read(userOverviewRepositoryProvider).addNewStudyDay();
-    }
+    await ref.read(userOverviewRepositoryProvider).addNewStudyDay();
   }
 }
 

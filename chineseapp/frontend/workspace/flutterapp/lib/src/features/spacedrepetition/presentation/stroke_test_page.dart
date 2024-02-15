@@ -39,7 +39,7 @@ class _StrokeTestPageState extends State<StrokeTestPage> {
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(16.0),
-          child: ResultWidget(exercise: widget.exercise, isCorrect: errors == 0, showTranslation: false, onCompleted: widget.onCompleted, resetWidget: reset),
+          child: ResultWidget(exercise: widget.exercise, isCorrect: errors == 0, showTranslation: false, showWord: true, onCompleted: widget.onCompleted, resetWidget: reset),
         );
       },
     );

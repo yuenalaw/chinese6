@@ -33,7 +33,7 @@ class _FillInBlankState extends State<FillInBlankPage> {
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(16.0),
-          child: ResultWidget(exercise: widget.exercise, isCorrect: widget.exercise.correctAnswer == selectedWord, showTranslation: true, onCompleted: widget.onCompleted, resetWidget: reset),
+          child: ResultWidget(exercise: widget.exercise, isCorrect: widget.exercise.correctAnswer == selectedWord, showTranslation: true, showWord: false, onCompleted: widget.onCompleted, resetWidget: reset),
         );
       },
     );

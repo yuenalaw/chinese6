@@ -31,7 +31,7 @@ class ImageToTextState extends State<ImageToTextWidget> {
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(16.0),
-          child: ResultWidget(exercise: widget.exercise, isCorrect: widget.exercise.correctAnswer == chosenWord, showTranslation: false, onCompleted: widget.onCompleted, resetWidget: reset),
+          child: ResultWidget(exercise: widget.exercise, isCorrect: widget.exercise.correctAnswer == chosenWord, showTranslation: false, showWord: true, onCompleted: widget.onCompleted, resetWidget: reset),
         );
       },
     );

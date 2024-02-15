@@ -26,7 +26,6 @@ class _ProgressWidgetState extends ConsumerState<ProgressWidget> with SingleTick
       vsync: this, // the SingleTickerProviderStateMixin
       duration: const Duration(milliseconds: 500),
     );
-    _loadProgress();
   }
 
   Future<void> _loadProgress() async {
@@ -58,25 +57,34 @@ class _ProgressWidgetState extends ConsumerState<ProgressWidget> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    final lessonsDone = ref.watch(maxCompletedLessonProvider);
-    _controller.value = lessonsDone / widget.totalLessons;
-    return AnimatedBuilder( 
-      animation: _controller,
-      builder: (context, _) {
-        return Padding( 
-          padding: const EdgeInsets.symmetric(vertical:24.0),
-          child: Container( 
-          height: 200,
-          width: 200,
-          child: CircularProgressIndicator( 
-            strokeWidth: 20,
-            value: _controller.value,
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
-          ),
-        )
-        );
-      }
+    return FutureBuilder(
+      future: _loadProgress(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // or some other loading indicator
+        } else {
+          final lessonsDone = ref.watch(maxCompletedLessonProvider);
+          _controller.value = lessonsDone / widget.totalLessons;
+          return AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical:24.0),
+                child: Container(
+                  height: 200,
+                  width: 200,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 20,
+                    value: _controller.value,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                  ),
+                ),
+              );
+            },
+          );
+        }
+      },
     );
   }
 }

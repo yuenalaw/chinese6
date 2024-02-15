@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/lessonoverview/application/video_controller.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/lesson.dart';
 import 'package:flutterapp/src/features/lessonoverview/presentation/transcript_page_view_widget.dart';
+import 'package:flutterapp/src/features/youtubeintegration/application/time_notifier.dart';
 import 'package:flutterapp/src/features/youtubeintegration/presentation/youtube_player_widget.dart';
 import 'package:flutterapp/src/screens/lesson_overview_screen.dart';
 
@@ -72,7 +73,8 @@ class _YoutubePlayerTranscriptScreenState
                             borderRadius: BorderRadius.circular(15), // adjust the value as needed
                             child: YoutubeWatchWidget(
                               videoId: widget.videoId,
-                              onTimeChanged: onTimeChanged
+                              onTimeChanged: onTimeChanged,
+                              startTimeNotifier: ref.read(startTimeProvider.notifier),
                             ),
                           ),
                         ),

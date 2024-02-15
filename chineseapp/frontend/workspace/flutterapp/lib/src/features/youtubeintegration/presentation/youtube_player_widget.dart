@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/constants/colours.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class YoutubeWatchWidget extends StatefulWidget {
+class YoutubeWatchWidget extends ConsumerStatefulWidget {
   final String videoId;
   final Function(Duration) onTimeChanged;
-  const YoutubeWatchWidget({Key? key, required this.videoId, required this.onTimeChanged}) : super(key: key);
+  final StateController<double> startTimeNotifier;
+
+  const YoutubeWatchWidget({Key? key, required this.videoId, required this.onTimeChanged, required this.startTimeNotifier}) : super(key: key);
 
   @override
-  State<YoutubeWatchWidget> createState() => _YoutubeWatchWidgetState();
+  ConsumerState<YoutubeWatchWidget> createState() => _YoutubeWatchWidgetState();
 }
 
-class _YoutubeWatchWidgetState extends State<YoutubeWatchWidget> {
+class _YoutubeWatchWidgetState extends ConsumerState<YoutubeWatchWidget> {
   late YoutubePlayerController _controller;
   bool _isPlayerReady = false;
 
@@ -29,6 +32,9 @@ class _YoutubeWatchWidgetState extends State<YoutubeWatchWidget> {
         enableCaption: true,
       ),
     )..addListener(listener);
+
+    widget.startTimeNotifier.addListener(seekToStart);
+
   }
 
   void listener() {
@@ -36,6 +42,12 @@ class _YoutubeWatchWidgetState extends State<YoutubeWatchWidget> {
       setState(() {
         widget.onTimeChanged(_controller.value.position);
       });
+    }
+  }
+
+  void seekToStart(double newValue) {
+    if (_isPlayerReady) {
+      _controller.seekTo(Duration(seconds: newValue.round()));
     }
   }
 

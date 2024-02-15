@@ -79,6 +79,9 @@ class Video {
       }
       var lessonObjsJson = json['video']['lessons'] as List;
       List<Lesson> lessons = lessonObjsJson.map((lessonJson) => Lesson.fromJson(lessonJson)).toList();
+      // sort the lessons based on start time
+
+      lessons.sort((a, b) => a.segment.start.compareTo(b.segment.start));
 
       var keywordImgObjsJson = json['video']['keywords_img'] as List;
       List<KeywordImg> keywordsImg = keywordImgObjsJson

@@ -26,113 +26,118 @@ class TranscriptSentenceWidget extends StatelessWidget {
   @override 
   Widget build(BuildContext context) {
     return Padding( 
-      padding: const EdgeInsets.symmetric(horizontal: 45.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Container(
         decoration: BoxDecoration( 
           color: indexLineNum % 2 == 0 ? Theme.of(context).colorScheme.primary : Colors.black,
           borderRadius: BorderRadius.circular(25.0),
         ),
-        child: Padding( 
-          padding: const EdgeInsets.all(16.0),
-          child: Column( 
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[ 
-              DefaultTextStyle( 
-                style: TextStyle( 
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w800,
-                  color: indexLineNum % 2 == 0 ? Colors.black : Theme.of(context).colorScheme.primary,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Padding( 
+            padding: const EdgeInsets.all(16.0),
+            child: Column( 
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[ 
+                DefaultTextStyle( 
+                  style: TextStyle( 
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w800,
+                    color: indexLineNum % 2 == 0 ? Colors.black : Theme.of(context).colorScheme.primary,
+                  ),
+                  child: Text(
+                    "${indexLineNum + 1}/$totalLines",
+                  ),
                 ),
-                child: Text(
-                  "${indexLineNum + 1}/$totalLines",
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Flexible(
+                          child: Text(
+                            PinyinHelper.getPinyin(sentence, separator: " ", format: PinyinFormat.WITH_TONE_MARK),
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                              color: indexLineNum % 2 == 0 ? Colors.black : Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Flexible(
-                        child: Text(
-                          PinyinHelper.getPinyin(sentence, separator: " ", format: PinyinFormat.WITH_TONE_MARK),
+                Wrap( 
+                  spacing: 4.0,
+                  runSpacing: 4.0,
+                  children: entries.map((entry) { 
+                    return Container( 
+                    padding: const EdgeInsets.all(4.0),
+                    decoration: BoxDecoration( 
+                      color: wordUposMap.containsKey(entry.upos) ? wordUposMap[entry.upos] : wordUposMap['default'],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: DefaultTextStyle( 
+                      style: const TextStyle( 
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0,
+                        color: Colors.black,
+                      ),
+                      child: Text(
+                      entry.word,
+                      ),
+                    )
+                    );
+                  }).toList(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Flexible(
+                          child: GText(sentence, toLang: 'en',
                           style: TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.bold,
                             color: indexLineNum % 2 == 0 ? Colors.black : Colors.white,
-                          ),
+                          ),),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Wrap( 
-                spacing: 4.0,
-                runSpacing: 4.0,
-                children: entries.map((entry) { 
-                  return Container( 
-                  padding: const EdgeInsets.all(4.0),
-                  decoration: BoxDecoration( 
-                    color: wordUposMap.containsKey(entry.upos) ? wordUposMap[entry.upos] : wordUposMap['default'],
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                  child: DefaultTextStyle( 
-                    style: const TextStyle( 
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.0,
-                      color: Colors.black,
+                const SizedBox(height: 10.0),
+                Row( 
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[ 
+                    Icon(
+                      Icons.access_time,
+                      color: indexLineNum % 2 == 0 ? Colors.black : Theme.of(context).colorScheme.primary,
                     ),
-                    child: Text(
-                    entry.word,
-                    ),
-                  )
-                  );
-                }).toList(),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Flexible(
-                        child: GText(sentence, toLang: 'en',
-                        style: TextStyle(
+                    const SizedBox(width: 5.0),
+                    DefaultTextStyle( 
+                      style: TextStyle( 
                           fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                          color: indexLineNum % 2 == 0 ? Colors.black : Colors.white,
-                        ),),
+                          color: indexLineNum % 2 == 0 ? Colors.black : Theme.of(context).colorScheme.primary
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10.0),
-              Row( 
-                children: <Widget>[ 
-                  Icon(
-                    Icons.access_time,
-                    color: indexLineNum % 2 == 0 ? Colors.black : Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 5.0),
-                  DefaultTextStyle( 
-                    style: TextStyle( 
-                        fontSize: 16.0,
-                        color: indexLineNum % 2 == 0 ? Colors.black : Theme.of(context).colorScheme.primary
+                      child: Text(
+                        start.toStringAsFixed(2),
+                      ),
                     ),
-                    child: Text(
-                      start.toStringAsFixed(2),
-                    ),
-                  ),
-                ]
-              )
-            ]
+                  ]
+                )
+              ]
+            )
           )
         )
-      )
+      ),
     );
   }
 }

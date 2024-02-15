@@ -8,10 +8,11 @@ class ResultWidget extends StatelessWidget {
   final Exercise exercise;
   final bool isCorrect;
   final bool showTranslation; 
+  final bool showWord;
   final void Function(Exercise exercise, bool isCorrect) onCompleted;
   final void Function() resetWidget;
 
-  ResultWidget({ required this.exercise, required this.isCorrect, required this.showTranslation, required this.onCompleted, required this.resetWidget});
+  ResultWidget({ required this.exercise, required this.isCorrect, required this.showTranslation, required this.showWord, required this.onCompleted, required this.resetWidget});
 
   @override 
   Widget build(BuildContext context) {
@@ -88,7 +89,36 @@ class ResultWidget extends StatelessWidget {
                     child: const Text('Next', style: TextStyle(color: Colors.black)),
                   ),
                 ),
-              )
+              ),
+              if (showWord) 
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          exercise.reviewCard.word.word,
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          textAlign: TextAlign.center, // Center the text
+                        ),
+                        SizedBox(height: 16.0), // Add some spacing
+                        Text(
+                          exercise.reviewCard.note!,
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          textAlign: TextAlign.center, // Center the text
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ]
           )
         )

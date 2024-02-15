@@ -18,7 +18,7 @@ class KeywordCarousel extends StatelessWidget {
           itemBuilder: (context, index) {
             var keywordImg = keywordsImg[index];
             return Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: SizedBox( 
                 width: 160,
                 child: SingleChildScrollView(
