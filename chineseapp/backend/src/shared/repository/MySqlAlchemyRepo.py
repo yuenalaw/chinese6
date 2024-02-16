@@ -423,9 +423,16 @@ class ModelRepository:
         study_date (date, optional): The study date. Defaults to today's date.
         """
         try:
-            new_study_date = UserStudyDate(study_date=study_date)
-            db.session.add(new_study_date)
-            db.session.commit()
+            # Check if a study date for the current day already exists
+            existing_study_date = db.session.query(UserStudyDate).filter(UserStudyDate.study_date == study_date).first()
+
+            # If a study date for the current day does not exist, insert a new one
+            if existing_study_date is None:
+                new_study_date = UserStudyDate(study_date=study_date)
+                db.session.add(new_study_date)
+                db.session.commit()
+            else:
+                print("A study date for the current day already exists.")
         except Exception as e:
             print(f"An error occurred (add study date): {e}")
             db.session.rollback()
@@ -439,28 +446,24 @@ class ModelRepository:
         int: The study streak of the user.
         """
         try:
-            # Get the most recent study date
-            most_recent_study_date = db.session.query(UserStudyDate.study_date).order_by(UserStudyDate.study_date.desc()).first()
+            # Get all the unique study dates
+            study_dates = db.session.query(UserStudyDate.study_date).distinct().all()
 
-            if most_recent_study_date is None:
+            if len(study_dates) == 0:
                 return 0
 
-            # Calculate the date one day before the most recent study date
-            previous_day = most_recent_study_date.study_date - timedelta(days=1)
+            # Convert the study dates to a set for fast lookup
+            study_dates_set = set(study_date.study_date for study_date in study_dates)
 
-            # Get the study date for the previous day
-            previous_study_date = db.session.query(UserStudyDate.study_date).filter(UserStudyDate.study_date == previous_day).first()
+            streak = 0
+            current_day = datetime.now().date()
 
-            streak = 1
-
-            # Continue to fetch and check study dates until a gap is found
-            while previous_study_date is not None:
+            # Continue to check study dates until a gap is found
+            while current_day in study_dates_set:
                 streak += 1
-                previous_day -= timedelta(days=1)
-                previous_study_date = db.session.query(UserStudyDate.study_date).filter(UserStudyDate.study_date == previous_day).first()
+                current_day -= timedelta(days=1)
 
             return streak
         except Exception as e:
             print(f"An error occurred (calculate study streak): {e}")
             raise
-
