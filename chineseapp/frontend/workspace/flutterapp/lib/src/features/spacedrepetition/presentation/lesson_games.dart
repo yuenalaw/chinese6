@@ -8,9 +8,21 @@ import 'package:flutterapp/src/features/spacedrepetition/application/srs_control
 import 'package:flutterapp/src/screens/game_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LessonGames extends ConsumerWidget {
+class LessonGames extends ConsumerStatefulWidget {
   final Function(int) onLoadLessons;
   const LessonGames({Key? key, required this.onLoadLessons}) : super(key: key);
+
+  @override
+  _LessonGamesState createState() => _LessonGamesState();
+}
+
+class _LessonGamesState extends ConsumerState<LessonGames> {
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(srsCardsTodayProvider.notifier).getCardsToday();
+  }
 
   Future<Map<int, bool>> _loadCompletedLessons() async {
     final date = DateTime.now().toIso8601String().split('T')[0]; // Get today's date
@@ -23,10 +35,8 @@ class LessonGames extends ConsumerWidget {
   }
   
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext contex) {
     final gameDataAsyncValue = ref.watch(srsGameTodayProvider);
-
-    ref.read(srsCardsTodayProvider.notifier).getCardsToday();
 
     return FutureBuilder<Map<int, bool>>( 
       future: _loadCompletedLessons(),
@@ -36,11 +46,10 @@ class LessonGames extends ConsumerWidget {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
-        final completedLessons = snapshot.data ?? ref.watch(completedLessonProvider).completedLessons;
         return gameDataAsyncValue.when(
           data: (lessons) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-            onLoadLessons(lessons.length);
+            widget.onLoadLessons(lessons.length);
           });
           return Column( 
             children: List.generate( 
