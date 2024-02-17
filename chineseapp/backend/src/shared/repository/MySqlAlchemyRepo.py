@@ -1,5 +1,6 @@
 from ..model.models import db, UserStudyDate, Word, UserWordReview, UserWordSentence, UserSentence, VideoDetails
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 from datetime import date
 from typing import List, Tuple
 import json
@@ -415,20 +416,20 @@ class ModelRepository:
             print(f"An error occurred (add word, youtubeid, and review records): {e}")
             raise
 
-    def add_study_date(self, study_date: date = datetime.now().date()):
+    def add_study_date(self, date):
         """
-        Add a study date for a specific user.
-
         Parameters:
         study_date (date, optional): The study date. Defaults to today's date.
         """
+        if date is None:
+            date = datetime.now(ZoneInfo("Europe/London")).date()
         try:
             # Check if a study date for the current day already exists
-            existing_study_date = db.session.query(UserStudyDate).filter(UserStudyDate.study_date == study_date).first()
+            existing_study_date = db.session.query(UserStudyDate).filter(UserStudyDate.study_date == date).first()
 
             # If a study date for the current day does not exist, insert a new one
             if existing_study_date is None:
-                new_study_date = UserStudyDate(study_date=study_date)
+                new_study_date = UserStudyDate(study_date=date)
                 db.session.add(new_study_date)
                 db.session.commit()
             else:
@@ -440,14 +441,16 @@ class ModelRepository:
 
     def calculate_study_streak(self) -> int:
         """
-        Calculate the study streak for a specific user.
+        Calculate the study streak.
 
         Returns:
         int: The study streak of the user.
         """
         try:
             # Get all the unique study dates
-            study_dates = db.session.query(UserStudyDate.study_date).distinct().all()
+            study_dates = db.session.query(UserStudyDate.study_date).order_by(UserStudyDate.study_date.desc()).distinct().all()
+
+            print(study_dates)
 
             if len(study_dates) == 0:
                 return 0
@@ -455,13 +458,18 @@ class ModelRepository:
             # Convert the study dates to a set for fast lookup
             study_dates_set = set(study_date.study_date for study_date in study_dates)
 
+            print("set: ", study_dates_set)
+
             streak = 0
-            current_day = datetime.now().date()
+            current_day = datetime.now(ZoneInfo("Europe/London")).date()
 
             # Continue to check study dates until a gap is found
             while current_day in study_dates_set:
+
                 streak += 1
                 current_day -= timedelta(days=1)
+                print("current_day: ", current_day)
+                print("streak: ", streak)
 
             return streak
         except Exception as e:

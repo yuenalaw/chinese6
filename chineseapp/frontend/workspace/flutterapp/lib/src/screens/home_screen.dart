@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           ),
           Padding( 
-            padding: const EdgeInsets.only(left: 32),
+            padding: const EdgeInsets.only(bottom: 20.0),
             child: AnimatedDefaultTextStyle(
             style: TextStyle(
               fontSize: 50,
@@ -50,11 +50,11 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Theme.of(context).colorScheme.primary,
             ),
             duration: const Duration(milliseconds: 300),
-            child: const Text('Let\'s work it!'), 
+            child: const Center(child: Text('Let\'s work it!')), 
             )
           ),
           Padding( 
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(horizontal:8.0),
             child: LessonGames(onLoadLessons: lessonCountToday),
           ),
         ],

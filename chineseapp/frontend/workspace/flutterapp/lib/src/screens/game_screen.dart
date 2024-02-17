@@ -31,6 +31,25 @@ class ExerciseScreenState extends ConsumerState<ExerciseScreen> {
     ref.read(srsReviewUpdateProvider(widget.exercises).notifier).nextExercise();
   }
 
+  Future<void> completeExercises() async {
+    await Future(() async {
+      final streakController = ref.read(streakControllerProvider.notifier);
+      
+      try {
+        await streakController.setNewStudyDate();
+        await ref.read(completedLessonProvider.notifier).completedLesson(widget.lesson);
+      } catch (e) {
+        print(e);
+      }
+    });
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => HomeScreen()),
+      (route) => false,
+    );
+  }
+
   @override 
   Widget build(BuildContext context) {
     final controller = ref.watch(srsReviewUpdateProvider(widget.exercises));
@@ -53,23 +72,16 @@ class ExerciseScreenState extends ConsumerState<ExerciseScreen> {
         return const Placeholder();
       }
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // update streak
-      final streakController = ref.read(streakControllerProvider.notifier);
-      
-        try {
-          await streakController.setNewStudyDate();
-          await ref.read(completedLessonProvider.notifier).completedLesson(widget.lesson);
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
-            (route) => false,
-          );
-        } catch (e) {
-          print(e);
-        }
-      });
-      return const Center(child: CircularProgressIndicator());
+        return FutureBuilder(
+        future: completeExercises(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            return Container(); // This won't be shown because we navigate away
+          }
+        },
+      );
     }
   }
 }

@@ -17,9 +17,9 @@ class ModelService:
             print(f"In model service; error occured getting video lesson: {e}")
             raise
 
-    def add_study_date(self):
+    def add_study_date(self, date):
         try:
-            self.model_repository.add_study_date()
+            self.model_repository.add_study_date(date)
             print(f"Updated study date!")
         except Exception as e:
             print(f"In model service; error occured updating study date: {e}")

@@ -29,10 +29,13 @@ def get_word(word):
         print("Error:", str(e))
         return {'message': 'Failed to obtain word'}, 500
 
-@db_bp.route('/addstudydate')
+@db_bp.route('/addstudydate', methods=['POST'])
 def add_study_date():
+    request_data = request.get_json()
+    date = request_data.get('date', None)
+    print(f"request data is {request_data}")
     try:
-        model_service.add_study_date()
+        model_service.add_study_date(date)
         return {'message': 'Successfully added study date!'}, 200
     except Exception as e:
         print("Error:", str(e))

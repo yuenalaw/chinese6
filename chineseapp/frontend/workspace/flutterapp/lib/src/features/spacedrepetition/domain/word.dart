@@ -19,7 +19,7 @@ class Word {
       pinyin: json['pinyin'],
       similarSounds: json['similar_words'] != null ? List<String>.from(json['similar_words']) : [],
       translations: json['translation'] != null 
-      ? (json['translation'] as List).expand((i) => (i as List).cast<String>()).toList() 
+      ? (json['translation'] as List).expand((i) => i is List ? List<String>.from(i) : [i as String]).toList()
       : [],
       word: json['word'],
     );
