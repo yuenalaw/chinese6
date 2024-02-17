@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CompletedLessonNotifier extends StateNotifier<LessonState> {
   CompletedLessonNotifier() : super(LessonState(completedLessons: {}, maxCompletedLesson: 0));
 
-  void completedLesson(int index) async {
+  Future<void> completedLesson(int index) async {
     state = LessonState(
       completedLessons: {...state.completedLessons, index: true},
       maxCompletedLesson: max(state.maxCompletedLesson, index+1),

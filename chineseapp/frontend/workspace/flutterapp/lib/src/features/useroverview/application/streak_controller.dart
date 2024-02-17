@@ -16,9 +16,8 @@ class StreakController extends StateNotifier<AsyncValue<Streak>> {
 
   Future<void> setNewStudyDate() async {
     state = const AsyncLoading();
-    await streakService.updateStudyDay();
     state = await AsyncValue.guard(
-      () => streakService.getStreak()
+      () => streakService.updateStudyDay()
     );
   }
 

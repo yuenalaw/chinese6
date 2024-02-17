@@ -22,7 +22,7 @@ class UserOverviewRepository {
 
   Future<String> addNewStudyDay() => _getData( 
     uri: api.addNewStudyDay(),
-    builder: (data) => data,
+    builder: (data) => json.encode(data),
   );
 
   Future<T> _getData<T>({
@@ -37,8 +37,7 @@ class UserOverviewRepository {
       'Accept-Encoding': 'gzip, deflate, br',
     };
     try {
-      final response = await client.get(uri, headers: headers)
-      .timeout(const Duration(seconds: 10));
+      final response = await client.get(uri, headers: headers);
       switch (response.statusCode) {
         case 200:
         String responsebody = utf8.decode(response.bodyBytes);

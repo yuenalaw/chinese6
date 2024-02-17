@@ -49,23 +49,33 @@ class ImageToTextState extends State<ImageToTextWidget> {
           children: <Widget>[ 
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
-              child: widget.exercise.reviewCard.imagePath != null
-              ? Image.network(
-                  widget.exercise.reviewCard.imagePath!,
-                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
-                )
-              : Image.asset('assets/Error404.gif'),
+              child: Container(
+                constraints: const BoxConstraints(
+                  maxWidth: 400, // Set your desired max width
+                  maxHeight: 400, // Set your desired max height
+                ),
+                child: widget.exercise.reviewCard.imagePath != null
+                  ? Image.network(
+                      widget.exercise.reviewCard.imagePath!,
+                      fit: BoxFit.cover, // or BoxFit.contain
+                      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      'assets/Error404.gif',
+                      fit: BoxFit.cover, // or BoxFit.contain
+                    ),
+              ),
             ),
             const SizedBox(height: 20),
             Wrap(

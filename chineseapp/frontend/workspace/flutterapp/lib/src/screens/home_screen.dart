@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Stack( 
               alignment: Alignment.center,
               children: <Widget>[ 
-                StreakWidget(),
+                const StreakWidget(),
                 ProgressWidget(totalLessons: totalLessons),
               ]
             )
