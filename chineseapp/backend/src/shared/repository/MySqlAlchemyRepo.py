@@ -438,6 +438,16 @@ class ModelRepository:
             print(f"An error occurred (add study date): {e}")
             db.session.rollback()
             raise
+    
+    def calculate_streak_from_date(self, study_dates_set, start_date):
+        streak = 0
+        current_day = start_date
+
+        while current_day in study_dates_set:
+            streak += 1
+            current_day -= timedelta(days=1)
+
+        return streak
 
     def calculate_study_streak(self) -> int:
         """
@@ -460,18 +470,16 @@ class ModelRepository:
 
             print("set: ", study_dates_set)
 
-            streak = 0
-            current_day = datetime.now(ZoneInfo("Europe/London")).date()
+            # calculate the streak from yesterday (in case the user has not studied today)
 
-            # Continue to check study dates until a gap is found
-            while current_day in study_dates_set:
+            streak = self.calculate_streak_from_date(study_dates_set, datetime.now(ZoneInfo("Europe/London")).date() - timedelta(days=1))
 
+            # also check if studied today
+            if datetime.now(ZoneInfo("Europe/London")).date() in study_dates_set:
                 streak += 1
-                current_day -= timedelta(days=1)
-                print("current_day: ", current_day)
-                print("streak: ", streak)
-
+            
             return streak
+
         except Exception as e:
             print(f"An error occurred (calculate study streak): {e}")
             raise
