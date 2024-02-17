@@ -20,9 +20,10 @@ class UserOverviewRepository {
     builder: (data) => Streak.fromJson(data),
   );
 
-  Future<String> addNewStudyDay() => _getData( 
+  Future<String> addNewStudyDay() => _postData( 
     uri: api.addNewStudyDay(),
     builder: (data) => json.encode(data),
+    body: json.encode({})
   );
 
   Future<T> _getData<T>({
@@ -50,6 +51,40 @@ class UserOverviewRepository {
       }
     } on SocketException catch(_) {
         throw NoInternetConnectionException();
+    }
+  }
+
+    Future<T> _postData<T>({
+    required Uri uri,
+    required T Function(dynamic data) builder,
+    required String body,
+  }) async {
+    try {
+      final response = await client.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Cache-Control': 'no-cache',
+          'Accept': '*/*',
+          'Connection': 'keep-alive',
+          'Accept-Encoding': 'gzip, deflate, br',
+        },
+        body: body,
+      ).timeout(const Duration(seconds: 10));
+      switch (response.statusCode) {
+        case 200:
+          String responseBody = utf8.decode(response.bodyBytes);
+          Map<String, dynamic> data = json.decode(responseBody);
+          return builder(data);
+        case 201:
+          String responseBody = utf8.decode(response.bodyBytes);
+          Map<String, dynamic> data = json.decode(responseBody);
+          return builder(data);
+        default:
+          throw Exception('Failed to create resource: ${response.statusCode}');
+      }
+    } on SocketException catch(_) {
+      throw NoInternetConnectionException();
     }
   }
 }
