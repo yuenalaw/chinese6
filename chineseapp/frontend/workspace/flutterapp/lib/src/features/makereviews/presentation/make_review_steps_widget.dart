@@ -337,89 +337,98 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
   }
 
 
+  
   Widget timelineBuilder(UserWordSentence userWordSentence) {
-    return Timeline.tileBuilder( 
-      theme: TimelineThemeData( 
-        nodePosition: 0,
-        connectorTheme: const ConnectorThemeData( 
-          thickness: 3.0,
-        )
-      ),
-      builder: TimelineTileBuilder.connected( 
-        connectionDirection: ConnectionDirection.before,
-        itemCount: tasks.length,
-        contentsBuilder: (_, index) => 
-          GestureDetector( 
-            onTap: () => handleTaskTap(index),
-            child: 
-              Padding( 
-                padding: const EdgeInsets.all(24.0),
-                child: Card(
-                  shape: RoundedRectangleBorder( 
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  color: Theme.of(context).colorScheme.primary,
-                  child: Container( 
-                    width: double.infinity,
-                    child: SingleChildScrollView(
-                      child: ExpansionPanelList( 
-                        expansionCallback: (int index, bool isExpanded) {
-                          setState(( ) {
-                            tasks[index].isExpanded = !isExpanded;
-                            handleTaskTap(index);
-                          });
-                        },
-                        children: [ 
-                          ExpansionPanel( 
-                            headerBuilder: (BuildContext context, bool isExpanded) {
-                              return ListTile( 
-                                title: Text(
-                                  tasks[index].headerValue,
-                                  style: const TextStyle( 
-                                    color: Colors.black,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.w500,
-                                  )
-                                
-                                ),
-                              );  
-                            },
-                            body: Padding( 
-                              padding: const EdgeInsets.all(8.0),
-                              child: tasks[index].isExpanded ? Column( 
-                                children: <Widget>[ 
-                                  tasks[index].expandedValue,
-                                ],
-                              ) : Container(),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return PrimaryScrollController(
+          controller: ScrollController(),
+          child: Container( 
+            height: 50,
+            child: Timeline.tileBuilder(
+            theme: TimelineThemeData(
+              nodePosition: 0,
+              connectorTheme: const ConnectorThemeData(
+                thickness: 3.0,
+              ),
+            ),
+            builder: TimelineTileBuilder.connected(
+              connectionDirection: ConnectionDirection.before,
+              itemCount: tasks.length,
+              contentsBuilder: (_, index) => GestureDetector(
+                onTap: () => handleTaskTap(index),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    color: Theme.of(context).colorScheme.primary,
+                    child: Container(
+                      width: double.infinity,
+                      child: SingleChildScrollView(
+                        child: ExpansionPanelList(
+                          expansionCallback: (int index, bool isExpanded) {
+                            setState(() {
+                              tasks[index].isExpanded = !isExpanded;
+                              handleTaskTap(index);
+                            });
+                          },
+                          children: [
+                            ExpansionPanel(
+                              headerBuilder: (BuildContext context, bool isExpanded) {
+                                return ListTile(
+                                  title: Text(
+                                    tasks[index].headerValue,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                );
+                              },
+                              body: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: tasks[index].isExpanded
+                                    ? Column(
+                                        children: <Widget>[
+                                          tasks[index].expandedValue,
+                                        ],
+                                      )
+                                    : Container(),
+                              ),
+                              isExpanded: tasks[index].isExpanded,
                             ),
-                            isExpanded: tasks[index].isExpanded,
-                          )
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
+              indicatorBuilder: (_, index) {
+                if (tasks[index].isDone) {
+                  return const DotIndicator(
+                    size: 20.0,
+                    color: Color(0xff7349FE),
+                    child: Icon(Icons.check, color: Colors.white, size: 12.0),
+                  );
+                } else {
+                  return const OutlinedDotIndicator(
+                    size: 20.0,
+                    borderWidth: 2.5,
+                  );
+                }
+              },
+              connectorBuilder: (_, index, ___) => SolidLineConnector(
+                color: tasks[index].isDone ? Theme.of(context).colorScheme.primary : Colors.grey,
+              ),
+            ),
           ),
-        indicatorBuilder: (_, index) {
-          if (tasks[index].isDone) {
-            return const DotIndicator(
-              size: 20.0,
-              color: Color(0xff7349FE),
-              child: Icon(Icons.check, color: Colors.white, size: 12.0),
-            );
-          } else {
-            return const OutlinedDotIndicator(
-              size: 20.0,
-              borderWidth: 2.5,
-            );
-          }
-        },
-        connectorBuilder: (_, index, ___) =>
-          SolidLineConnector(
-            color: tasks[index].isDone ? Theme.of(context).colorScheme.primary : Colors.grey,
           ),
-        ),
-      );
+        );
+      },
+    );
   }
 }

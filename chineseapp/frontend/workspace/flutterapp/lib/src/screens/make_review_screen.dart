@@ -29,7 +29,7 @@ class MakeReviewScreen extends ConsumerWidget {
         title: const Text('Make Review'),
       ),
       body: SingleChildScrollView( 
-        physics: NeverScrollableScrollPhysics(),
+        physics: AlwaysScrollableScrollPhysics(),
         child: Column (
           children: <Widget>[
             PressableSentenceWidget(entries: entries, sentence: sentence, start: start, indexLineNum: lineNum, totalLines: entries.length, onEntrySelected: (entry) {
@@ -68,68 +68,29 @@ class MakeReviewScreen extends ConsumerWidget {
 
                   ref.read(makeReviewControllerProvider(reviewParams)).obtainUserWordSentence();
 
-                  final paddedTimeline =
-                  Padding( 
-                      padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 32.0),
-                      child: ReviewStepsList(reviewParams: reviewParams) 
-                    );
-                  
+                  final paddedTimeline = Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 32.0),
+                    child: Column(
+                      children: [
+                        ReviewStepsList(
+                          reviewParams: reviewParams,
+                        ),
+                      ],
+                    ),
+                  );
                   return Container( 
-                    height: MediaQuery.of(context).size.height,
-                    child: Stack( 
+                    height: MediaQuery.of(context).size.height * 2,
+                    child: Column( 
                       children: <Widget>[ 
-                        strokeCharacter,
-                        DraggableScrollableSheet(
-                          controller: draggableScrollableController,
-                          initialChildSize: 0.6,
-                          minChildSize: 0.6,
-                          maxChildSize: 1,
-                          builder: (BuildContext context, ScrollController scrollController) {
-                            return Stack( 
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration( 
-                                    color: Theme.of(context).colorScheme.background,
-                                    border: Border.all(color: Colors.white, width: 3.0),
-                                    borderRadius: const BorderRadius.only( 
-                                      topLeft: Radius.circular(24.0),
-                                      topRight: Radius.circular(24.0),
-                                    ),
-                                  ),
-                                  child: ListView( 
-                                    controller: scrollController,
-                                    children: [ 
-                                      paddedTimeline,
-                                      const SizedBox(height: 350),
-                                    ]
-                                  )
-                                ),
-                                Positioned( 
-                                  right: 16.0, 
-                                  top: 16.0,
-                                  child: Stack( 
-                                    alignment: Alignment.center, 
-                                    children: <Widget>[ 
-                                      Container( 
-                                        width: 36.0,
-                                        height: 36.0,
-                                        decoration: BoxDecoration( 
-                                          color: Theme.of(context).colorScheme.onSurface,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      IconButton( 
-                                        icon: Icon(Icons.close, color: Colors.white),
-                                        onPressed: () {
-                                          draggableScrollableController.reset();
-                                        }
-                                      )
-                                    ]
-                                  )
-                                )
-                              ],
-                            );
-                          }
+                        AspectRatio(
+                          aspectRatio: 0.9,
+                          child: strokeCharacter,
+                        ),
+                        Expanded(
+                          child: Container(
+                          height: 200, // Set the height to the value you want
+                          child: paddedTimeline,
+                        ),
                         ),
                       ]
                     )
