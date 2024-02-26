@@ -49,5 +49,7 @@
 	<string>Save photos for flash cards</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Take photos for flash cards</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need to the microphone to check your pronunciation</string>
 </dict>
 </plist>

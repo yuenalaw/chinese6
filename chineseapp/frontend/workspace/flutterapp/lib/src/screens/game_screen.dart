@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/spacedrepetition/application/exercises_completed_controller.dart';
 import 'package:flutterapp/src/features/spacedrepetition/application/srs_controller.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/exercise.dart';
+import 'package:flutterapp/src/features/spacedrepetition/presentation/audio_exercise_widget.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/image_to_text_widget.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/fill_in_blank_page.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/stroke_test_page.dart';
@@ -60,7 +61,7 @@ class ExerciseScreenState extends ConsumerState<ExerciseScreen> {
         return FillInBlankPage(exercise: currentExercise, onCompleted: nextExercise);
       } else if (currentExercise.exerciseType == 2) {
         // speech 
-        return const Placeholder();
+        return AudioExerciseWidget(exercise: currentExercise, onCompleted: nextExercise);
       } else if (currentExercise.exerciseType == 3){
         // stroke order
         return StrokeTestPage(exercise: currentExercise, onCompleted: nextExercise);

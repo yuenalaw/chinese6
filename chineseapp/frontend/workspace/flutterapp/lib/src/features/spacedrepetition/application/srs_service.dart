@@ -21,8 +21,8 @@ class SRSService {
 
   Future<CardsToday> _getCardsToday() async {
     final cardsToday = await ref.read(srsRepositoryProvider).getCardsToday();
-    return cardsToday;
-    //return CardsToday.fromJson(fakeCardsToday as Map<String, dynamic>);
+    //return cardsToday;
+    return CardsToday.fromJson(fakeCardsToday as Map<String, dynamic>);
   }
 
   Future<Context> _getContext({required ObtainContext obtainContextObj}) async {
@@ -109,6 +109,17 @@ class SRSService {
     );
   }
 
+  Exercise exerciseAudio(ReviewCard reviewCard) {
+    return Exercise( 
+      testedWord: reviewCard.word,
+      exerciseType: 2,
+      correctAnswer: reviewCard.sentence, // the actual sentence
+      availableAnswers: List.unmodifiable([]),
+      question: "Speak the sentence...", // the picture
+      reviewCard: reviewCard,
+    );
+  }
+
   List<Exercise> exerciseStrokeOrder(ReviewCard reviewCard) {
   List<Exercise> exercises = [];
   for (var character in reviewCard.word.word.runes) {
@@ -167,6 +178,7 @@ class SRSService {
   List<Exercise> createExercises(List<ReviewCard> reviewCardsForLesson, Set<String> wordSet, Set<ReviewCard> othersToReview){
     List<Exercise> exercises = reviewCardsForLesson.expand((reviewCard) => [
       exerciseFillInBlank(reviewCard, Set.from(othersToReview)),
+      exerciseAudio(reviewCard),
       ...exerciseStrokeOrder(reviewCard),
       exercisePictureToWord(reviewCard, Set.from(othersToReview)),
       //exerciseTranslateSentence(reviewCard, Set.from(othersToReview)),
