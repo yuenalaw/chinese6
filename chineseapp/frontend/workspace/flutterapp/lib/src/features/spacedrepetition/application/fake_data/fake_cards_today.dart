@@ -28,5 +28,33 @@ const fakeCardsToday = {
                 "word": "特别"
             }
         },
+        {
+            "image_path": "unedited path2",
+            "line_changed": 4,
+            "note": "newcard!",
+            "review": {
+                "ease_factor": 2.5,
+                "id": 1,
+                "last_reviewed": "Sat, 30 Dec 2023 00:00:00 GMT",
+                "next_review": "Sat, 30 Dec 2023 00:00:00 GMT",
+                "repetitions": 0,
+                "user_word_sentence_id": 5,
+                "word_id": 1,
+                "word_interval": 1
+            },
+            "sentence": "总是特别多彩多姿",
+            "word": {
+                "id": 2,
+                "pinyin": "zong shi",
+                "similar_words": [
+                    "总是"
+                ],
+                "translation": [
+                    "always"
+                ],
+                "word": "总是"
+            }
+        },
     ]
+
 };
