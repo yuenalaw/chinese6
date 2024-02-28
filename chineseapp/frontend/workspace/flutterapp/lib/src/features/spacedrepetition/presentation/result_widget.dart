@@ -12,7 +12,7 @@ class ResultWidget extends StatelessWidget {
   final void Function(Exercise exercise, bool isCorrect) onCompleted;
   final void Function() resetWidget;
 
-  ResultWidget({ required this.exercise, required this.isCorrect, required this.showTranslation, required this.showWord, required this.onCompleted, required this.resetWidget});
+  const ResultWidget({ required this.exercise, required this.isCorrect, required this.showTranslation, required this.showWord, required this.onCompleted, required this.resetWidget});
 
   @override 
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class ResultWidget extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
-                            textAlign: TextAlign.center, // Center the text
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16.0), 
                           Text(
@@ -67,7 +67,7 @@ class ResultWidget extends StatelessWidget {
                               fontSize: 16.0,
                               color: Colors.black,
                             ),
-                            textAlign: TextAlign.center, // Center the text
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
@@ -95,9 +95,9 @@ class ResultWidget extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
-                          textAlign: TextAlign.center, // Center the text
+                          textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 16.0), // Add some spacing
+                        const SizedBox(height: 16.0), 
                         Text(
                           exercise.reviewCard.note!,
                           style: const TextStyle(
@@ -105,7 +105,7 @@ class ResultWidget extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
-                          textAlign: TextAlign.center, // Center the text
+                          textAlign: TextAlign.center, 
                         ),
                       ],
                     ),
@@ -117,7 +117,7 @@ class ResultWidget extends StatelessWidget {
                   alignment: Alignment.bottomRight,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.secondary, // This is the background color
+                      backgroundColor: Theme.of(context).colorScheme.secondary, 
                     ),
                     onPressed: () {
                       resetWidget();

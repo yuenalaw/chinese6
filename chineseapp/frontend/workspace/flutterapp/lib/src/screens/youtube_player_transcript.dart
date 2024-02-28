@@ -13,11 +13,11 @@ class YoutubePlayerTranscriptScreen extends ConsumerStatefulWidget {
       : super(key: key);
 
   @override
-  _YoutubePlayerTranscriptScreenState createState() =>
-      _YoutubePlayerTranscriptScreenState();
+  YoutubePlayerTranscriptScreenState createState() =>
+      YoutubePlayerTranscriptScreenState();
 }
 
-class _YoutubePlayerTranscriptScreenState
+class YoutubePlayerTranscriptScreenState
     extends ConsumerState<YoutubePlayerTranscriptScreen> {
   late final PageController _pageController;
   List<Lesson> lessons = [];
@@ -70,7 +70,7 @@ class _YoutubePlayerTranscriptScreenState
                         child: AspectRatio(
                           aspectRatio: 16 / 9,
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15), // adjust the value as needed
+                            borderRadius: BorderRadius.circular(15),
                             child: YoutubeWatchWidget(
                               videoId: widget.videoId,
                               onTimeChanged: onTimeChanged,

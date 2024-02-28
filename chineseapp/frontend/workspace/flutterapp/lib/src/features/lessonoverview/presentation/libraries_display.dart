@@ -17,7 +17,7 @@ class LibraryDisplay extends ConsumerWidget {
           onPressed: allReadyVideosController.getAllReadyVideosFromLibrary,
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20), // adjust the radius as needed
+              borderRadius: BorderRadius.circular(20),
             ),
           ),
           child: const Text('Refresh'),

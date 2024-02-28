@@ -65,9 +65,9 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
       body: Stack( 
         children: <Widget>[ 
 
-          LibraryDisplay(),
+          const LibraryDisplay(),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal:16), // adjust the padding as needed
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal:16),
             child: AnimatedContainer( 
               duration: const Duration(milliseconds: 30),
               width: double.infinity,
@@ -97,7 +97,7 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24),
                           ),
-                          padding: EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(16.0),
                         ),
                       );
                     },

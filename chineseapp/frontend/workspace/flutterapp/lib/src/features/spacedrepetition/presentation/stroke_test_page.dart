@@ -73,7 +73,7 @@ class _StrokeTestPageState extends State<StrokeTestPage> {
                     },
                   ),
                 ),
-                const SizedBox(width: 16.0), // Adds some space between the arrow button and the word
+                const SizedBox(width: 16.0),
                 Text( 
                   widget.exercise.testedWord.word,
                   style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),

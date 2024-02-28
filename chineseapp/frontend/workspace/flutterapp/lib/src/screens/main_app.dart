@@ -49,14 +49,14 @@ class _MainAppState extends State<MainApp> {
                 ]
               );
             } else {
-            return SizedBox.shrink();
+            return const SizedBox.shrink();
             }
           } 
         ),
         body: Stack(
           children: <Widget>[ 
-          _buildOffstageNavigator(0, HomeScreen()),
-          _buildOffstageNavigator(1,VideoScreen()),
+          _buildOffstageNavigator(0, const HomeScreen()),
+          _buildOffstageNavigator(1, const VideoScreen()),
           ],
         ),
       )
@@ -67,8 +67,8 @@ class _MainAppState extends State<MainApp> {
     return {
       '/': (context) {
         return [
-          HomeScreen(),
-          VideoScreen(),
+          const HomeScreen(),
+          const VideoScreen(),
         ].elementAt(index);
       },
     };

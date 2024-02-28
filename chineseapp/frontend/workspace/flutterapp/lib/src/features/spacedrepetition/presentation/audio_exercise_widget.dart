@@ -5,14 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutterapp/src/features/spacedrepetition/domain/exercise.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/result_widget.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pulsator/pulsator.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
-
-import 'package:path_provider/path_provider.dart';
-
-
 
 class AudioExerciseWidget extends StatefulWidget {
   final Exercise exercise;
@@ -58,7 +53,7 @@ class _AudioExerciseWidgetState extends State<AudioExerciseWidget> {
     audioPlayer.dispose();
     audioRecord.dispose();
     // delete the audio file after the widget is disposed
-    File audioFile = File(path!);
+    File audioFile = File(path);
     if (await audioFile.exists()) {
       await audioFile.delete();
     }
@@ -123,7 +118,7 @@ class _AudioExerciseWidgetState extends State<AudioExerciseWidget> {
     Pulsator( 
       count: 8,
       duration: Duration(seconds: 4),
-      repeat: 1,
+      repeat: 5,
       style: PulseStyle( 
         color: Theme.of(context).colorScheme.primary,
         borderWidth: 4.0,
@@ -248,7 +243,7 @@ class _AudioExerciseWidgetState extends State<AudioExerciseWidget> {
                 ],
               )
             ),
-            Spacer(),
+            const Spacer(),
             Align( 
               alignment: Alignment.bottomRight,
               child: ElevatedButton( 

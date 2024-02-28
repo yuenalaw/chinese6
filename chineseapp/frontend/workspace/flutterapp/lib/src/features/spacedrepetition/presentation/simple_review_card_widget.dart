@@ -54,7 +54,7 @@ class SimpleReviewCardWidget extends StatelessWidget {
                   )
                 ]
               ),
-              const SizedBox(height: 10.0), // Moved inside the Column
+              const SizedBox(height: 10.0),
               Row( 
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [ 

@@ -13,10 +13,10 @@ class LessonGames extends ConsumerStatefulWidget {
   const LessonGames({Key? key, required this.onLoadLessons}) : super(key: key);
 
   @override
-  _LessonGamesState createState() => _LessonGamesState();
+  LessonGamesState createState() => LessonGamesState();
 }
 
-class _LessonGamesState extends ConsumerState<LessonGames> {
+class LessonGamesState extends ConsumerState<LessonGames> {
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class _LessonGamesState extends ConsumerState<LessonGames> {
   }
   
   @override
-  Widget build(BuildContext contex) {
+  Widget build(BuildContext context) {
     final gameDataAsyncValue = ref.watch(srsGameTodayProvider);
 
     return FutureBuilder<Map<int, bool>>( 
@@ -57,7 +57,7 @@ class _LessonGamesState extends ConsumerState<LessonGames> {
               (index) {
                 bool isCompleted = ref.watch(completedLessonProvider).completedLessons[index] ?? false;
                 return Padding(
-                  padding: const EdgeInsets.all(8.0), // adjust the padding as needed
+                  padding: const EdgeInsets.all(8.0),
                   child: ListTile( 
                     onTap: () {
                       if (isCompleted) {
@@ -74,12 +74,12 @@ class _LessonGamesState extends ConsumerState<LessonGames> {
                       ? Icon( 
                           CupertinoIcons.flame,
                           color: Theme.of(context).colorScheme.primary,
-                          size: 40.0, // adjust the size as needed
+                          size: 40.0,
                         )
                       : Icon(
                           CupertinoIcons.flame, 
                           color: Theme.of(context).colorScheme.surface,
-                          size: 40.0, // adjust the size as needed
+                          size: 40.0,
                         ),
                     title: Card( 
                       color: isCompleted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,

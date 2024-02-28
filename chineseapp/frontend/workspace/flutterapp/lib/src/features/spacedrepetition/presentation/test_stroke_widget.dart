@@ -16,10 +16,10 @@ class TestStrokeWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override 
-  _TestStrokeWidgetState createState() => _TestStrokeWidgetState();
+  TestStrokeWidgetState createState() => TestStrokeWidgetState();
 }
 
-class _TestStrokeWidgetState extends State<TestStrokeWidget> with TickerProviderStateMixin {
+class TestStrokeWidgetState extends State<TestStrokeWidget> with TickerProviderStateMixin {
   final _httpClient = http.Client();
   late Future<StrokeOrderAnimationController> _animationController;
 
@@ -62,16 +62,14 @@ class _TestStrokeWidgetState extends State<TestStrokeWidget> with TickerProvider
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: SizedBox( 
-          width: 350,
-          child: Column( 
-            children: [ 
-              const SizedBox(height: 50),
-              _buildStrokeOrderAnimationAndControls(),
-            ]
-          )
-        ) 
+    return SizedBox( 
+      width: 350,
+      child: Column( 
+        children: [ 
+          const SizedBox(height: 50),
+          _buildStrokeOrderAnimationAndControls(),
+        ]
+      )
     );
   }
 
@@ -81,10 +79,10 @@ class _TestStrokeWidgetState extends State<TestStrokeWidget> with TickerProvider
       future: _animationController,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
         if (snapshot.hasData) {
-          return Container( 
+          return SizedBox( 
             height: 350,
             width: 350,
             child: Column(

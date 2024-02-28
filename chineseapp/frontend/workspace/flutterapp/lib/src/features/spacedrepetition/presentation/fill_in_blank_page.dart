@@ -10,11 +10,11 @@ class FillInBlankPage extends StatefulWidget {
   const FillInBlankPage({Key? key, required this.exercise, required this.onCompleted}) : super(key: key);
 
   @override 
-  _FillInBlankState createState() => _FillInBlankState();
+  FillInBlankState createState() => FillInBlankState();
 
 }
 
-class _FillInBlankState extends State<FillInBlankPage> {
+class FillInBlankState extends State<FillInBlankPage> {
   final FlutterTts flutterTts = FlutterTts();
 
   String? selectedWord;
@@ -84,7 +84,7 @@ class _FillInBlankState extends State<FillInBlankPage> {
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
                       word,
-                      style: const TextStyle(fontSize: 16.0), // Increase the font size
+                      style: const TextStyle(fontSize: 16.0), 
                     ),
                   ),
                   selected: selectedWord == word,

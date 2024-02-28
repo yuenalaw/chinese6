@@ -82,10 +82,10 @@ class _LoopingStrokeOrderAnimatorState extends State<LoopingStrokeOrderAnimator>
       future: _animationController,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         }
         if (snapshot.hasData) {
-          return Container( 
+          return SizedBox( 
             height: 350,
             width: 350,
             child: Column(

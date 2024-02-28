@@ -53,7 +53,7 @@ class VideoService {
     final library = await ref.read(existingVideosRepositoryProvider).getLibrary();
     return library;
 
-    //Library.fromJson(fakeLibrary);
+    //return Library.fromJson(fakeLibrary);
   }
 
   Future<void> _updateVideoTitle({required UpdateTitle titleObj}) async {
@@ -85,7 +85,7 @@ class VideoService {
     final video = await ref.read(videoRepositoryProvider).getVideo(videoId: videoId);
     return video;
 
-    //Right(Video.fromJson(fakeVideo));
+    //return Video.fromJson(fakeVideo);
   }
 
   // Future<UserSentence> _getUpdatedSentence({required String videoId, required int lineChanged}) async {

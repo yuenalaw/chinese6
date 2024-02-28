@@ -8,6 +8,7 @@ import 'package:flutterapp/src/features/makereviews/domain/task.dart';
 import 'package:flutterapp/src/features/makereviews/domain/user_word_sentence.dart';
 import 'package:flutterapp/src/features/makereviews/presentation/image_popup_widget.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/simple_review_card_widget.dart';
+import 'package:lpinyin/lpinyin.dart';
 import 'package:timelines/timelines.dart';
 
 
@@ -16,10 +17,10 @@ class ReviewStepsList extends ConsumerStatefulWidget {
   const ReviewStepsList({Key? key, required this.reviewParams}) : super(key: key);
 
   @override
-  _ReviewStepsListState createState() => _ReviewStepsListState();
+  ReviewStepsListState createState() => ReviewStepsListState();
 }
 
-class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
+class ReviewStepsListState extends ConsumerState<ReviewStepsList> {
   final textController = TextEditingController();
   List<Task> tasks = [
     Task('Listen'),
@@ -81,12 +82,12 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
                   padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                   child: Align(
                     alignment: Alignment.center,
-                    child: Text(widget.reviewParams.entry.pinyin),
+                    child: Text(PinyinHelper.getPinyin(widget.reviewParams.entry.word, separator: " ", format: PinyinFormat.WITH_TONE_MARK)),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.volume_up), // Volume icon
-                  onPressed: () async { await handleSpeech(widget.reviewParams.entry.pinyin); }, // handleSpeech method is called when the button is pressed
+                  icon: const Icon(Icons.volume_up), 
+                  onPressed: () async { await handleSpeech(widget.reviewParams.entry.word); }, // handleSpeech method is called when the button is pressed
                 ),
                 const Align( 
                   alignment: Alignment.centerRight,
@@ -243,7 +244,7 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
                         },
                       );
                     },
-                    child: Icon(Icons.add_a_photo), // replace with your desired widget
+                    child: const Icon(Icons.add_a_photo),
                   ),
                 ]
               )
@@ -280,7 +281,7 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
 
           bool allTasksDone = tasks.every((task) => task.isDone);
 
-          return Container( 
+          return SizedBox( 
             height: MediaQuery.of(context).size.height,
             child: Column(
               children: <Widget> [
@@ -343,7 +344,7 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
       builder: (BuildContext context, BoxConstraints constraints) {
         return PrimaryScrollController(
           controller: ScrollController(),
-          child: Container( 
+          child: SizedBox( 
             height: 50,
             child: Timeline.tileBuilder(
             theme: TimelineThemeData(
@@ -364,7 +365,7 @@ class _ReviewStepsListState extends ConsumerState<ReviewStepsList> {
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     color: Theme.of(context).colorScheme.primary,
-                    child: Container(
+                    child: SizedBox(
                       width: double.infinity,
                       child: SingleChildScrollView(
                         child: ExpansionPanelList(

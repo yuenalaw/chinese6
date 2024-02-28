@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutterapp/src/api/api.dart';
 import 'package:flutterapp/src/features/lessonoverview/data/video_repository.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/update_sentence.dart';
-import 'package:flutterapp/src/features/lessonoverview/domain/please_wait_vid_or_sentence.dart';
 import '../../constants/headers.dart';
 import './video_lesson_encoded_json.dart';
 import 'package:flutterapp/src/features/lessonoverview/domain/video.dart';
@@ -16,7 +15,6 @@ import 'package:flutterapp/src/features/lessonoverview/domain/user_sentence.dart
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'dart:convert';
-import 'package:either_dart/either.dart';
 
 class MockHttpClient extends Mock implements http.Client {} 
 
@@ -197,7 +195,6 @@ void main() {
     when(() => mockHttpClient.get(api.video(videoId), headers: headers)).thenAnswer(
         (_) => Future.value(http.Response.bytes(utf8.encode(encodedVideoJson), 404)));
     final video = await videoRepository.getVideo(videoId: videoId);
-    print(video.videoId);
     expect(video.videoId, '');
   });
 

@@ -61,7 +61,7 @@ class _ProgressWidgetState extends ConsumerState<ProgressWidget> with SingleTick
       future: _loadProgress(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // or some other loading indicator
+          return const CircularProgressIndicator();
         } else {
           final lessonsDone = ref.watch(maxCompletedLessonProvider);
           _controller.value = lessonsDone / widget.totalLessons;
@@ -70,7 +70,7 @@ class _ProgressWidgetState extends ConsumerState<ProgressWidget> with SingleTick
             builder: (context, _) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical:24.0),
-                child: Container(
+                child: SizedBox(
                   height: 200,
                   width: 200,
                   child: CircularProgressIndicator(

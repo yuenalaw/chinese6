@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapp/src/features/spacedrepetition/application/fake_data/fake_cards_today.dart';
@@ -67,24 +66,21 @@ class SRSService {
 
   /*
   using a scale 1-5, where 5 is perfect retention
-  - if all 5 exercises are correct, award 5
-  - if 4 exercises are correct, award 4
-  - if 3 exercise is correct, award 3
-  - if 2 are correct, award 2
-  - else, award 1
   */
 
   int calculateAwardPoints(List<Exercise> exercises) {
 
     // if length of exercises = 5, means no repeats, aka all correct 
+    // most phrases are two characters, so we include the writing exercise as 2
+    // -1 for speaking because you will always get it correct 
 
-    if (exercises.length <= 6) {
+    if (exercises.length <= 5) {
       return 5;
-    } else if (exercises.length <= 7) {
+    } else if (exercises.length <= 6) {
       return 4;
-    } else if (exercises.length <= 8) {
+    } else if (exercises.length <= 7) {
       return 3;
-    } else if (exercises.length <= 9){
+    } else if (exercises.length <= 8){
       return 2;
     } else {
       return 1;
@@ -99,12 +95,15 @@ class SRSService {
       availableAnswers.removeAt(0);
       availableAnswers.add(reviewCard.word.word);
     }
+
+    availableAnswers.shuffle();
+
     return Exercise( 
       testedWord: reviewCard.word,
       exerciseType: 1,
       correctAnswer: reviewCard.word.word, // the actual word string
       availableAnswers: List.unmodifiable(availableAnswers),
-      question: "Fill in the blank...", // the picture
+      question: "Fill in the blank...",
       reviewCard: reviewCard,
     );
   }
@@ -115,27 +114,27 @@ class SRSService {
       exerciseType: 2,
       correctAnswer: reviewCard.sentence, // the actual sentence
       availableAnswers: List.unmodifiable([]),
-      question: "Speak the sentence...", // the picture
+      question: "Speak the sentence...",
       reviewCard: reviewCard,
     );
   }
 
   List<Exercise> exerciseStrokeOrder(ReviewCard reviewCard) {
-  List<Exercise> exercises = [];
-  for (var character in reviewCard.word.word.runes) {
-    exercises.add(
-      Exercise( 
-        testedWord: Word(id: reviewCard.word.id, pinyin: reviewCard.word.pinyin, word: String.fromCharCode(character)), // current character
-        exerciseType: 3,
-        correctAnswer: String.fromCharCode(character), // the actual word string
-        availableAnswers: List.unmodifiable([]),
-        question: "Write the word...", // the picture
-        reviewCard: reviewCard,
-      ),
-    );
+    List<Exercise> exercises = [];
+    for (var character in reviewCard.word.word.runes) {
+      exercises.add(
+        Exercise( 
+          testedWord: Word(id: reviewCard.word.id, pinyin: reviewCard.word.pinyin, word: String.fromCharCode(character)), // current character
+          exerciseType: 3,
+          correctAnswer: String.fromCharCode(character),
+          availableAnswers: List.unmodifiable([]),
+          question: "Write the word...",
+          reviewCard: reviewCard,
+        ),
+      );
+    }
+    return exercises;
   }
-  return exercises;
-}
 
   Exercise exercisePictureToWord(ReviewCard reviewCard, Set<ReviewCard> othersToReview) {
     int minCount = min(othersToReview.length, 5);
@@ -146,6 +145,9 @@ class SRSService {
       availableAnswers.removeAt(0);
       availableAnswers.add(reviewCard.word.word);
     }
+
+    availableAnswers.shuffle();
+
     return Exercise( 
       testedWord: reviewCard.word,
       exerciseType: 4,
@@ -165,12 +167,16 @@ class SRSService {
       availableAnswers.add(reviewCard.sentence);
     }
 
+    availableAnswers.shuffle();
+
+    int index = availableAnswers.indexWhere((sentence) => sentence == reviewCard.sentence);
+
     return Exercise( 
       testedWord: reviewCard.word,
       exerciseType: 5,
-      correctAnswer: reviewCard.sentence, // the actual sentence
-      availableAnswers: List.unmodifiable([]),
-      question: "Translate...", // the picture
+      correctAnswer: index.toString(), // the index of sentence
+      availableAnswers: List.unmodifiable(availableAnswers),
+      question: "Translate the sentence...", 
       reviewCard: reviewCard,
     );
   }
@@ -181,7 +187,7 @@ class SRSService {
       exerciseAudio(reviewCard),
       ...exerciseStrokeOrder(reviewCard),
       exercisePictureToWord(reviewCard, Set.from(othersToReview)),
-      //exerciseTranslateSentence(reviewCard, Set.from(othersToReview)),
+      exerciseTranslateSentence(reviewCard, Set.from(othersToReview)),
     ]).toList();
 
     exercises.shuffle();

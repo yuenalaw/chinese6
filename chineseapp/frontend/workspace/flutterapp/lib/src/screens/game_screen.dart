@@ -7,6 +7,7 @@ import 'package:flutterapp/src/features/spacedrepetition/presentation/audio_exer
 import 'package:flutterapp/src/features/spacedrepetition/presentation/image_to_text_widget.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/fill_in_blank_page.dart';
 import 'package:flutterapp/src/features/spacedrepetition/presentation/stroke_test_page.dart';
+import 'package:flutterapp/src/features/spacedrepetition/presentation/translation_exercise_widget.dart';
 import 'package:flutterapp/src/features/useroverview/application/streak_controller.dart';
 import 'package:flutterapp/src/screens/home_screen.dart';
 
@@ -70,7 +71,7 @@ class ExerciseScreenState extends ConsumerState<ExerciseScreen> {
         return ImageToTextWidget(exercise: currentExercise, onCompleted: nextExercise);
       } else {
         // translate
-        return const Placeholder();
+        return TranslatePage(exercise: currentExercise, onCompleted: nextExercise);
       }
     } else {
         return FutureBuilder(

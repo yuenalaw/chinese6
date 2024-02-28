@@ -52,13 +52,12 @@ class LessonOverviewScreenState extends ConsumerState<LessonOverviewScreen > {
                     return Column( 
                       children: <Widget>[ 
                         if (index == 0) ... [ 
-                          KeywordCarousel(keywordsImg: widget.video.keywordsImg), // Add the carousel at the top
+                          KeywordCarousel(keywordsImg: widget.video.keywordsImg),
                           const SizedBox(height: 15.0),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 45.0),
                             child: Container( 
                               alignment: Alignment.centerLeft,
-                              //width: MediaQuery.of(context).size.width * 0.5,
                               child: Align( 
                                 alignment: Alignment.centerLeft,
                                 child:  GradientText(
@@ -93,8 +92,8 @@ class LessonOverviewScreenState extends ConsumerState<LessonOverviewScreen > {
                         ],
                         Row(
                           children: [
-                            Container(
-                              width: 60.0, // Adjust this value to change the width of the IconButton
+                            SizedBox(
+                              width: 60.0,
                               child: Center(
                                 child: IconButton(
                                   icon: const Icon(Icons.play_circle, size: 40.0),

@@ -12,10 +12,10 @@ class TranscriptPageView extends StatefulWidget {
   const TranscriptPageView({Key? key, required this.videoId, required this.lessons, required this.pageController}) : super(key: key);
 
   @override 
-  _TranscriptPageViewState createState() => _TranscriptPageViewState();
+  TranscriptPageViewState createState() => TranscriptPageViewState();
 }
 
-class _TranscriptPageViewState extends State<TranscriptPageView> {
+class TranscriptPageViewState extends State<TranscriptPageView> {
 
 
   @override 

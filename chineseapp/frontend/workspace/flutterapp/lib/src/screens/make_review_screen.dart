@@ -22,14 +22,13 @@ class MakeReviewScreen extends ConsumerWidget {
   
   @override 
   Widget build(BuildContext context, WidgetRef ref) {
-    DraggableScrollableController draggableScrollableController = DraggableScrollableController();
 
     return Scaffold( 
       appBar: AppBar( 
         title: const Text('Make Review'),
       ),
       body: SingleChildScrollView( 
-        physics: AlwaysScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         child: Column (
           children: <Widget>[
             PressableSentenceWidget(entries: entries, sentence: sentence, start: start, indexLineNum: lineNum, totalLines: entries.length, onEntrySelected: (entry) {
@@ -38,7 +37,6 @@ class MakeReviewScreen extends ConsumerWidget {
             Consumer(
               builder: (context, watch, child) {
                 final selectedEntry = ref.watch(selectedEntryProvider);
-                // Check if selectedEntry is not null before using it
                 if (selectedEntry != null) {
                   final reviewParams = ReviewParams(
                     word: selectedEntry.word,
@@ -78,7 +76,7 @@ class MakeReviewScreen extends ConsumerWidget {
                       ],
                     ),
                   );
-                  return Container( 
+                  return SizedBox( 
                     height: MediaQuery.of(context).size.height * 2,
                     child: Column( 
                       children: <Widget>[ 
@@ -87,8 +85,8 @@ class MakeReviewScreen extends ConsumerWidget {
                           child: strokeCharacter,
                         ),
                         Expanded(
-                          child: Container(
-                          height: 200, // Set the height to the value you want
+                          child: SizedBox(
+                          height: 200, 
                           child: paddedTimeline,
                         ),
                         ),
@@ -96,7 +94,7 @@ class MakeReviewScreen extends ConsumerWidget {
                     )
                   );
                 } else {
-                  // Return an empty Container or another widget if selectedEntry is null
+                  
                   return const Center( 
                     child: Text('Select a word to review!'),
                   );

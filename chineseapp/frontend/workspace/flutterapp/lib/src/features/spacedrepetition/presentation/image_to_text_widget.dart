@@ -51,13 +51,13 @@ class ImageToTextState extends State<ImageToTextWidget> {
               borderRadius: BorderRadius.circular(8.0),
               child: Container(
                 constraints: const BoxConstraints(
-                  maxWidth: 400, // Set your desired max width
-                  maxHeight: 400, // Set your desired max height
+                  maxWidth: 400, 
+                  maxHeight: 400, 
                 ),
                 child: widget.exercise.reviewCard.imagePath != null
                   ? Image.network(
                       widget.exercise.reviewCard.imagePath!,
-                      fit: BoxFit.cover, // or BoxFit.contain
+                      fit: BoxFit.cover, 
                       loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                         if (loadingProgress == null) {
                           return child;
@@ -73,7 +73,7 @@ class ImageToTextState extends State<ImageToTextWidget> {
                     )
                   : Image.asset(
                       'assets/Error404.gif',
-                      fit: BoxFit.cover, // or BoxFit.contain
+                      fit: BoxFit.cover, 
                     ),
               ),
             ),
@@ -87,7 +87,7 @@ class ImageToTextState extends State<ImageToTextWidget> {
                     padding: const EdgeInsets.all(2.0),
                     child: Text(
                       word,
-                      style: const TextStyle(fontSize: 16.0), // Increase the font size
+                      style: const TextStyle(fontSize: 16.0), 
                     ),
                   ),
                   selected: chosenWord == word,

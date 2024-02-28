@@ -34,11 +34,11 @@ class VideoStudyCard extends ConsumerWidget {
               children: <Widget>[
                 Padding( 
                   padding: const EdgeInsets.all(8.0),
-                  child: Container(
+                  child: SizedBox(
                     width: 100, 
                     height: 55, 
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8), // adjust the radius as needed
+                      borderRadius: BorderRadius.circular(8),
                       child: Image.network(
                         imageUrl,
                         fit: BoxFit.cover,
@@ -65,7 +65,7 @@ class VideoStudyCard extends ConsumerWidget {
                             color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 8.0), // Add space between the title and channel name
+                        const SizedBox(height: 8.0),
                         Text(
                           channelName,
                           style: const TextStyle(
