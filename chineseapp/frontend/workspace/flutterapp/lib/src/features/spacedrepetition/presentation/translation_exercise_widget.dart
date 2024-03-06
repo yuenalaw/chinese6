@@ -75,10 +75,11 @@ class TranslateState extends State<TranslatePage> {
                 ),
               ],
             ),
-            const SizedBox(height: 50),
+            SingleChildScrollView(child: Column( 
+              children: <Widget>[ 
+              
             Wrap( 
-              spacing: 8.0,
-              runSpacing: 4.0,
+              runSpacing: 0.0,
               children: widget.exercise.availableAnswers.asMap().entries.map((entry) {
                 final index = entry.key;
                 final answer = entry.value;
@@ -90,7 +91,7 @@ class TranslateState extends State<TranslatePage> {
                     });
                   },
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(0.0),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.0),
@@ -126,7 +127,8 @@ class TranslateState extends State<TranslatePage> {
                   ),
                 );
               }).toList(),
-            ),
+            )              ]
+            )),
             const Spacer(),
             Align( 
               alignment: Alignment.bottomRight,
