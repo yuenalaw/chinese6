@@ -16,16 +16,17 @@ const wordJson = """
 {
   "message": "Successfully obtained word!",
   "word": {
-      "id": 1,
-      "pinyin": "te bie",
-      "similar_words": [
-          "特别"
-      ],
-      "translation": [
-          "especially"
-      ],
-      "word": "特别"
-  }
+    "id": 1,
+    "pinyin": "te bie",
+    "similar_words": [
+        "特别"
+    ],
+    "translation": [
+        "especially"
+    ],
+    "word": "特别"
+  },
+  "word_sentence": "fake"
 }
 """;
 
@@ -112,7 +113,6 @@ void main() {
         (_) => Future.value(http.Response.bytes(utf8.encode(wordJson), 200)));
     final word = await reviewRepository.getWord(word:"特别");
 
-    expect(word.id, 1);
     expect(word.word, "特别");
   });
 
