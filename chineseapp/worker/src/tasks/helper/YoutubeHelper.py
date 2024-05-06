@@ -167,8 +167,8 @@ class YouTubeHelper:
             simplified_text = HanziConv.toSimplified(segment['text'])
             doc = self.stanza_nlp(simplified_text)
             for j, sentence in enumerate(doc.sentences):
-                if sentence.text and not sentence.text.strip().isalnum():
-                    continue #skip those that are just punctuation
+                # if sentence.text and not sentence.text.strip().isalnum():
+                #     continue #skip those that are just punctuation
 
                 seg_res = self.process_words(sentence)
 
