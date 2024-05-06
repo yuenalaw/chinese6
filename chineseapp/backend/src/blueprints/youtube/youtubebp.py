@@ -16,7 +16,7 @@ def process_video():
     try:
         # enqueue celery task
         print(f"trying to enqueue with video... {request_data['video_id']}")
-        transcript_orig = YouTubeTranscriptApi.get_transcript(request_data['video_id'], languages=['zh', 'zh-CN', 'zh-SG', 'zh-HK', 'zh-Hans', 'zh-Hant', 'zh-TW'])
+        transcript_orig = YouTubeTranscriptApi.get_transcript(request_data['video_id'], languages=['zh-Hans', 'zh-Hant', 'zh-CN', 'zh-SG', 'zh-HK', 'zh-TW'])
         sig = celery.signature("execute_transcript_tasks")
         task = sig.delay(request_data['video_id'], transcript_orig, request_data['source'], request_data['forced'], request_data['title'], request_data['channel'], request_data['thumbnail'])
         callbackid = task.id        
