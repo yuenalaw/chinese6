@@ -1,6 +1,5 @@
 # pull official base image
-#FROM python:3.9-slim
-FROM stanfordnlp/stanza
+FROM python:3.9-slim
 # FROM arm64v8/python -- for macos
 
 # set work directory
