@@ -20,7 +20,7 @@ python-socketio==5.4.0
 pyunsplash
 future
 youtube_transcript_api
-stanza
+//stanza
 pinyin
 hanziconv
 hanzidentifier
